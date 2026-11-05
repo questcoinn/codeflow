@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: coupon-spec-prioritization
+expected_outcome: |
+  금액 계산과 쿠폰 규칙처럼 중요한 스펙만 테스트하고, 로그 문구나 상수 같은 사소한 항목은 제외한 이유를 보고한다. 할인 상한에 대한 스펙과 코드의 불일치를 찾아 보고하며 소스 코드는 고치지 않는다.
+context:
+  scaffold_script: place-files.sh

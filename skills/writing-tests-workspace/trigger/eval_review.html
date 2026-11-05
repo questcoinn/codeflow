@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Set Review - writing-tests</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lora', Georgia, serif; background: #faf9f5; padding: 2rem; color: #141413; }
+    h1 { font-family: 'Poppins', sans-serif; margin-bottom: 0.5rem; font-size: 1.5rem; }
+    .description { color: #b0aea5; margin-bottom: 1.5rem; font-style: italic; max-width: 900px; }
+    .controls { margin-bottom: 1rem; display: flex; gap: 0.5rem; }
+    .btn { font-family: 'Poppins', sans-serif; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 500; }
+    .btn-add { background: #6a9bcc; color: white; }
+    .btn-add:hover { background: #5889b8; }
+    .btn-export { background: #d97757; color: white; }
+    .btn-export:hover { background: #c4613f; }
+    table { width: 100%; max-width: 1100px; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th { font-family: 'Poppins', sans-serif; background: #141413; color: #faf9f5; padding: 0.75rem 1rem; text-align: left; font-size: 0.875rem; }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid #e8e6dc; vertical-align: top; }
+    tr:nth-child(even) td { background: #faf9f5; }
+    tr:hover td { background: #f3f1ea; }
+    .section-header td { background: #e8e6dc; font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 0.8rem; color: #141413; text-transform: uppercase; letter-spacing: 0.05em; }
+    .query-input { width: 100%; padding: 0.4rem; border: 1px solid #e8e6dc; border-radius: 4px; font-size: 0.875rem; font-family: 'Lora', Georgia, serif; resize: vertical; min-height: 60px; }
+    .query-input:focus { outline: none; border-color: #d97757; box-shadow: 0 0 0 2px rgba(217,119,87,0.15); }
+    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; inset: 0; background: #b0aea5; border-radius: 24px; cursor: pointer; transition: 0.2s; }
+    .toggle .slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .toggle input:checked + .slider { background: #d97757; }
+    .toggle input:checked + .slider::before { transform: translateX(20px); }
+    .btn-delete { background: #c44; color: white; padding: 0.3rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-family: 'Poppins', sans-serif; }
+    .btn-delete:hover { background: #a33; }
+    .summary { margin-top: 1rem; color: #b0aea5; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <h1>Eval Set Review: <span id="skill-name">writing-tests</span></h1>
+  <p class="description">Current description: <span id="skill-desc">언어와 프레임워크에 상관없이 사람이 바로 읽을 수 있는 명료한 테스트 코드를 작성한다. 스펙 문서가 있으면 레퍼런스로 삼되 중요한 동작만 골라 테스트하고, 테스트 전용 헬퍼는 최소한으로만 둔다. "테스트 작성해줘", "유닛 테스트 추가해줘", "이 함수 테스트 짜줘", "테스트 커버리지 올려줘", "스펙 기준으로 테스트 만들어줘", "write tests for this", "add unit tests"처럼 테스트 코드를 새로 쓰거나 보강하는 요청이면 반드시 사용한다. 기능 구현 후 테스트까지 요청받은 경우나, 사용자가 "테스트"라는 말 없이 동작 검증 코드를 원하는 경우에도 사용한다.</span></p>
+
+  <div class="controls">
+    <button class="btn btn-add" onclick="addRow()">+ Add Query</button>
+    <button class="btn btn-export" onclick="exportEvalSet()">Export Eval Set</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:65%">Query</th>
+        <th style="width:18%">Should Trigger</th>
+        <th style="width:10%">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="eval-body"></tbody>
+  </table>
+
+  <p class="summary" id="summary"></p>
+
+  <script>
+    const EVAL_DATA = [{"query": "src/payment/refund.ts에 환불 금액 계산 함수 새로 만들었는데 jest 테스트 좀 붙여줘. 부분 환불이랑 수수료 차감이 핵심이야", "should_trigger": true}, {"query": "openspec/specs/user-auth/spec.md 기준으로 로그인 잠금 로직 테스트 코드 만들어줘. 스펙 항목이 30개쯤 되는데 다는 필요 없을듯", "should_trigger": true}, {"query": "internal/billing 패키지 커버리지가 41%밖에 안 돼. go test로 돌아가는 테스트 보강 좀 해줘", "should_trigger": true}, {"query": "write unit tests for utils/date_range.py, especially the timezone edge cases. we use pytest", "should_trigger": true}, {"query": "방금 구현한 csv 파서 제대로 동작하는지 확인하는 코드 짜줘. 따옴표 깨진 입력 같은 것도 잡히면 좋겠어", "should_trigger": true}, {"query": "PR 리뷰에서 테스트가 하나도 없다고 지적받았어. OrderService.cancel()에 대한 JUnit5 테스트 추가해줘", "should_trigger": true}, {"query": "쿠폰 만료 버그 고친 거 다시 안 터지게 회귀 테스트 넣어줘. coupon/expiry.py 쪽이야", "should_trigger": true}, {"query": "parser/lexer.rs에 #[cfg(test)] 테스트 추가 부탁. 토큰 경계 케이스 위주로", "should_trigger": true}, {"query": "정산 배치 settlement_job.py 리팩터링 전에 지금 동작을 잡아 둘 테스트부터 작성하고 싶어", "should_trigger": true}, {"query": "vitest로 useCart 훅 테스트 짜줘. mock 남발은 싫고 읽기 쉽게", "should_trigger": true}, {"query": "pytest 돌리면 test_checkout에서 ImportError 나는데 왜 그런지 봐줘", "should_trigger": false}, {"query": "CI에서 e2e 테스트가 간헐적으로 실패해. 로그 보고 원인 찾아줘. 파일은 ci-log.txt야", "should_trigger": false}, {"query": "tests/test_payment.py 코드 리뷰만 해줘. 고치지 말고 어디가 문제인지만 알려줘", "should_trigger": false}, {"query": "github actions에 push마다 npm test 돌리는 워크플로 추가해줘", "should_trigger": false}, {"query": "jest.config.js에서 moduleNameMapper가 안 먹어서 @/ 경로 import가 실패해. 설정 고쳐줘", "should_trigger": false}, {"query": "coverage.xml 읽어서 패키지별 커버리지를 대시보드로 보여줘", "should_trigger": false}, {"query": "QA팀에 넘길 로그인 화면 수동 테스트 체크리스트 문서 만들어줘", "should_trigger": false}, {"query": "docs/payment-spec.md 스펙에 모순이나 빠진 예외가 없는지 검토해줘", "should_trigger": false}, {"query": "A/B 테스트 결과 전환율 3.1% vs 3.6%인데 유의한지 계산해줘. 표본은 각각 12,000명이야", "should_trigger": false}, {"query": "npm test 한번 돌려서 통과하는지만 알려줘", "should_trigger": false}];
+
+    let evalItems = [...EVAL_DATA];
+
+    function render() {
+      const tbody = document.getElementById('eval-body');
+      tbody.innerHTML = '';
+
+      // Sort: should-trigger first, then should-not-trigger
+      const sorted = evalItems
+        .map((item, origIdx) => ({ ...item, origIdx }))
+        .sort((a, b) => (b.should_trigger ? 1 : 0) - (a.should_trigger ? 1 : 0));
+
+      let lastGroup = null;
+      sorted.forEach(item => {
+        const group = item.should_trigger ? 'trigger' : 'no-trigger';
+        if (group !== lastGroup) {
+          const headerRow = document.createElement('tr');
+          headerRow.className = 'section-header';
+          headerRow.innerHTML = `<td colspan="3">${item.should_trigger ? 'Should Trigger' : 'Should NOT Trigger'}</td>`;
+          tbody.appendChild(headerRow);
+          lastGroup = group;
+        }
+
+        const idx = item.origIdx;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><textarea class="query-input" onchange="updateQuery(${idx}, this.value)">${escapeHtml(item.query)}</textarea></td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" ${item.should_trigger ? 'checked' : ''} onchange="updateTrigger(${idx}, this.checked)">
+              <span class="slider"></span>
+            </label>
+            <span style="margin-left:8px;font-size:0.8rem;color:#b0aea5">${item.should_trigger ? 'Yes' : 'No'}</span>
+          </td>
+          <td><button class="btn-delete" onclick="deleteRow(${idx})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateSummary();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateQuery(idx, value) { evalItems[idx].query = value; updateSummary(); }
+    function updateTrigger(idx, value) { evalItems[idx].should_trigger = value; render(); }
+    function deleteRow(idx) { evalItems.splice(idx, 1); render(); }
+
+    function addRow() {
+      evalItems.push({ query: '', should_trigger: true });
+      render();
+      const inputs = document.querySelectorAll('.query-input');
+      inputs[inputs.length - 1].focus();
+    }
+
+    function updateSummary() {
+      const trigger = evalItems.filter(i => i.should_trigger).length;
+      const noTrigger = evalItems.filter(i => !i.should_trigger).length;
+      document.getElementById('summary').textContent =
+        `${evalItems.length} queries total: ${trigger} should trigger, ${noTrigger} should not trigger`;
+    }
+
+    function exportEvalSet() {
+      const valid = evalItems.filter(i => i.query.trim() !== '');
+      const data = valid.map(i => ({ query: i.query.trim(), should_trigger: i.should_trigger }));
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'eval_set.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    render();
+  </script>
+</body>
+</html>

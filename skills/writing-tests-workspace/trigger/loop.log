@@ -1,0 +1,36 @@
+Split: 12 train, 8 test (holdout=0.4)
+
+============================================================
+Iteration 1/5
+Description: 언어와 프레임워크에 상관없이 사람이 바로 읽을 수 있는 명료한 테스트 코드를 새로 쓰거나 보강한다. 스펙 문서가 있으면 레퍼런스로 삼되 중요한 동작만 골라 테스트하고, 테스트 전용 헬퍼는 최소한으로만 둔다. "테스트 작성해줘", "유닛 테스트 추가해줘", "테스트 붙여줘", "커버리지 올려줘", "회귀 테스트 넣어줘", "스펙 기준으로 테스트 만들어줘", "write tests for this", "add unit tests"처럼 테스트 코드를 작성하는 요청이면 pytest, jest, vitest, JUnit, go test 등 도구를 가리지 않고 반드시 사용한다. 기능 구현과 함께 테스트를 요청받은 경우, 리팩터링 전에 현재 동작을 고정하려는 경우, "테스트"라는 말 없이 동작을 확인하는 코드를 원하는 경우에도 사용한다. 테스트 코드를 쓰지 않는 작업에는 사용하지 않는다. 예를 들면 실패한 테스트의 원인 분석, CI나 테스트 도구 설정, 테스트 실행만 하는 요청, 코드 리뷰, 수동 QA 문서, A/B 테스트 통계가 그렇다.
+============================================================
+Train: 36/36 correct, precision=100% recall=100% accuracy=100% (62.1s)
+  [PASS] rate=3/3 expected=True: 쿠폰 만료 버그 고친 거 다시 안 터지게 회귀 테스트 넣어줘. coupon/expiry.py 쪽이야
+  [PASS] rate=3/3 expected=True: vitest로 useCart 훅 테스트 짜줘. mock 남발은 싫고 읽기 쉽게
+  [PASS] rate=3/3 expected=True: PR 리뷰에서 테스트가 하나도 없다고 지적받았어. OrderService.cancel()에 대한 JUnit5
+  [PASS] rate=3/3 expected=True: src/payment/refund.ts에 환불 금액 계산 함수 새로 만들었는데 jest 테스트 좀 붙여줘. 
+  [PASS] rate=3/3 expected=True: openspec/specs/user-auth/spec.md 기준으로 로그인 잠금 로직 테스트 코드 만들어줘.
+  [PASS] rate=3/3 expected=True: 방금 구현한 csv 파서 제대로 동작하는지 확인하는 코드 짜줘. 따옴표 깨진 입력 같은 것도 잡히면 좋겠어
+  [PASS] rate=0/3 expected=False: CI에서 e2e 테스트가 간헐적으로 실패해. 로그 보고 원인 찾아줘. 파일은 ci-log.txt야
+  [PASS] rate=0/3 expected=False: pytest 돌리면 test_checkout에서 ImportError 나는데 왜 그런지 봐줘
+  [PASS] rate=0/3 expected=False: docs/payment-spec.md 스펙에 모순이나 빠진 예외가 없는지 검토해줘
+  [PASS] rate=0/3 expected=False: npm test 한번 돌려서 통과하는지만 알려줘
+  [PASS] rate=0/3 expected=False: QA팀에 넘길 로그인 화면 수동 테스트 체크리스트 문서 만들어줘
+  [PASS] rate=0/3 expected=False: A/B 테스트 결과 전환율 3.1% vs 3.6%인데 유의한지 계산해줘. 표본은 각각 12,000명이야
+Test : 24/24 correct, precision=100% recall=100% accuracy=100% (0.0s)
+  [PASS] rate=3/3 expected=True: parser/lexer.rs에 #[cfg(test)] 테스트 추가 부탁. 토큰 경계 케이스 위주로
+  [PASS] rate=3/3 expected=True: write unit tests for utils/date_range.py, especially the tim
+  [PASS] rate=3/3 expected=True: internal/billing 패키지 커버리지가 41%밖에 안 돼. go test로 돌아가는 테스트 보강 좀
+  [PASS] rate=3/3 expected=True: 정산 배치 settlement_job.py 리팩터링 전에 지금 동작을 잡아 둘 테스트부터 작성하고 싶어
+  [PASS] rate=0/3 expected=False: github actions에 push마다 npm test 돌리는 워크플로 추가해줘
+  [PASS] rate=0/3 expected=False: coverage.xml 읽어서 패키지별 커버리지를 대시보드로 보여줘
+  [PASS] rate=0/3 expected=False: tests/test_payment.py 코드 리뷰만 해줘. 고치지 말고 어디가 문제인지만 알려줘
+  [PASS] rate=0/3 expected=False: jest.config.js에서 moduleNameMapper가 안 먹어서 @/ 경로 import가 실패해. 
+
+All train queries passed on iteration 1!
+
+Exit reason: all_passed (iteration 1)
+Best score: 8/8 (iteration 1)
+
+Report: C:\Users\iopel\AppData\Local\Temp\skill_description_report_writing-tests_20261105_212107.html
+Results saved to: skills\writing-tests-workspace\trigger\results\2026-11-05_212107

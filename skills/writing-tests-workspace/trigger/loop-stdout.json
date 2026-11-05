@@ -1,0 +1,290 @@
+{
+  "exit_reason": "all_passed (iteration 1)",
+  "original_description": "\uc5b8\uc5b4\uc640 \ud504\ub808\uc784\uc6cc\ud06c\uc5d0 \uc0c1\uad00\uc5c6\uc774 \uc0ac\ub78c\uc774 \ubc14\ub85c \uc77d\uc744 \uc218 \uc788\ub294 \uba85\ub8cc\ud55c \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc0c8\ub85c \uc4f0\uac70\ub098 \ubcf4\uac15\ud55c\ub2e4. \uc2a4\ud399 \ubb38\uc11c\uac00 \uc788\uc73c\uba74 \ub808\ud37c\ub7f0\uc2a4\ub85c \uc0bc\ub418 \uc911\uc694\ud55c \ub3d9\uc791\ub9cc \uace8\ub77c \ud14c\uc2a4\ud2b8\ud558\uace0, \ud14c\uc2a4\ud2b8 \uc804\uc6a9 \ud5ec\ud37c\ub294 \ucd5c\uc18c\ud55c\uc73c\ub85c\ub9cc \ub454\ub2e4. \"\ud14c\uc2a4\ud2b8 \uc791\uc131\ud574\uc918\", \"\uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918\", \"\ud14c\uc2a4\ud2b8 \ubd99\uc5ec\uc918\", \"\ucee4\ubc84\ub9ac\uc9c0 \uc62c\ub824\uc918\", \"\ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918\", \"\uc2a4\ud399 \uae30\uc900\uc73c\ub85c \ud14c\uc2a4\ud2b8 \ub9cc\ub4e4\uc5b4\uc918\", \"write tests for this\", \"add unit tests\"\ucc98\ub7fc \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc791\uc131\ud558\ub294 \uc694\uccad\uc774\uba74 pytest, jest, vitest, JUnit, go test \ub4f1 \ub3c4\uad6c\ub97c \uac00\ub9ac\uc9c0 \uc54a\uace0 \ubc18\ub4dc\uc2dc \uc0ac\uc6a9\ud55c\ub2e4. \uae30\ub2a5 \uad6c\ud604\uacfc \ud568\uaed8 \ud14c\uc2a4\ud2b8\ub97c \uc694\uccad\ubc1b\uc740 \uacbd\uc6b0, \ub9ac\ud329\ud130\ub9c1 \uc804\uc5d0 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub824\ub294 \uacbd\uc6b0, \"\ud14c\uc2a4\ud2b8\"\ub77c\ub294 \ub9d0 \uc5c6\uc774 \ub3d9\uc791\uc744 \ud655\uc778\ud558\ub294 \ucf54\ub4dc\ub97c \uc6d0\ud558\ub294 \uacbd\uc6b0\uc5d0\ub3c4 \uc0ac\uc6a9\ud55c\ub2e4. \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc4f0\uc9c0 \uc54a\ub294 \uc791\uc5c5\uc5d0\ub294 \uc0ac\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4. \uc608\ub97c \ub4e4\uba74 \uc2e4\ud328\ud55c \ud14c\uc2a4\ud2b8\uc758 \uc6d0\uc778 \ubd84\uc11d, CI\ub098 \ud14c\uc2a4\ud2b8 \ub3c4\uad6c \uc124\uc815, \ud14c\uc2a4\ud2b8 \uc2e4\ud589\ub9cc \ud558\ub294 \uc694\uccad, \ucf54\ub4dc \ub9ac\ubdf0, \uc218\ub3d9 QA \ubb38\uc11c, A/B \ud14c\uc2a4\ud2b8 \ud1b5\uacc4\uac00 \uadf8\ub807\ub2e4.",
+  "best_description": "\uc5b8\uc5b4\uc640 \ud504\ub808\uc784\uc6cc\ud06c\uc5d0 \uc0c1\uad00\uc5c6\uc774 \uc0ac\ub78c\uc774 \ubc14\ub85c \uc77d\uc744 \uc218 \uc788\ub294 \uba85\ub8cc\ud55c \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc0c8\ub85c \uc4f0\uac70\ub098 \ubcf4\uac15\ud55c\ub2e4. \uc2a4\ud399 \ubb38\uc11c\uac00 \uc788\uc73c\uba74 \ub808\ud37c\ub7f0\uc2a4\ub85c \uc0bc\ub418 \uc911\uc694\ud55c \ub3d9\uc791\ub9cc \uace8\ub77c \ud14c\uc2a4\ud2b8\ud558\uace0, \ud14c\uc2a4\ud2b8 \uc804\uc6a9 \ud5ec\ud37c\ub294 \ucd5c\uc18c\ud55c\uc73c\ub85c\ub9cc \ub454\ub2e4. \"\ud14c\uc2a4\ud2b8 \uc791\uc131\ud574\uc918\", \"\uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918\", \"\ud14c\uc2a4\ud2b8 \ubd99\uc5ec\uc918\", \"\ucee4\ubc84\ub9ac\uc9c0 \uc62c\ub824\uc918\", \"\ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918\", \"\uc2a4\ud399 \uae30\uc900\uc73c\ub85c \ud14c\uc2a4\ud2b8 \ub9cc\ub4e4\uc5b4\uc918\", \"write tests for this\", \"add unit tests\"\ucc98\ub7fc \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc791\uc131\ud558\ub294 \uc694\uccad\uc774\uba74 pytest, jest, vitest, JUnit, go test \ub4f1 \ub3c4\uad6c\ub97c \uac00\ub9ac\uc9c0 \uc54a\uace0 \ubc18\ub4dc\uc2dc \uc0ac\uc6a9\ud55c\ub2e4. \uae30\ub2a5 \uad6c\ud604\uacfc \ud568\uaed8 \ud14c\uc2a4\ud2b8\ub97c \uc694\uccad\ubc1b\uc740 \uacbd\uc6b0, \ub9ac\ud329\ud130\ub9c1 \uc804\uc5d0 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub824\ub294 \uacbd\uc6b0, \"\ud14c\uc2a4\ud2b8\"\ub77c\ub294 \ub9d0 \uc5c6\uc774 \ub3d9\uc791\uc744 \ud655\uc778\ud558\ub294 \ucf54\ub4dc\ub97c \uc6d0\ud558\ub294 \uacbd\uc6b0\uc5d0\ub3c4 \uc0ac\uc6a9\ud55c\ub2e4. \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc4f0\uc9c0 \uc54a\ub294 \uc791\uc5c5\uc5d0\ub294 \uc0ac\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4. \uc608\ub97c \ub4e4\uba74 \uc2e4\ud328\ud55c \ud14c\uc2a4\ud2b8\uc758 \uc6d0\uc778 \ubd84\uc11d, CI\ub098 \ud14c\uc2a4\ud2b8 \ub3c4\uad6c \uc124\uc815, \ud14c\uc2a4\ud2b8 \uc2e4\ud589\ub9cc \ud558\ub294 \uc694\uccad, \ucf54\ub4dc \ub9ac\ubdf0, \uc218\ub3d9 QA \ubb38\uc11c, A/B \ud14c\uc2a4\ud2b8 \ud1b5\uacc4\uac00 \uadf8\ub807\ub2e4.",
+  "best_score": "8/8",
+  "best_train_score": "12/12",
+  "best_test_score": "8/8",
+  "final_description": "\uc5b8\uc5b4\uc640 \ud504\ub808\uc784\uc6cc\ud06c\uc5d0 \uc0c1\uad00\uc5c6\uc774 \uc0ac\ub78c\uc774 \ubc14\ub85c \uc77d\uc744 \uc218 \uc788\ub294 \uba85\ub8cc\ud55c \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc0c8\ub85c \uc4f0\uac70\ub098 \ubcf4\uac15\ud55c\ub2e4. \uc2a4\ud399 \ubb38\uc11c\uac00 \uc788\uc73c\uba74 \ub808\ud37c\ub7f0\uc2a4\ub85c \uc0bc\ub418 \uc911\uc694\ud55c \ub3d9\uc791\ub9cc \uace8\ub77c \ud14c\uc2a4\ud2b8\ud558\uace0, \ud14c\uc2a4\ud2b8 \uc804\uc6a9 \ud5ec\ud37c\ub294 \ucd5c\uc18c\ud55c\uc73c\ub85c\ub9cc \ub454\ub2e4. \"\ud14c\uc2a4\ud2b8 \uc791\uc131\ud574\uc918\", \"\uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918\", \"\ud14c\uc2a4\ud2b8 \ubd99\uc5ec\uc918\", \"\ucee4\ubc84\ub9ac\uc9c0 \uc62c\ub824\uc918\", \"\ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918\", \"\uc2a4\ud399 \uae30\uc900\uc73c\ub85c \ud14c\uc2a4\ud2b8 \ub9cc\ub4e4\uc5b4\uc918\", \"write tests for this\", \"add unit tests\"\ucc98\ub7fc \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc791\uc131\ud558\ub294 \uc694\uccad\uc774\uba74 pytest, jest, vitest, JUnit, go test \ub4f1 \ub3c4\uad6c\ub97c \uac00\ub9ac\uc9c0 \uc54a\uace0 \ubc18\ub4dc\uc2dc \uc0ac\uc6a9\ud55c\ub2e4. \uae30\ub2a5 \uad6c\ud604\uacfc \ud568\uaed8 \ud14c\uc2a4\ud2b8\ub97c \uc694\uccad\ubc1b\uc740 \uacbd\uc6b0, \ub9ac\ud329\ud130\ub9c1 \uc804\uc5d0 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub824\ub294 \uacbd\uc6b0, \"\ud14c\uc2a4\ud2b8\"\ub77c\ub294 \ub9d0 \uc5c6\uc774 \ub3d9\uc791\uc744 \ud655\uc778\ud558\ub294 \ucf54\ub4dc\ub97c \uc6d0\ud558\ub294 \uacbd\uc6b0\uc5d0\ub3c4 \uc0ac\uc6a9\ud55c\ub2e4. \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc4f0\uc9c0 \uc54a\ub294 \uc791\uc5c5\uc5d0\ub294 \uc0ac\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4. \uc608\ub97c \ub4e4\uba74 \uc2e4\ud328\ud55c \ud14c\uc2a4\ud2b8\uc758 \uc6d0\uc778 \ubd84\uc11d, CI\ub098 \ud14c\uc2a4\ud2b8 \ub3c4\uad6c \uc124\uc815, \ud14c\uc2a4\ud2b8 \uc2e4\ud589\ub9cc \ud558\ub294 \uc694\uccad, \ucf54\ub4dc \ub9ac\ubdf0, \uc218\ub3d9 QA \ubb38\uc11c, A/B \ud14c\uc2a4\ud2b8 \ud1b5\uacc4\uac00 \uadf8\ub807\ub2e4.",
+  "iterations_run": 1,
+  "holdout": 0.4,
+  "train_size": 12,
+  "test_size": 8,
+  "history": [
+    {
+      "iteration": 1,
+      "description": "\uc5b8\uc5b4\uc640 \ud504\ub808\uc784\uc6cc\ud06c\uc5d0 \uc0c1\uad00\uc5c6\uc774 \uc0ac\ub78c\uc774 \ubc14\ub85c \uc77d\uc744 \uc218 \uc788\ub294 \uba85\ub8cc\ud55c \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc0c8\ub85c \uc4f0\uac70\ub098 \ubcf4\uac15\ud55c\ub2e4. \uc2a4\ud399 \ubb38\uc11c\uac00 \uc788\uc73c\uba74 \ub808\ud37c\ub7f0\uc2a4\ub85c \uc0bc\ub418 \uc911\uc694\ud55c \ub3d9\uc791\ub9cc \uace8\ub77c \ud14c\uc2a4\ud2b8\ud558\uace0, \ud14c\uc2a4\ud2b8 \uc804\uc6a9 \ud5ec\ud37c\ub294 \ucd5c\uc18c\ud55c\uc73c\ub85c\ub9cc \ub454\ub2e4. \"\ud14c\uc2a4\ud2b8 \uc791\uc131\ud574\uc918\", \"\uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918\", \"\ud14c\uc2a4\ud2b8 \ubd99\uc5ec\uc918\", \"\ucee4\ubc84\ub9ac\uc9c0 \uc62c\ub824\uc918\", \"\ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918\", \"\uc2a4\ud399 \uae30\uc900\uc73c\ub85c \ud14c\uc2a4\ud2b8 \ub9cc\ub4e4\uc5b4\uc918\", \"write tests for this\", \"add unit tests\"\ucc98\ub7fc \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc791\uc131\ud558\ub294 \uc694\uccad\uc774\uba74 pytest, jest, vitest, JUnit, go test \ub4f1 \ub3c4\uad6c\ub97c \uac00\ub9ac\uc9c0 \uc54a\uace0 \ubc18\ub4dc\uc2dc \uc0ac\uc6a9\ud55c\ub2e4. \uae30\ub2a5 \uad6c\ud604\uacfc \ud568\uaed8 \ud14c\uc2a4\ud2b8\ub97c \uc694\uccad\ubc1b\uc740 \uacbd\uc6b0, \ub9ac\ud329\ud130\ub9c1 \uc804\uc5d0 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub824\ub294 \uacbd\uc6b0, \"\ud14c\uc2a4\ud2b8\"\ub77c\ub294 \ub9d0 \uc5c6\uc774 \ub3d9\uc791\uc744 \ud655\uc778\ud558\ub294 \ucf54\ub4dc\ub97c \uc6d0\ud558\ub294 \uacbd\uc6b0\uc5d0\ub3c4 \uc0ac\uc6a9\ud55c\ub2e4. \ud14c\uc2a4\ud2b8 \ucf54\ub4dc\ub97c \uc4f0\uc9c0 \uc54a\ub294 \uc791\uc5c5\uc5d0\ub294 \uc0ac\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4. \uc608\ub97c \ub4e4\uba74 \uc2e4\ud328\ud55c \ud14c\uc2a4\ud2b8\uc758 \uc6d0\uc778 \ubd84\uc11d, CI\ub098 \ud14c\uc2a4\ud2b8 \ub3c4\uad6c \uc124\uc815, \ud14c\uc2a4\ud2b8 \uc2e4\ud589\ub9cc \ud558\ub294 \uc694\uccad, \ucf54\ub4dc \ub9ac\ubdf0, \uc218\ub3d9 QA \ubb38\uc11c, A/B \ud14c\uc2a4\ud2b8 \ud1b5\uacc4\uac00 \uadf8\ub807\ub2e4.",
+      "train_passed": 12,
+      "train_failed": 0,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "\ucfe0\ud3f0 \ub9cc\ub8cc \ubc84\uadf8 \uace0\uce5c \uac70 \ub2e4\uc2dc \uc548 \ud130\uc9c0\uac8c \ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918. coupon/expiry.py \ucabd\uc774\uc57c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "vitest\ub85c useCart \ud6c5 \ud14c\uc2a4\ud2b8 \uc9dc\uc918. mock \ub0a8\ubc1c\uc740 \uc2eb\uace0 \uc77d\uae30 \uc27d\uac8c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "PR \ub9ac\ubdf0\uc5d0\uc11c \ud14c\uc2a4\ud2b8\uac00 \ud558\ub098\ub3c4 \uc5c6\ub2e4\uace0 \uc9c0\uc801\ubc1b\uc558\uc5b4. OrderService.cancel()\uc5d0 \ub300\ud55c JUnit5 \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "src/payment/refund.ts\uc5d0 \ud658\ubd88 \uae08\uc561 \uacc4\uc0b0 \ud568\uc218 \uc0c8\ub85c \ub9cc\ub4e4\uc5c8\ub294\ub370 jest \ud14c\uc2a4\ud2b8 \uc880 \ubd99\uc5ec\uc918. \ubd80\ubd84 \ud658\ubd88\uc774\ub791 \uc218\uc218\ub8cc \ucc28\uac10\uc774 \ud575\uc2ec\uc774\uc57c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "openspec/specs/user-auth/spec.md \uae30\uc900\uc73c\ub85c \ub85c\uadf8\uc778 \uc7a0\uae08 \ub85c\uc9c1 \ud14c\uc2a4\ud2b8 \ucf54\ub4dc \ub9cc\ub4e4\uc5b4\uc918. \uc2a4\ud399 \ud56d\ubaa9\uc774 30\uac1c\ucbe4 \ub418\ub294\ub370 \ub2e4\ub294 \ud544\uc694 \uc5c6\uc744\ub4ef",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\ubc29\uae08 \uad6c\ud604\ud55c csv \ud30c\uc11c \uc81c\ub300\ub85c \ub3d9\uc791\ud558\ub294\uc9c0 \ud655\uc778\ud558\ub294 \ucf54\ub4dc \uc9dc\uc918. \ub530\uc634\ud45c \uae68\uc9c4 \uc785\ub825 \uac19\uc740 \uac83\ub3c4 \uc7a1\ud788\uba74 \uc88b\uaca0\uc5b4",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "CI\uc5d0\uc11c e2e \ud14c\uc2a4\ud2b8\uac00 \uac04\ud5d0\uc801\uc73c\ub85c \uc2e4\ud328\ud574. \ub85c\uadf8 \ubcf4\uace0 \uc6d0\uc778 \ucc3e\uc544\uc918. \ud30c\uc77c\uc740 ci-log.txt\uc57c",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "pytest \ub3cc\ub9ac\uba74 test_checkout\uc5d0\uc11c ImportError \ub098\ub294\ub370 \uc65c \uadf8\ub7f0\uc9c0 \ubd10\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "docs/payment-spec.md \uc2a4\ud399\uc5d0 \ubaa8\uc21c\uc774\ub098 \ube60\uc9c4 \uc608\uc678\uac00 \uc5c6\ub294\uc9c0 \uac80\ud1a0\ud574\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "npm test \ud55c\ubc88 \ub3cc\ub824\uc11c \ud1b5\uacfc\ud558\ub294\uc9c0\ub9cc \uc54c\ub824\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "QA\ud300\uc5d0 \ub118\uae38 \ub85c\uadf8\uc778 \ud654\uba74 \uc218\ub3d9 \ud14c\uc2a4\ud2b8 \uccb4\ud06c\ub9ac\uc2a4\ud2b8 \ubb38\uc11c \ub9cc\ub4e4\uc5b4\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "A/B \ud14c\uc2a4\ud2b8 \uacb0\uacfc \uc804\ud658\uc728 3.1% vs 3.6%\uc778\ub370 \uc720\uc758\ud55c\uc9c0 \uacc4\uc0b0\ud574\uc918. \ud45c\ubcf8\uc740 \uac01\uac01 12,000\uba85\uc774\uc57c",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 8,
+      "test_failed": 0,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "parser/lexer.rs\uc5d0 #[cfg(test)] \ud14c\uc2a4\ud2b8 \ucd94\uac00 \ubd80\ud0c1. \ud1a0\ud070 \uacbd\uacc4 \ucf00\uc774\uc2a4 \uc704\uc8fc\ub85c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "write unit tests for utils/date_range.py, especially the timezone edge cases. we use pytest",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "internal/billing \ud328\ud0a4\uc9c0 \ucee4\ubc84\ub9ac\uc9c0\uac00 41%\ubc16\uc5d0 \uc548 \ub3fc. go test\ub85c \ub3cc\uc544\uac00\ub294 \ud14c\uc2a4\ud2b8 \ubcf4\uac15 \uc880 \ud574\uc918",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\uc815\uc0b0 \ubc30\uce58 settlement_job.py \ub9ac\ud329\ud130\ub9c1 \uc804\uc5d0 \uc9c0\uae08 \ub3d9\uc791\uc744 \uc7a1\uc544 \ub458 \ud14c\uc2a4\ud2b8\ubd80\ud130 \uc791\uc131\ud558\uace0 \uc2f6\uc5b4",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "github actions\uc5d0 push\ub9c8\ub2e4 npm test \ub3cc\ub9ac\ub294 \uc6cc\ud06c\ud50c\ub85c \ucd94\uac00\ud574\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "coverage.xml \uc77d\uc5b4\uc11c \ud328\ud0a4\uc9c0\ubcc4 \ucee4\ubc84\ub9ac\uc9c0\ub97c \ub300\uc2dc\ubcf4\ub4dc\ub85c \ubcf4\uc5ec\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "tests/test_payment.py \ucf54\ub4dc \ub9ac\ubdf0\ub9cc \ud574\uc918. \uace0\uce58\uc9c0 \ub9d0\uace0 \uc5b4\ub514\uac00 \ubb38\uc81c\uc778\uc9c0\ub9cc \uc54c\ub824\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "jest.config.js\uc5d0\uc11c moduleNameMapper\uac00 \uc548 \uba39\uc5b4\uc11c @/ \uacbd\ub85c import\uac00 \uc2e4\ud328\ud574. \uc124\uc815 \uace0\uccd0\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 12,
+      "failed": 0,
+      "total": 12,
+      "results": [
+        {
+          "query": "\ucfe0\ud3f0 \ub9cc\ub8cc \ubc84\uadf8 \uace0\uce5c \uac70 \ub2e4\uc2dc \uc548 \ud130\uc9c0\uac8c \ud68c\uadc0 \ud14c\uc2a4\ud2b8 \ub123\uc5b4\uc918. coupon/expiry.py \ucabd\uc774\uc57c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "vitest\ub85c useCart \ud6c5 \ud14c\uc2a4\ud2b8 \uc9dc\uc918. mock \ub0a8\ubc1c\uc740 \uc2eb\uace0 \uc77d\uae30 \uc27d\uac8c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "PR \ub9ac\ubdf0\uc5d0\uc11c \ud14c\uc2a4\ud2b8\uac00 \ud558\ub098\ub3c4 \uc5c6\ub2e4\uace0 \uc9c0\uc801\ubc1b\uc558\uc5b4. OrderService.cancel()\uc5d0 \ub300\ud55c JUnit5 \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "src/payment/refund.ts\uc5d0 \ud658\ubd88 \uae08\uc561 \uacc4\uc0b0 \ud568\uc218 \uc0c8\ub85c \ub9cc\ub4e4\uc5c8\ub294\ub370 jest \ud14c\uc2a4\ud2b8 \uc880 \ubd99\uc5ec\uc918. \ubd80\ubd84 \ud658\ubd88\uc774\ub791 \uc218\uc218\ub8cc \ucc28\uac10\uc774 \ud575\uc2ec\uc774\uc57c",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "openspec/specs/user-auth/spec.md \uae30\uc900\uc73c\ub85c \ub85c\uadf8\uc778 \uc7a0\uae08 \ub85c\uc9c1 \ud14c\uc2a4\ud2b8 \ucf54\ub4dc \ub9cc\ub4e4\uc5b4\uc918. \uc2a4\ud399 \ud56d\ubaa9\uc774 30\uac1c\ucbe4 \ub418\ub294\ub370 \ub2e4\ub294 \ud544\uc694 \uc5c6\uc744\ub4ef",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\ubc29\uae08 \uad6c\ud604\ud55c csv \ud30c\uc11c \uc81c\ub300\ub85c \ub3d9\uc791\ud558\ub294\uc9c0 \ud655\uc778\ud558\ub294 \ucf54\ub4dc \uc9dc\uc918. \ub530\uc634\ud45c \uae68\uc9c4 \uc785\ub825 \uac19\uc740 \uac83\ub3c4 \uc7a1\ud788\uba74 \uc88b\uaca0\uc5b4",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "CI\uc5d0\uc11c e2e \ud14c\uc2a4\ud2b8\uac00 \uac04\ud5d0\uc801\uc73c\ub85c \uc2e4\ud328\ud574. \ub85c\uadf8 \ubcf4\uace0 \uc6d0\uc778 \ucc3e\uc544\uc918. \ud30c\uc77c\uc740 ci-log.txt\uc57c",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "pytest \ub3cc\ub9ac\uba74 test_checkout\uc5d0\uc11c ImportError \ub098\ub294\ub370 \uc65c \uadf8\ub7f0\uc9c0 \ubd10\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "docs/payment-spec.md \uc2a4\ud399\uc5d0 \ubaa8\uc21c\uc774\ub098 \ube60\uc9c4 \uc608\uc678\uac00 \uc5c6\ub294\uc9c0 \uac80\ud1a0\ud574\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "npm test \ud55c\ubc88 \ub3cc\ub824\uc11c \ud1b5\uacfc\ud558\ub294\uc9c0\ub9cc \uc54c\ub824\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "QA\ud300\uc5d0 \ub118\uae38 \ub85c\uadf8\uc778 \ud654\uba74 \uc218\ub3d9 \ud14c\uc2a4\ud2b8 \uccb4\ud06c\ub9ac\uc2a4\ud2b8 \ubb38\uc11c \ub9cc\ub4e4\uc5b4\uc918",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "A/B \ud14c\uc2a4\ud2b8 \uacb0\uacfc \uc804\ud658\uc728 3.1% vs 3.6%\uc778\ub370 \uc720\uc758\ud55c\uc9c0 \uacc4\uc0b0\ud574\uc918. \ud45c\ubcf8\uc740 \uac01\uac01 12,000\uba85\uc774\uc57c",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

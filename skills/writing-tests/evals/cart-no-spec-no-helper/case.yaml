@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: cart-no-spec-no-helper
+expected_outcome: |
+  스펙 없이 공개 동작을 기준으로 읽기 쉬운 테스트를 쓰고, 짧은 준비 코드는 헬퍼로 빼지 않고 인라인으로 둔다. 테스트를 실제로 실행한다.
+context:
+  scaffold_script: place-files.sh

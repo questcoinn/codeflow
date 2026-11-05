@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: order-validator-justified-helper
+expected_outcome: |
+  필수 필드가 많은 주문 객체의 준비 코드 때문에 헬퍼가 정당화되면 최소한으로 tests/ 안에만 두고, 검증 대상 값은 테스트에 드러낸다. src/는 수정하지 않는다.
+context:
+  scaffold_script: place-files.sh

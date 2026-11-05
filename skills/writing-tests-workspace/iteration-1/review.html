@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "writing-tests", "runs": [{"id": "cart-no-spec-no-helper-with_skill", "prompt": "cart.js \uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const { test } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart');\n\ntest('\ube48 \uc7a5\ubc14\uad6c\ub2c8\uc758 \ud569\uacc4\ub294 0\uc774\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.equal(cart.total, 0);\n});\n\ntest('\ud569\uacc4\ub294 \uc0c1\ud488\ubcc4 \uac00\uaca9 x \uc218\ub7c9\uc744 \ubaa8\ub450 \ub354\ud55c \uac12\uc774\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000, 2);\n  cart.add('pear', 500, 3);\n\n  assert.equal(cart.total, 3500);\n});\n\ntest('\uc218\ub7c9\uc744 \uc0dd\ub7b5\ud558\uba74 1\uac1c\ub85c \ub2f4\uae34\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000);\n\n  assert.equal(cart.total, 1000);\n});\n\ntest('\uac19\uc740 \uc0c1\ud488\uc744 \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc218\ub7c9\uc774 \ub204\uc801\ub41c\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000, 2);\n  cart.add('apple', 1000, 3);\n\n  assert.equal(cart.total, 5000);\n});\n\ntest('\uc218\ub7c9\uc774 0\uc774\uba74 RangeError\ub97c \ub358\uc9c4\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.throws(() => cart.add('apple', 1000, 0), RangeError);\n});\n\ntest('\uc218\ub7c9\uc774 \uc74c\uc218\uc774\uba74 RangeError\ub97c \ub358\uc9c4\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.throws(() => cart.add('apple', 1000, -1), RangeError);\n});\n\ntest('\uc798\ubabb\ub41c \uc218\ub7c9\uc73c\ub85c \ub2f4\uae30\uc5d0 \uc2e4\ud328\ud574\ub3c4 \uc774\ubbf8 \ub2f4\uae34 \uc218\ub7c9\uc740 \uadf8\ub300\ub85c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n\n  assert.throws(() => cart.add('apple', 1000, -1), RangeError);\n\n  assert.equal(cart.total, 2000);\n});\n\ntest('\uc0c1\ud488\uc744 \uc81c\uac70\ud558\uba74 \uadf8 \uc0c1\ud488\ub9cc \ud569\uacc4\uc5d0\uc11c \ube60\uc9c0\uace0 true\ub97c \ubc18\ud658\ud55c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n  cart.add('pear', 500);\n\n  const removed = cart.remove('apple');\n\n  assert.equal(removed, true);\n  assert.equal(cart.total, 500);\n});\n\ntest('\ub2f4\uae30\uc9c0 \uc54a\uc740 \uc0c1\ud488\uc744 \uc81c\uac70\ud558\uba74 false\ub97c \ubc18\ud658\ud558\uace0 \ud569\uacc4\ub294 \uadf8\ub300\ub85c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000);\n\n  const removed = cart.remove('pear');\n\n  assert.equal(removed, false);\n  assert.equal(cart.total, 1000);\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "`cart.test.js`\ub97c \ucd94\uac00\ud588\uace0, `node --test`(\ub610\ub294 `npm test`)\ub85c \ud14c\uc2a4\ud2b8 9\uac1c\uac00 \ubaa8\ub450 \ud1b5\uacfc\ud569\ub2c8\ub2e4. `cart.js`\uc640 `package.json`\uc740 \uace0\uce58\uc9c0 \uc54a\uc558\uace0, \uc0c8 \uc758\uc874\uc131\uc774\ub098 \ud14c\uc2a4\ud2b8 \ud5ec\ud37c\ub3c4 \uc5c6\uc2b5\ub2c8\ub2e4.\n\n**\ud14c\uc2a4\ud2b8\ud55c \ub3d9\uc791**\n- \ud569\uacc4: \ube48 \uc7a5\ubc14\uad6c\ub2c8\ub294 0, \uc5ec\ub7ec \uc0c1\ud488\uc740 \uac00\uaca9 x \uc218\ub7c9\uc758 \ud569\n- \ub2f4\uae30: \uc218\ub7c9 \uc0dd\ub7b5 \uc2dc 1\uac1c, \uac19\uc740 \uc0c1\ud488\uc744 \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc218\ub7c9 \ub204\uc801\n- \uc218\ub7c9 \uac80\uc99d: 0\uacfc \uc74c\uc218\ub294 `RangeError`, \uc2e4\ud328\ud574\ub3c4 \uc774\ubbf8 \ub2f4\uae34 \uc218\ub7c9\uc740 \uadf8\ub300\ub85c\n- \uc81c\uac70: \uc788\ub294 \uc0c1\ud488\uc740 \ud569\uacc4\uc5d0\uc11c \ube60\uc9c0\uace0 `true`, \uc5c6\ub294 \uc0c1\ud488\uc740 `false`\uc5d0 \ud569\uacc4 \ubcc0\ud654 \uc5c6\uc74c\n\n**\uac80\uc99d:** \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc758 `cart.js`\uc5d0 \ubc84\uadf8 7\uac00\uc9c0\ub97c \ub123\uc5b4 \ubd24\uace0(`\u003c=`\ub97c `\u003c`\ub85c \ubcc0\uacbd, \uac80\uc99d \uc0ad\uc81c, \ub204\uc801 \uc81c\uac70 \ub4f1), \ubaa8\ub450 \ud574\ub2f9 \ud14c\uc2a4\ud2b8\uac00 \uc2e4\ud328\ud588\uc2b5\ub2c8\ub2e4.\n\n**\ud655\uc778\uc774 \ud544\uc694\ud55c \ub3d9\uc791**\n\n\uc2a4\ud399 \ubb38\uc11c\uac00 \uc5c6\uc5b4\uc11c \ucf54\ub4dc\ub9cc\uc73c\ub85c\ub294 \uc758\ub3c4\ub97c \ud310\ub2e8\ud560 \uc218 \uc5c6\ub294 \ub3d9\uc791\ub4e4\uc785\ub2c8\ub2e4. \ubc84\uadf8\ub97c \uc815\uc0c1 \ub3d9\uc791\uc73c\ub85c \uace0\uc815\ud558\uc9c0 \uc54a\ub3c4\ub85d \ud14c\uc2a4\ud2b8\uc5d0\ub294 \ub123\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \uc544\ub798 \uacb0\uacfc\ub294 \uc9c1\uc811 \uc2e4\ud589\ud574 \ud655\uc778\ud588\uc2b5\ub2c8\ub2e4.\n\n| \uc785\ub825 | \ud604\uc7ac \uacb0\uacfc | \ubb38\uc81c |\n|---|---|---|\n| \uac19\uc740 \uc0c1\ud488\uc744 \ub2e4\ub978 \uac00\uaca9\uc73c\ub85c \ub2e4\uc2dc \ub2f4\uae30: `add('a', 1000, 2)` \ud6c4 `add('a', 2000, 1)` | \ud569\uacc4 3000 | \ub450 \ubc88\uc9f8 \uac00\uaca9\uc774 \ub9d0\uc5c6\uc774 \ubb34\uc2dc\ub428 |\n| \uc218\ub7c9 `NaN`: `add('a', 1000, NaN)` | \uc608\uc678 \uc5c6\uc774 \ud569\uacc4 `NaN` | `NaN \u003c= 0`\uc774 \uac70\uc9d3\uc774\ub77c \uac80\uc99d\uc744 \ud1b5\uacfc\ud558\uace0, \uc7a5\ubc14\uad6c\ub2c8 \uc804\uccb4 \ud569\uacc4\uac00 \uae68\uc9d0 |\n| \ubb38\uc790\uc5f4 \uc218\ub7c9: `add('a', 1000, '2')` \ud6c4 `add('a', 1000, '3')` | \ud569\uacc4 23000 | \uc218\ub7c9\uc774 `'23'`\uc73c\ub85c \uc774\uc5b4 \ubd99\uc74c |\n| \uac00\uaca9 \ub204\ub77d: `add('a')` | \ud569\uacc4 `NaN` | \uac00\uaca9 \uac80\uc99d\uc774 \uc5c6\uc74c |\n| \uc74c\uc218 \uac00\uaca9: `add('a', -1000)` | \ud569\uacc4 -1000 | \uac00\uaca9 \uac80\uc99d\uc774 \uc5c6\uc74c |\n| \uc18c\uc218 \uc218\ub7c9: `add('a', 1000, 1.5)` | \ud569\uacc4 1500 | \uc815\uc218 \uc218\ub7c9\ub9cc \ubc1b\uc544\uc57c \ud55c\ub2e4\uba74 \ub9c9\uc544\uc57c \ud568 |\n| \uc18c\uc218 \uac00\uaca9: `add('a', 0.1, 3)` | \ud569\uacc4 0.30000000000000004 | \uac00\uaca9\uc774 \uc18c\uc218\uc77c \uc218 \uc788\ub2e4\uba74 \uc815\uc218 \ub2e8\uc704\ub85c \ub2e4\ub904\uc57c \ud568 |\n\n\uc774 \uc911 `NaN`, \ubb38\uc790\uc5f4 \uc218\ub7c9, \uac00\uaca9 \ub204\ub77d\uc740 \uae08\uc561\uc774 \ud2c0\uc5b4\uc9c0\ub294 \uacbd\uc6b0\ub77c \uba3c\uc800 \ubcf4\uc2dc\uae38 \uad8c\ud569\ub2c8\ub2e4. \uc758\ub3c4\ud55c \uaddc\uce59\uc744 \uc54c\ub824 \uc8fc\uc2dc\uba74 \uadf8\uc5d0 \ub9de\ucdb0 \ud14c\uc2a4\ud2b8\ub97c \ucd94\uac00\ud558\uaca0\uc2b5\ub2c8\ub2e4.\n"}], "grading": {"expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc \uc74c\uc218 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 50.3, "total_duration_seconds": 50.3}}}, {"id": "cart-no-spec-no-helper-without_skill", "prompt": "cart.js \uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const { describe, it } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart.js');\n\ndescribe('Cart', () => {\n  describe('total', () => {\n    it('\ube48 \uc7a5\ubc14\uad6c\ub2c8\ub294 0\uc774\ub2e4', () => {\n      assert.equal(new Cart().total, 0);\n    });\n\n    it('\uc5ec\ub7ec \uc0c1\ud488\uc758 \uac00\uaca9 x \uc218\ub7c9\uc744 \ud569\uc0b0\ud55c\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250, 3);\n\n      assert.equal(cart.total, 950);\n    });\n  });\n\n  describe('add', () => {\n    it('\uc218\ub7c9\uc744 \uc0dd\ub7b5\ud558\uba74 1\uac1c\ub85c \ub2f4\ub294\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100);\n\n      assert.equal(cart.total, 100);\n    });\n\n    it('\uac19\uc740 sku\ub97c \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc218\ub7c9\uc774 \ub204\uc801\ub41c\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100, 2);\n      cart.add('apple', 100, 3);\n\n      assert.equal(cart.total, 500);\n      assert.equal(cart.items.size, 1);\n    });\n\n    for (const quantity of [0, -1]) {\n      it(`\uc218\ub7c9\uc774 ${quantity}\uc774\uba74 RangeError\ub97c \ub358\uc9c0\uace0 \ub2f4\uc9c0 \uc54a\ub294\ub2e4`, () => {\n        const cart = new Cart();\n\n        assert.throws(() => cart.add('apple', 100, quantity), {\n          name: 'RangeError',\n          message: 'quantity must be positive',\n        });\n        assert.equal(cart.items.size, 0);\n      });\n    }\n\n    it('\uc798\ubabb\ub41c \uc218\ub7c9\uc73c\ub85c \uc2e4\ud328\ud574\ub3c4 \uc774\ubbf8 \ub2f4\uae34 \uc0c1\ud488\uc740 \uadf8\ub300\ub85c\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100, 2);\n\n      assert.throws(() => cart.add('apple', 100, -1), RangeError);\n      assert.equal(cart.total, 200);\n    });\n  });\n\n  describe('remove', () => {\n    it('\ub2f4\uae34 \uc0c1\ud488\uc744 \uc81c\uac70\ud558\uba74 true\ub97c \ubc18\ud658\ud558\uace0 \ud569\uacc4\uc5d0\uc11c \ube60\uc9c4\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250);\n\n      assert.equal(cart.remove('apple'), true);\n      assert.equal(cart.total, 250);\n    });\n\n    it('\uc5c6\ub294 sku\ub97c \uc81c\uac70\ud558\uba74 false\ub97c \ubc18\ud658\ud558\uace0 \ub098\uba38\uc9c0\ub294 \uadf8\ub300\ub85c\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100);\n\n      assert.equal(cart.remove('pear'), false);\n      assert.equal(cart.total, 100);\n    });\n\n    it('\uc81c\uac70 \ud6c4 \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc774\uc804 \uc218\ub7c9\uc774 \uc774\uc5b4\uc9c0\uc9c0 \uc54a\ub294\ub2e4', () => {\n      const cart = new Cart();\n      cart.add('apple', 100, 5);\n      cart.remove('apple');\n      cart.add('apple', 100);\n\n      assert.equal(cart.total, 100);\n    });\n  });\n\n  it('\uc7a5\ubc14\uad6c\ub2c8 \uc778\uc2a4\ud134\uc2a4\ub07c\ub9ac \uc0c1\ud0dc\ub97c \uacf5\uc720\ud558\uc9c0 \uc54a\ub294\ub2e4', () => {\n    const first = new Cart();\n    const second = new Cart();\n    first.add('apple', 100);\n\n    assert.equal(second.total, 0);\n  });\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "`cart.js` \uc720\ub2db \ud14c\uc2a4\ud2b8\ub97c `cart.test.js`\uc5d0 \ucd94\uac00\ud588\uace0, 11\uac1c \ubaa8\ub450 \ud1b5\uacfc\ud569\ub2c8\ub2e4. `node --test`\ub098 `npm test`\ub85c \ubc14\ub85c \ub3cc\ub9b4 \uc218 \uc788\uace0, `cart.js`\uc640 `package.json`\uc740 \uace0\uce58\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n**\ud14c\uc2a4\ud2b8 \ubc94\uc704**\n- `total`: \ube48 \uc7a5\ubc14\uad6c\ub2c8, \uc5ec\ub7ec \uc0c1\ud488 \ud569\uc0b0\n- `add`: \uc218\ub7c9 \uae30\ubcf8\uac12 1, \uac19\uc740 sku \uc218\ub7c9 \ub204\uc801, \uc218\ub7c9 0\uacfc \uc74c\uc218\uc77c \ub54c `RangeError`, \uc2e4\ud328\ud574\ub3c4 \uae30\uc874 \uc0c1\ud488 \uc720\uc9c0\n- `remove`: \uc788\ub294 sku\uc640 \uc5c6\ub294 sku\uc758 \ubc18\ud658\uac12, \uc81c\uac70 \ud6c4 \ub2e4\uc2dc \ub2f4\uc744 \ub54c \uc774\uc804 \uc218\ub7c9\uc774 \uc774\uc5b4\uc9c0\uc9c0 \uc54a\uc74c\n- \uc778\uc2a4\ud134\uc2a4\ub07c\ub9ac \uc0c1\ud0dc\ub97c \uacf5\uc720\ud558\uc9c0 \uc54a\uc74c\n\n\ud14c\uc2a4\ud2b8\uac00 \uc2e4\uc81c\ub85c \ubc84\uadf8\ub97c \uc7a1\ub294\uc9c0 \ubcf4\ub824\uace0, \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc758 `cart.js`\uc5d0 \uc77c\ubd80\ub7ec \ubc84\uadf8 11\uac00\uc9c0\ub97c \ub123\uc5b4 \ub3cc\ub838\uc2b5\ub2c8\ub2e4(`\u003c=`\ub97c `\u003c`\ub85c \ubcc0\uacbd, \uc218\ub7c9 \uac80\uc0ac \uc0ad\uc81c \ub4f1). 11\uac00\uc9c0 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\uac00 \uc2e4\ud328\ud574\uc11c \uc7a1\uc544\ub0c8\uc2b5\ub2c8\ub2e4.\n\n**\ud655\uc778\uc774 \ud544\uc694\ud55c \ub3d9\uc791**\n\n\uc2a4\ud399\uc774 \uc5c6\uc5b4\uc11c \uc758\ub3c4\ub97c \uc54c \uc218 \uc5c6\ub294 \uc544\ub798 \ub3d9\uc791\uc740 \ud14c\uc2a4\ud2b8\uc5d0 \ub123\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \uc9c0\uae08 \ub3d9\uc791\uc744 \ud14c\uc2a4\ud2b8\ub85c \uace0\uc815\ud558\uba74 \ubc84\uadf8\uae4c\uc9c0 \uc815\ub2f5\uc73c\ub85c \uad73\uc5b4\uc9c8 \uc218 \uc788\uae30 \ub54c\ubb38\uc785\ub2c8\ub2e4. \uc2e4\uc81c\ub85c \ub3cc\ub824\uc11c \ud655\uc778\ud55c \uacb0\uacfc\uc785\ub2c8\ub2e4.\n\n| \ud638\ucd9c | \ud604\uc7ac \uacb0\uacfc | \ubb38\uc81c |\n|---|---|---|\n| `add('a', 100)` \ud6c4 `add('a', 200)` | total 200 | \ub450 \ubc88\uc9f8 \uac00\uaca9\uc744 \ubb34\uc2dc\ud558\uace0 \ucc98\uc74c \uac00\uaca9\uc744 \uc720\uc9c0 |\n| `add('a', 100, NaN)` | total `NaN` | `NaN \u003c= 0`\uc774 \uac70\uc9d3\uc774\ub77c \uac80\uc0ac\ub97c \ud1b5\uacfc |\n| `add('a')` (\uac00\uaca9 \uc0dd\ub7b5) | total `NaN` | \uac00\uaca9 \uac80\uc99d\uc774 \uc5c6\uc74c |\n| `add('a', -100)` | total -100 | \uc74c\uc218 \uac00\uaca9\uc774 \ud5c8\uc6a9\ub428 |\n| `add('a', 100, '2')` \ud6c4 `add('a', 100, '3')` | total 2300 | \ubb38\uc790\uc5f4 \uc218\ub7c9\uc774 \uc774\uc5b4 \ubd99\uc5b4 `'23'`\uc774 \ub428 |\n| `add('a', 100, 1.5)` | total 150 | \uc18c\uc218 \uc218\ub7c9\uc774 \ud5c8\uc6a9\ub428 |\n| `add('a', 0.1, 3)` | total 0.30000000000000004 | \ubd80\ub3d9\uc18c\uc218\uc810 \uc624\ucc28. \uac00\uaca9\uc744 \uc6d0 \uac19\uc740 \uc815\uc218 \ub2e8\uc704\ub85c\ub9cc \uc4f0\uba74 \ubb38\uc81c\uc5c6\uc74c |\n\n\uc774 \uc911 `NaN`\uacfc \ubb38\uc790\uc5f4 \uc218\ub7c9\uc740 \ud569\uacc4\uac00 \uc870\uc6a9\ud788 \ud2c0\uc5b4\uc9c0\ubbc0\ub85c \ubc84\uadf8\uc77c \uac00\ub2a5\uc131\uc774 \ub192\uc544 \ubcf4\uc785\ub2c8\ub2e4. \uc6d0\ud558\ub294 \ub3d9\uc791\uc744 \uc54c\ub824\uc8fc\uc2dc\uba74 `cart.js`\ub97c \uace0\uce58\uace0 \ud14c\uc2a4\ud2b8\ub97c \ucd94\uac00\ud558\uaca0\uc2b5\ub2c8\ub2e4.\n"}], "grading": {"expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 11\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc -1 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38 \uc548\uc5d0\ub294 \uc5c6\uc74c. \ub2e4\ub9cc it()\uc744 for \ubb38\uc73c\ub85c \uac10\uc2f8 \uc0dd\uc131\ud558\ub294 \ucf54\ub4dc\uac00 \ubc14\uae65\uc5d0 \uc788\uc74c"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 57.4, "total_duration_seconds": 57.4}}}, {"id": "coupon-spec-prioritization-with_skill", "prompt": "pricing.py\uc5d0 \ucfe0\ud3f0 \uacc4\uc0b0 \ub85c\uc9c1 \ub123\uc5b4\ub1a8\uc5b4. \ud14c\uc2a4\ud2b8 \uc880 \uc791\uc131\ud574\uc918. \uc2a4\ud399\uc740 docs/coupon-spec.md \ucc38\uace0\ud558\uba74 \ub3fc.", "eval_id": null, "outputs": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "`test_pricing.py`\uc5d0 \ud14c\uc2a4\ud2b8 9\uac1c\ub97c \uc791\uc131\ud588\uace0, 7\uac1c \ud1b5\uacfc, 2\uac1c \uc2e4\ud328\uc785\ub2c8\ub2e4. \uc2e4\ud328 2\uac1c\ub294 \ud14c\uc2a4\ud2b8 \uc624\ub958\uac00 \uc544\ub2c8\ub77c `pricing.py`\uc5d0 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc544\uc11c \ub098\ub294 \uc2e4\ud328\uc785\ub2c8\ub2e4.\n\npytest\uac00 \uc5c6\uc5b4 \ud45c\uc900 \ub77c\uc774\ube0c\ub7ec\ub9ac `unittest`\ub85c \uc37c\uc2b5\ub2c8\ub2e4. \uc2e4\ud589 \uba85\ub839\uc740 `python -m unittest`\uc785\ub2c8\ub2e4.\n\n## \ubc1c\uacac\ud55c \ubc84\uadf8: 50% \uc0c1\ud55c \ubbf8\uad6c\ud604\n\n`apply_coupons`\ub294 \ud560\uc778\uc561\uc744 \uc81c\ud55c\ud558\uc9c0 \uc54a\uc544\uc11c \uc8fc\ubb38 \uae08\uc561\uc758 \uc808\ubc18\uc744 \ub118\uac8c \ud560\uc778\ub429\ub2c8\ub2e4. \uae08\uc561\uc774 \ud2c0\ub9ac\uac8c \ub098\uc624\ub294 \ubb38\uc81c\ub77c \uc2a4\ud399\ub300\ub85c \ud14c\uc2a4\ud2b8\ub97c \uc4f0\uace0 \uc2e4\ud328 \uc0c1\ud0dc\ub85c \ub0a8\uacbc\uc2b5\ub2c8\ub2e4. `pricing.py`\ub294 \uc218\uc815\ud558\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n| \uc2e4\ud328 \ud14c\uc2a4\ud2b8 | \uc785\ub825 | \uae30\ub300\uac12 | \uc2e4\uc81c\uac12 |\n|---|---|---|---|\n| `test_stacked_discounts_over_50_percent_are_capped_at_half_the_order` | 20,000\uc6d0, 30% + 30% | 10,000 | 8,000 |\n| `test_fixed_coupon_larger_than_order_is_capped_at_half_the_order` | 20,000\uc6d0, \uc815\uc561 30,000\uc6d0 | 10,000 | 0 |\n\n\uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0 \uc0c1\ud55c\uc744 \ub123\uc5b4 \ubcf4\ub2c8 9\uac1c \ubaa8\ub450 \ud1b5\uacfc\ud588\uc2b5\ub2c8\ub2e4. \uadf8\ub798\uc11c \uc774 2\uac1c\ub294 \uc0c1\ud55c\ub9cc \uad6c\ud604\ud558\uba74 \ud574\uacb0\ub429\ub2c8\ub2e4.\n\n## \ud14c\uc2a4\ud2b8\ud55c \ud56d\ubaa9\n\n- **\ucd5c\uc18c \uc8fc\ubb38 \uae08\uc561:** 9,999\uc6d0\uc740 \ubbf8\uc801\uc6a9, 10,000\uc6d0\uc740 \uc801\uc6a9\n- **\uc815\ub960 \ucfe0\ud3f0:** \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc \ubc84\ub9bc\n- **\ucfe0\ud3f0 \uc870\ud569:** \uc815\uc561\uacfc \uc815\ub960\uc744 \ud568\uaed8 \uc4f8 \ub54c \ud560\uc778\uc561 \ud569\uc0b0, \uc815\ub960 \ud560\uc778\uc740 \uc6d0\ub798 \uc8fc\ubb38 \uae08\uc561 \uae30\uc900\n- **\uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0:** \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f0\uba74 `ValueError`, \ub2e8\ub3c5\uc73c\ub85c \uc4f0\uba74 \uc815\uc0c1 \uc801\uc6a9\n- **50% \uc0c1\ud55c:** \uc815\ud655\ud788 50%\ub294 \ud5c8\uc6a9, \ucd08\uacfc\ubd84\uc740 \uc81c\ud55c\n\n## \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \ud56d\ubaa9\n\n- **1\ubc88 \ud1b5\ud654 \ucf54\ub4dc, 9\ubc88 \ub85c\uac70 \uc774\ub984:** \uc0c1\uc218\uc640 \uc124\uc815\uc744 \uadf8\ub300\ub85c \uc62e\uaca8 \uc801\ub294 \uac80\uc99d\uc774\uace0, \uae68\uc838\ub3c4 \uae08\uc561\uc5d0 \uc601\ud5a5\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.\n- **8\ubc88 \ub85c\uadf8 \ubb38\uad6c:** \ub85c\uadf8 \ubb38\uad6c\ub97c \uace0\uc815\ud558\uba74 \ubb38\uad6c\ub97c \ub2e4\ub4ec\uc744 \ub54c\ub9c8\ub2e4 \ud14c\uc2a4\ud2b8\uac00 \uae68\uc9c0\ub294\ub370, \ub9c9\uc544 \uc8fc\ub294 \uc704\ud5d8\uc740 \uc791\uc2b5\ub2c8\ub2e4.\n- **5\ubc88 \ucd5c\uc885 \uae08\uc561 0\uc6d0 \ubbf8\ub9cc \uae08\uc9c0:** \ubcc4\ub3c4 \ud14c\uc2a4\ud2b8\ub97c \ub450\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. 50% \uc0c1\ud55c\uc774 \uc9c0\ucf1c\uc9c0\uba74 0\uc6d0 \ubc11\uc73c\ub85c \ub0b4\ub824\uac08 \uc218 \uc5c6\uace0, \ucfe0\ud3f0 \uae08\uc561\uc774 \uc8fc\ubb38 \uae08\uc561\ubcf4\ub2e4 \ud070 \uacbd\uc6b0\ub294 \uc704 \uc815\uc561 \ud14c\uc2a4\ud2b8\uac00 \ub2e4\ub8f9\ub2c8\ub2e4.\n\n## \uc2a4\ud399\uc774 \uc815\ud558\uc9c0 \uc54a\uc544 \ud655\uc778\uc774 \ud544\uc694\ud55c \ubd80\ubd84\n\n1. **10,000\uc6d0 \ubbf8\ub9cc \uc8fc\ubb38\uc5d0 \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc744 \ud568\uaed8 \uc4f4 \uacbd\uc6b0:** \uc9c0\uae08 \ucf54\ub4dc\ub294 \uc624\ub958 \uc5c6\uc774 \uc6d0\ub798 \uae08\uc561\uc744 \ub3cc\ub824\uc90d\ub2c8\ub2e4. 2\ubc88\uacfc 6\ubc88 \uc911 \ubb34\uc5c7\uc774 \uc6b0\uc120\uc778\uc9c0 \uc2a4\ud399\uc5d0 \uc5c6\uc2b5\ub2c8\ub2e4.\n2. **\uc8fc\ubb38 \uae08\uc561\uc774 \ud640\uc218\uc77c \ub54c\uc758 \uc0c1\ud55c:** 10,001\uc6d0\uc774\uba74 \uc0c1\ud55c\uc774 5,000.5\uc6d0\uc785\ub2c8\ub2e4. \ubc84\ub9bc\uc73c\ub85c \ucc98\ub9ac\ud560\uc9c0 \uc0c1\ud55c\uc744 \uad6c\ud604\ud560 \ub54c \uc815\ud574\uc57c \ud569\ub2c8\ub2e4.\n\n## \uac80\uc99d\n\n\uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc758 \uad6c\ud604\uc744 7\uac00\uc9c0\ub85c \ubc14\uafd4\uc11c, \uadf8\ub54c\ub9c8\ub2e4 \ud574\ub2f9 \ud14c\uc2a4\ud2b8\uac00 \uc2e4\ud328\ud558\ub294\uc9c0 \ud655\uc778\ud588\uc2b5\ub2c8\ub2e4. 7\uac00\uc9c0 \ubaa8\ub450 \ud574\ub2f9 \ud14c\uc2a4\ud2b8\uac00 \uc7a1\uc544\ub0c8\uc2b5\ub2c8\ub2e4.\n\n\ud5ec\ud37c\ub294 \ub9cc\ub4e4\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \ucfe0\ud3f0 \uc900\ube44\uac00 \ud55c \uc904\uc774\ub77c \uac01 \ud14c\uc2a4\ud2b8\uc5d0 \uc9c1\uc811 \uc801\uc5c8\uc2b5\ub2c8\ub2e4.\n"}, {"name": "test_pricing.py", "type": "text", "content": "import unittest\n\nfrom pricing import apply_coupons\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    def test_order_of_9_999_ignores_coupon(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(9_999, [coupon]), 9_999)\n\n    def test_order_of_exactly_10_000_gets_coupon(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(10_000, [coupon]), 9_000)\n\n\nclass DiscountCalculationTest(unittest.TestCase):\n    def test_percent_discount_drops_fraction_of_a_won(self):\n        # 10,005\uc6d0\uc758 10%\ub294 1,000.5\uc6d0\uc774\ubbc0\ub85c \ud560\uc778\uc561\uc740 1,000\uc6d0\uc774\ub2e4.\n        coupon = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(10_005, [coupon]), 9_005)\n\n    def test_percent_coupon_after_fixed_coupon_uses_original_order_amount(self):\n        # \uc815\uc561 \ud560\uc778 \ud6c4 \uae08\uc561(17,000\uc6d0) \uae30\uc900\uc774\uba74 \ud560\uc778\uc561\uc774 1,700\uc6d0\uc774 \ub418\uc5b4 15,300\uc6d0\uc774 \ub098\uc628\ub2e4.\n        fixed = {\"type\": \"fixed\", \"value\": 3_000, \"stackable\": True}\n        percent = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(20_000, [fixed, percent]), 15_000)\n\n\nclass StackingTest(unittest.TestCase):\n    def test_non_stackable_coupon_combined_with_another_raises(self):\n        stackable = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n        non_stackable = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False}\n\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [stackable, non_stackable])\n\n    def test_non_stackable_coupon_used_alone_is_applied(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False}\n\n        self.assertEqual(apply_coupons(20_000, [coupon]), 19_000)\n\n\nclass DiscountCapTest(unittest.TestCase):\n    def test_discount_of_exactly_50_percent_is_allowed(self):\n        coupon = {\"type\": \"percent\", \"value\": 50, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(20_000, [coupon]), 10_000)\n\n    def test_stacked_discounts_over_50_percent_are_capped_at_half_the_order(self):\n        first = {\"type\": \"percent\", \"value\": 30, \"stackable\": True}\n        second = {\"type\": \"percent\", \"value\": 30, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(20_000, [first, second]), 10_000)\n\n    def test_fixed_coupon_larger_than_order_is_capped_at_half_the_order(self):\n        coupon = {\"type\": \"fixed\", \"value\": 30_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(20_000, [coupon]), 10_000)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 50% \uc0c1\ud55c \ubbf8\uad6c\ud604\uc744 \uba85\uc2dc\ud558\uace0 \uc2e4\ud328 \ud14c\uc2a4\ud2b8 2\uac1c\ub85c \ub0a8\uae40"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\ub85c\uadf8\u00b7\ub85c\uac70\u00b7CURRENCY\ub97c \uac80\uc99d\ud558\ub294 \ud14c\uc2a4\ud2b8 \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1, 5, 8, 9\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, 0\uc6d0 \ud558\ud55c, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "9,999/10,000 \uacbd\uacc4\uc640 ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c. 0\uc6d0 \ud558\ud55c\uc740 \ubcc4\ub3c4 \ud14c\uc2a4\ud2b8\uac00 \uc5c6\uc9c0\ub9cc \uc8fc\ubb38\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0\uc774 10,000\uc774 \ub418\uc5b4\uc57c \ud55c\ub2e4\ub294 \ub354 \uac15\ud55c \uac80\uc99d\uc73c\ub85c \ub2e4\ub8f8"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \uc911 7\uac1c \ud1b5\uacfc, \uc2e4\ud328 2\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c \ud568\uc218 \uc5c6\uc74c"}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 99.8, "total_duration_seconds": 99.8}}}, {"id": "coupon-spec-prioritization-without_skill", "prompt": "pricing.py\uc5d0 \ucfe0\ud3f0 \uacc4\uc0b0 \ub85c\uc9c1 \ub123\uc5b4\ub1a8\uc5b4. \ud14c\uc2a4\ud2b8 \uc880 \uc791\uc131\ud574\uc918. \uc2a4\ud399\uc740 docs/coupon-spec.md \ucc38\uace0\ud558\uba74 \ub3fc.", "eval_id": null, "outputs": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "`test_pricing.py`\ub97c \uc791\uc131\ud588\uace0, 18\uac1c \uc911 14\uac1c \ud1b5\uacfc, 4\uac1c \uc2e4\ud328\uc785\ub2c8\ub2e4. \uc2e4\ud328 4\uac1c\ub294 \ubaa8\ub450 `pricing.py`\uc758 \uc2e4\uc81c \ubc84\uadf8 \ud558\ub098 \ub54c\ubb38\uc785\ub2c8\ub2e4.\n\n## \ubc84\uadf8: \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778 50% \uc0c1\ud55c) \ubbf8\uad6c\ud604\n\n`apply_coupons`\uc5d0 \uc0c1\ud55c \ucc98\ub9ac\uac00 \uc5c6\uc5b4\uc11c 50%\ub97c \ub118\ub294 \ud560\uc778\uc774 \uadf8\ub300\ub85c \uc801\uc6a9\ub429\ub2c8\ub2e4.\n\n| \uc8fc\ubb38 \uae08\uc561 | \ucfe0\ud3f0 | \uc2a4\ud399 \uae30\ub300\uac12 | \ud604\uc7ac \uacb0\uacfc |\n|---|---|---|---|\n| 20,000 | 60% | 10,000 | 8,000 |\n| 20,000 | \uc815\uc561 15,000 | 10,000 | 5,000 |\n| 20,000 | 30% + \uc815\uc561 8,000 | 10,000 | 6,000 |\n| 15,000 | \uc815\uc561 20,000 | 7,500 | 0 |\n\n\ud14c\uc2a4\ud2b8\ub9cc \uc694\uccad\ud558\uc154\uc11c `pricing.py`\ub294 \uace0\uce58\uc9c0 \uc54a\uc558\uace0, \uc2e4\ud328 \ud14c\uc2a4\ud2b8\ub3c4 \uc2a4\ud0b5 \ucc98\ub9ac \uc5c6\uc774 \uadf8\ub300\ub85c \ub450\uc5c8\uc2b5\ub2c8\ub2e4. `total = ...` \ubc14\ub85c \uc717\uc904\uc5d0 `discount = min(discount, subtotal // 2)`\ub97c \ub123\uc73c\uba74 \uace0\uccd0\uc9d1\ub2c8\ub2e4. \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0 \uc774 \ud55c \uc904\uc744 \ub123\uc5b4 \ub3cc\ub838\uc744 \ub54c 18\uac1c\uac00 \ubaa8\ub450 \ud1b5\uacfc\ud588\uc2b5\ub2c8\ub2e4.\n\n## \ud14c\uc2a4\ud2b8 \ubc94\uc704\n\n- **\ud3ec\ud568:** \uc2a4\ud399 2~9\ubc88\uc744 \ub2e4\ub8f9\ub2c8\ub2e4. 10,000\uc6d0 \uacbd\uacc4, \uc6d0 \ub2e8\uc704 \ubc84\ub9bc, \uc911\ubcf5 \ucfe0\ud3f0\uc758 \uc815\ub960 \uae30\uc900(\uc21c\ucc28 \uc801\uc6a9\uc774 \uc544\ub2c8\ub77c \uc8fc\ubb38 \uae08\uc561 \uae30\uc900), \uc911\ubcf5 \ubd88\uac00 \uc870\ud569, 50% \uc0c1\ud55c, \ub85c\uadf8\ub97c \ud655\uc778\ud569\ub2c8\ub2e4. 8\ubc88\uacfc 9\ubc88\uc740 `\"pricing\"` \ub85c\uac70\uc758 \ub85c\uadf8\ub97c \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8 \ud558\ub098\ub85c \ud568\uaed8 \uac80\uc99d\ud569\ub2c8\ub2e4.\n- **\uc81c\uc678:** \uc2a4\ud399 1\ubc88(`CURRENCY == \"KRW\"`)\uc740 \ub123\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \uc0c1\uc218\ub97c \uadf8\ub300\ub85c \ubca0\ub07c\ub294 \ud14c\uc2a4\ud2b8\ub77c \uc7a1\uc544\ub0bc \uac8c \uc5c6\uace0, `CURRENCY`\ub294 \ucf54\ub4dc \uc5b4\ub514\uc5d0\uc11c\ub3c4 \uc4f0\uc774\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.\n- **\ud14c\uc2a4\ud2b8 \uac80\uc99d:** \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0 \uc77c\ubd80\ub7ec \ubc84\uadf8 13\uc885\uc744 \ub123\uc5b4 \ubd24\uace0(\uacbd\uacc4 \uc870\uac74, \ubc18\uc62c\ub9bc, \uc21c\ucc28 \uc801\uc6a9, \uc0c1\ud55c \ubcc0\uacbd, \ub85c\uadf8 \ub808\ubca8 \ub4f1), 12\uc885\uc744 \uc7a1\uc544\ub0c8\uc2b5\ub2c8\ub2e4. \ubabb \uc7a1\uc740 1\uc885\uc740 `max(..., 0)` \uc81c\uac70\uc785\ub2c8\ub2e4. \uc0c1\ud55c\uc774 \ub4e4\uc5b4\uac00\uba74 \ucd5c\uc885 \uae08\uc561\uc774 \uc74c\uc218\uac00 \ub420 \uc218 \uc5c6\uc5b4\uc11c \uacb0\uacfc\uac00 \ub2ec\ub77c\uc9c0\uc9c0 \uc54a\uc73c\ubbc0\ub85c, \ud14c\uc2a4\ud2b8\uc758 \ube48\ud2c8\uc740 \uc544\ub2d9\ub2c8\ub2e4.\n\n## \uc2a4\ud399\uc5d0 \uc5c6\uc5b4\uc11c \ud655\uc778\uc774 \ud544\uc694\ud55c \ubd80\ubd84\n\n\uc544\ub798 \ud56d\ubaa9\uc740 \uc2a4\ud399\uc774 \uc815\ud558\uc9c0 \uc54a\uc544\uc11c \ud604\uc7ac \ub3d9\uc791\uc744 \ud14c\uc2a4\ud2b8\ub85c \uace0\uc815\ud558\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n1. **\ud640\uc218 \uae08\uc561\uc758 \uc0c1\ud55c:** 10,001\uc6d0\uc758 50%\ub294 5,000.5\uc6d0\uc785\ub2c8\ub2e4. \ud560\uc778\uc561\uc744 5,000\uc6d0\uc73c\ub85c \ubc84\ub9ac\ub294 \uac83\uc73c\ub85c \ubcf4\uc774\uc9c0\ub9cc \uc2a4\ud399\uc5d0 \uba85\uc2dc\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. \uc704 \uc218\uc815\uc548\uc740 \ubc84\ub9bc \uae30\uc900\uc785\ub2c8\ub2e4.\n2. **\uc815\ub960 \ucfe0\ud3f0 \uc5ec\ub7ec \uc7a5\uc758 \ubc84\ub9bc \uc2dc\uc810:** \uc9c0\uae08\uc740 \ucfe0\ud3f0\ubcc4\ub85c \ubc84\ub9bd\ub2c8\ub2e4. 10,050\uc6d0\uc5d0 1% \ub450 \uc7a5\uc774\uba74 \ud560\uc778\uc774 200\uc6d0\uc774\uace0, \ud569\uc0b0 \ud6c4 \ubc84\ub9ac\uba74 201\uc6d0\uc785\ub2c8\ub2e4.\n3. **\ucd5c\uc18c \uae08\uc561 \ubbf8\ub9cc\uc5d0\uc11c \uc911\ubcf5 \ubd88\uac00 \uc870\ud569:** \uc9c0\uae08\uc740 \uc624\ub958 \uc5c6\uc774 \uc6d0\ub798 \uae08\uc561\uc744 \ubc18\ud658\ud569\ub2c8\ub2e4. \uc2a4\ud399 2\ubc88\uacfc 6\ubc88 \uc911 \ubb34\uc5c7\uc774 \uc6b0\uc120\uc778\uc9c0 \uc815\ud574\uc838 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.\n4. **\ube48 \ucfe0\ud3f0 \ubaa9\ub85d:** \uc801\uc6a9\ub41c \ucfe0\ud3f0\uc774 \uc5c6\ub294\ub370\ub3c4 `coupon applied` \ub85c\uadf8\uac00 \ub0a8\uc2b5\ub2c8\ub2e4. \uc2a4\ud399 8\ubc88\uc758 \"\uc801\uc6a9 \uc2dc\"\uc640 \uc5b4\uae0b\ub098 \ubcf4\uc785\ub2c8\ub2e4.\n5. **\uc54c \uc218 \uc5c6\ub294 \ucfe0\ud3f0 \ud0c0\uc785:** `percent`\uac00 \uc544\ub2cc \ud0c0\uc785\uc740 \ubaa8\ub450 \uc815\uc561\uc73c\ub85c \ucc98\ub9ac\ub429\ub2c8\ub2e4. \uc624\ud0c0\uac00 \ub098\ub3c4 \uc624\ub958 \uc5c6\uc774 \ud560\uc778\ub429\ub2c8\ub2e4.\n\n\uc2a4\ud399 5\ubc88 \ud14c\uc2a4\ud2b8\ub294 \"0 \uc774\uc0c1\"\ub9cc \ud655\uc778\ud569\ub2c8\ub2e4. \uc815\ud655\ud55c \uae08\uc561\uc740 7\ubc88\uc774 \uc815\ud558\uae30 \ub54c\ubb38\uc785\ub2c8\ub2e4. 7\ubc88\uc774 \uad6c\ud604\ub418\uba74 5\ubc88\uc740 \uc0ac\uc2e4\uc0c1 \ubc1c\ub3d9\ud560 \uc77c\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.\n\n## \uc2e4\ud589 \ubc29\ubc95\n\n\ud504\ub85c\uc81d\ud2b8 \ub8e8\ud2b8\uc5d0\uc11c `python -m unittest -v`\ub85c \uc2e4\ud589\ud569\ub2c8\ub2e4. pytest\ub97c \uc124\uce58\ud558\uba74 pytest\ub85c\ub3c4 \uadf8\ub300\ub85c \ub3cc\uc544\uac11\ub2c8\ub2e4.\n\n\ud30c\uc77c \uc704\uce58: `D:\\dev\\codeflow\\skills\\writing-tests-workspace\\iteration-1\\coupon-spec-prioritization\\without_skill\\outputs\\test_pricing.py`\n"}, {"name": "test_pricing.py", "type": "text", "content": "\"\"\"apply_coupons \ud14c\uc2a4\ud2b8. \uae30\ub300\uac12\uc758 \uae30\uc900\uc740 \uad6c\ud604\uc774 \uc544\ub2c8\ub77c docs/coupon-spec.md \uc774\ub2e4.\n\n\uc2e4\ud589: python -m unittest -v\n\"\"\"\nimport unittest\n\nfrom pricing import apply_coupons\n\n\ndef percent(value, stackable=True):\n    return {\"type\": \"percent\", \"value\": value, \"stackable\": stackable}\n\n\ndef fixed(value, stackable=True):\n    return {\"type\": \"fixed\", \"value\": value, \"stackable\": stackable}\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 2: \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\"\"\"\n\n    def test_just_below_minimum_ignores_coupon(self):\n        self.assertEqual(apply_coupons(9_999, [percent(10)]), 9_999)\n\n    def test_exactly_minimum_applies_coupon(self):\n        self.assertEqual(apply_coupons(10_000, [percent(10)]), 9_000)\n\n\nclass DiscountCalculationTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 3, 4: \uc815\ub960/\uc815\uc561 \ud560\uc778 \uacc4\uc0b0.\"\"\"\n\n    def test_percent_discount(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10)]), 18_000)\n\n    def test_percent_discount_truncates_below_one_won(self):\n        # 10,005 * 15% = 1,500.75 -> \ud560\uc778\uc561 1,500 (\ubc18\uc62c\ub9bc\uc774\uba74 1,501)\n        self.assertEqual(apply_coupons(10_005, [percent(15)]), 8_505)\n\n    def test_fixed_discount(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(3_000)]), 17_000)\n\n    def test_stacked_percents_are_based_on_order_amount(self):\n        # \uc21c\ucc28 \uc801\uc6a9\uc774\uba74 16,200 \uc774 \ub41c\ub2e4. \uc2a4\ud399 3\uc740 \"\uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\"\uc774\ub2e4.\n        self.assertEqual(apply_coupons(20_000, [percent(10), percent(10)]), 16_000)\n\n    def test_percent_and_fixed_stack(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10), fixed(1_000)]), 17_000)\n\n\nclass FinalAmountFloorTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 5: \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_fixed_coupon_larger_than_order_does_not_go_negative(self):\n        # \uc815\ud655\ud55c \uae08\uc561\uc740 \uc2a4\ud399 7\uc774 \uc815\ud558\ubbc0\ub85c \uc5ec\uae30\uc11c\ub294 \ud558\ud55c\ub9cc \ud655\uc778\ud55c\ub2e4.\n        self.assertGreaterEqual(apply_coupons(15_000, [fixed(20_000)]), 0)\n\n\nclass StackabilityTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 6: \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\"\"\"\n\n    def test_non_stackable_coupon_alone_is_allowed(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10, stackable=False)]), 18_000)\n\n    def test_non_stackable_with_stackable_raises(self):\n        for coupons in (\n            [fixed(1_000, stackable=False), percent(10)],\n            [percent(10), fixed(1_000, stackable=False)],\n        ):\n            with self.subTest(coupons=coupons):\n                with self.assertRaises(ValueError):\n                    apply_coupons(20_000, coupons)\n\n    def test_two_non_stackable_coupons_raise(self):\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [percent(10, stackable=False), fixed(1_000, stackable=False)])\n\n\nclass DiscountCapTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 7: \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_discount_of_exactly_half_is_allowed(self):\n        self.assertEqual(apply_coupons(20_000, [percent(50)]), 10_000)\n\n    def test_single_percent_coupon_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [percent(60)]), 10_000)\n\n    def test_single_fixed_coupon_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(15_000)]), 10_000)\n\n    def test_stacked_coupons_are_capped_on_their_sum(self):\n        # \ucfe0\ud3f0 \ud558\ub098\ud558\ub098\ub294 50% \uc774\ud558\uc9c0\ub9cc \ud569\uacc4\uac00 \ub118\ub294 \uacbd\uc6b0\n        self.assertEqual(apply_coupons(20_000, [percent(30), fixed(8_000)]), 10_000)\n\n    def test_fixed_coupon_larger_than_order_is_capped(self):\n        self.assertEqual(apply_coupons(15_000, [fixed(20_000)]), 7_500)\n\n\nclass LoggingTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 8, 9: \"pricing\" \ub85c\uac70\ub85c \"coupon applied\" \ub85c \uc2dc\uc791\ud558\ub294 INFO \ub85c\uadf8\ub97c \ub0a8\uae34\ub2e4.\"\"\"\n\n    def test_applied_coupon_logs_info_on_module_logger(self):\n        with self.assertLogs(\"pricing\", level=\"INFO\") as logs:\n            apply_coupons(20_000, [percent(10)])\n\n        self.assertEqual(len(logs.records), 1)\n        self.assertEqual(logs.records[0].levelname, \"INFO\")\n        self.assertTrue(logs.records[0].getMessage().startswith(\"coupon applied\"))\n\n    def test_no_log_when_coupon_is_not_applied(self):\n        with self.assertNoLogs(\"pricing\", level=\"INFO\"):\n            apply_coupons(9_999, [percent(10)])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604\uc744 \ud45c\ub85c \uba85\uc2dc"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "LoggingTest\uac00 logger \uc774\ub984 'pricing'\uacfc 'coupon applied' \ubb38\uad6c\ub97c \uac80\uc99d\ud568(\uc2a4\ud399 8, 9\ubc88)"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, 0\uc6d0 \ud558\ud55c, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "10,000 \uacbd\uacc4, assertGreaterEqual 0, ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 18\uac1c \uc911 14\uac1c \ud1b5\uacfc, \uc2e4\ud328 4\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": false, "evidence": "percent(), fixed() \ud5ec\ud37c \ud568\uc218 2\uac1c\uac00 \uc788\uc74c"}], "summary": {"passed": 5, "failed": 2, "total": 7, "pass_rate": 0.71}, "timing": {"executor_duration_seconds": 87.3, "total_duration_seconds": 87.3}}}, {"id": "order-validator-justified-helper-with_skill", "prompt": "src/order_validator.py \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uc8fc\ubb38 \uac1d\uccb4 \ud544\ub4dc\uac00 \ub9ce\uc544\uc11c \uc880 \uadc0\ucc2e\uc744 \uac70\uc57c. tests/ \ud3f4\ub354\uc5d0 \ub123\uc5b4\uc8fc\uace0.", "eval_id": null, "outputs": [{"name": "report.md", "type": "text", "content": "`tests/test_order_validator.py`\uc5d0 \ud14c\uc2a4\ud2b8 14\uac1c\ub97c \uc791\uc131\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud569\ub2c8\ub2e4. `src/order_validator.py`\ub294 \uace0\uce58\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n    python -m unittest discover -s tests -t .\n\n\ud504\ub85c\uc81d\ud2b8 \ub8e8\ud2b8\uc5d0\uc11c \uc2e4\ud589\ud569\ub2c8\ub2e4. pytest\uac00 \uc5c6\uace0 \uae30\uc874 \ud14c\uc2a4\ud2b8\ub3c4 \uc5c6\uc5b4\uc11c \ud45c\uc900 \ub77c\uc774\ube0c\ub7ec\ub9ac `unittest`\ub85c \uc37c\uc2b5\ub2c8\ub2e4.\n\n**\ud14c\uc2a4\ud2b8\ud55c \ub3d9\uc791**\n- \uc720\ud6a8\ud55c \uc8fc\ubb38\uc740 \uc624\ub958\uac00 \uc5c6\uc74c\n- \uc774\uba54\uc77c: `@`\uac00 \uc5c6\uc73c\uba74 \uc624\ub958\n- \uc6b0\ud3b8\ubc88\ud638: \uc815\ud655\ud788 5\uc790\ub9ac \uc22b\uc790\ub9cc \ud5c8\uc6a9. \uc55e\uc790\ub9ac 0\uc740 \uc720\ud6a8\n- \uc218\ub7c9: 1\uacfc 99\ub294 \uc720\ud6a8, -1, 0, 100\uc740 \uc624\ub958\n- \uac00\uaca9: 0\uc740 \uc720\ud6a8, \uc74c\uc218\ub294 \uc624\ub958\n- \uacb0\uc81c \uc218\ub2e8: `card`, `bank_transfer`\ub9cc \ud5c8\uc6a9\n- \ubc30\uc1a1\uc77c: \uc8fc\ubb38 \ub2e4\uc74c \ub0a0\uc740 \uc720\ud6a8, \uc8fc\ubb38 \ub2f9\uc77c\uacfc \uadf8 \uc774\uc804\uc740 \uc624\ub958\n- \uc5ec\ub7ec \ud544\ub4dc\uac00 \ud2c0\ub9ac\uba74 \uc624\ub958\ub97c \ud55c \ubc88\uc5d0 \ubaa8\ub450 \ubc18\ud658. \uc21c\uc11c\ub97c \uc815\ud55c \ubb38\uc11c\uac00 \uc5c6\uc5b4\uc11c \uc21c\uc11c\ub294 \uac80\uc99d\ud558\uc9c0 \uc54a\uc74c\n\n**\uac80\uc99d**\n\uc18c\uc2a4 \ubcf5\uc0ac\ubcf8\uc5d0 \ubcc0\uacbd 11\uac00\uc9c0\ub97c \ud558\ub098\uc529 \ub123\uc5b4 \ubd24\uace0, 11\uac00\uc9c0 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\uac00 \uc2e4\ud328\ub85c \uc7a1\uc558\uc2b5\ub2c8\ub2e4. \uc2e4\uc81c \uc18c\uc2a4\ub294 \uac74\ub4dc\ub9ac\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n**\ud5ec\ud37c**\n`make_order(**overrides)` \ud558\ub098\ub9cc \ud14c\uc2a4\ud2b8 \ud30c\uc77c \uc548\uc5d0 \ub480\uc2b5\ub2c8\ub2e4. `Order`\ub294 \ud544\uc218 \ud544\ub4dc\uac00 13\uac1c\uc778\ub370 \uac01 \ud14c\uc2a4\ud2b8\uac00 \ubcf4\ub294 \ud544\ub4dc\ub294 1~2\uac1c\ub77c, \ub9e4\ubc88 \ub2e4 \uc801\uc73c\uba74 \ubb34\uc5c7\uc744 \uac80\uc99d\ud558\ub294\uc9c0 \ubb3b\ud788\uae30 \ub54c\ubb38\uc785\ub2c8\ub2e4. \uc720\ud6a8\ud55c \uae30\ubcf8\uac12\uc73c\ub85c \uc8fc\ubb38\uc744 \ub9cc\ub4e4\uae30\ub9cc \ud558\uace0, \ud14c\uc2a4\ud2b8\uc5d0\uc11c \uc911\uc694\ud55c \uac12\uc740 \uc778\uc790\ub85c \ub118\uae41\ub2c8\ub2e4.\n\n**\ud655\uc778\uc774 \ud544\uc694\ud55c \ubd80\ubd84**\n\uc2a4\ud399 \ubb38\uc11c\uac00 \uc5c6\uc5b4\uc11c \ucf54\ub4dc\uc640 \ud568\uc218 \uc774\ub984\uc5d0\uc11c \uc758\ub3c4\ub97c \ucd94\uc815\ud588\uc2b5\ub2c8\ub2e4. \uc544\ub798 \ub3d9\uc791\uc740 \uc758\ub3c4\uc778\uc9c0 \uc54c \uc218 \uc5c6\uc5b4 \ubc84\uadf8\ub85c \ub2e8\uc815\ud558\uc9c0 \uc54a\uc558\uace0, \ud14c\uc2a4\ud2b8\ub85c \uace0\uc815\ud558\uc9c0\ub3c4 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n- **\uc774\uba54\uc77c \uac80\uc0ac\uac00 \ub290\uc2a8\ud568:** `\"@\"`\ub098 `\"a@\"`\ub3c4 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n- **\uc22b\uc790\uac00 \uc544\ub2cc \uc6b0\ud3b8\ubc88\ud638\uac00 \ud1b5\uacfc\ud568:** `isdigit()`\uc744 \uc4f0\uae30 \ub54c\ubb38\uc5d0 `\"\u2460\u2461\u2462\u2463\u2464\"`\ub098 \uc544\ub78d \uc22b\uc790\ub3c4 \uc720\ud6a8\ub85c \ucc98\ub9ac\ub429\ub2c8\ub2e4.\n- **\ube48 \uac12 \uac80\uc0ac\uac00 \uc5c6\uc74c:** `shipping_name`, `shipping_phone`, `shipping_address`, `item_sku`, `order_id`, `customer_id`\ub294 \ube48 \ubb38\uc790\uc5f4\uc774\uc5b4\ub3c4 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n- **\uac00\uaca9 0\uc6d0\uc774 \uc720\ud6a8\ud568:** \ubb34\ub8cc \uc0c1\ud488\uc744 \ud5c8\uc6a9\ud558\ub294 \uc758\ub3c4\ub85c \ubcf4\uace0 \uc720\ud6a8\ub85c \ud14c\uc2a4\ud2b8\ud588\uc2b5\ub2c8\ub2e4.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef make_order(**overrides):\n    \"\"\"\uc720\ud6a8\ud55c \uc8fc\ubb38\uc744 \ub9cc\ub4e0\ub2e4. \ud14c\uc2a4\ud2b8\uc5d0\uc11c \uc911\uc694\ud55c \ud544\ub4dc\ub294 \uc778\uc790\ub85c \ub118\uaca8 \ub4dc\ub7ec\ub0b8\ub2e4.\"\"\"\n    fields = dict(\n        order_id=\"ORD-1\",\n        customer_id=\"CUST-1\",\n        customer_email=\"buyer@example.com\",\n        shipping_name=\"\uae40\ucca0\uc218\",\n        shipping_phone=\"010-1234-5678\",\n        shipping_address=\"\uc11c\uc6b8\uc2dc \uac15\ub0a8\uad6c \ud14c\ud5e4\ub780\ub85c 1\",\n        shipping_zip=\"06236\",\n        item_sku=\"SKU-1\",\n        item_quantity=1,\n        unit_price=10_000,\n        payment_method=\"card\",\n        ordered_on=date(2026, 1, 10),\n        delivery_on=date(2026, 1, 13),\n    )\n    fields.update(overrides)\n    return Order(**fields)\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_valid_order_has_no_errors(self):\n        self.assertEqual(validate(make_order()), [])\n\n\nclass EmailTest(unittest.TestCase):\n    def test_email_without_at_sign_is_invalid(self):\n        order = make_order(customer_email=\"buyer.example.com\")\n        self.assertEqual(validate(order), [\"invalid_email\"])\n\n\nclass ZipTest(unittest.TestCase):\n    def test_zip_with_leading_zero_is_valid(self):\n        order = make_order(shipping_zip=\"01234\")\n        self.assertEqual(validate(order), [])\n\n    def test_zip_that_is_not_exactly_five_digits_is_invalid(self):\n        for shipping_zip in [\"\", \"1234\", \"123456\", \"1234a\", \"12-34\"]:\n            with self.subTest(shipping_zip=shipping_zip):\n                order = make_order(shipping_zip=shipping_zip)\n                self.assertEqual(validate(order), [\"invalid_zip\"])\n\n\nclass QuantityTest(unittest.TestCase):\n    def test_quantity_from_1_to_99_is_valid(self):\n        for item_quantity in [1, 99]:\n            with self.subTest(item_quantity=item_quantity):\n                order = make_order(item_quantity=item_quantity)\n                self.assertEqual(validate(order), [])\n\n    def test_quantity_outside_1_to_99_is_invalid(self):\n        for item_quantity in [-1, 0, 100]:\n            with self.subTest(item_quantity=item_quantity):\n                order = make_order(item_quantity=item_quantity)\n                self.assertEqual(validate(order), [\"invalid_quantity\"])\n\n\nclass PriceTest(unittest.TestCase):\n    def test_zero_price_is_valid(self):\n        order = make_order(unit_price=0)\n        self.assertEqual(validate(order), [])\n\n    def test_negative_price_is_invalid(self):\n        order = make_order(unit_price=-1)\n        self.assertEqual(validate(order), [\"invalid_price\"])\n\n\nclass PaymentMethodTest(unittest.TestCase):\n    def test_card_and_bank_transfer_are_valid(self):\n        for payment_method in [\"card\", \"bank_transfer\"]:\n            with self.subTest(payment_method=payment_method):\n                order = make_order(payment_method=payment_method)\n                self.assertEqual(validate(order), [])\n\n    def test_other_payment_method_is_invalid(self):\n        order = make_order(payment_method=\"cash\")\n        self.assertEqual(validate(order), [\"invalid_payment_method\"])\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    def test_delivery_the_day_after_order_is_valid(self):\n        order = make_order(\n            ordered_on=date(2026, 1, 10),\n            delivery_on=date(2026, 1, 11),\n        )\n        self.assertEqual(validate(order), [])\n\n    def test_delivery_on_the_order_date_is_invalid(self):\n        order = make_order(\n            ordered_on=date(2026, 1, 10),\n            delivery_on=date(2026, 1, 10),\n        )\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n    def test_delivery_before_the_order_date_is_invalid(self):\n        order = make_order(\n            ordered_on=date(2026, 1, 10),\n            delivery_on=date(2026, 1, 9),\n        )\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_every_invalid_field_is_reported_at_once(self):\n        order = make_order(\n            customer_email=\"no-at-sign\",\n            shipping_zip=\"1234\",\n            item_quantity=0,\n            unit_price=-1,\n            payment_method=\"cash\",\n            ordered_on=date(2026, 1, 10),\n            delivery_on=date(2026, 1, 10),\n        )\n        # \uc624\ub958 \uc21c\uc11c\ub97c \uc57d\uc18d\ud55c \uacf3\uc774 \uc5c6\uc5b4 \uc21c\uc11c\ub294 \uace0\uc815\ud558\uc9c0 \uc54a\ub294\ub2e4.\n        self.assertCountEqual(\n            validate(order),\n            [\n                \"invalid_email\",\n                \"invalid_zip\",\n                \"invalid_quantity\",\n                \"invalid_price\",\n                \"invalid_payment_method\",\n                \"invalid_delivery_date\",\n            ],\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "make_order \ud558\ub098\uac00 tests/test_order_validator.py \uc548\uc5d0\ub9cc \uc788\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "make_order(unit_price=-1)\ucc98\ub7fc \ub300\uc0c1 \uac12\uc774 \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\ub294 \uac1d\uccb4 \uc0dd\uc131\ub9cc \ud568"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 1, 99, 0, 100\uacfc \ub2f9\uc77c \ubc30\uc1a1 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 14\uac1c \ubaa8\ub450 \ud1b5\uacfc"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 80.1, "total_duration_seconds": 80.1}}}, {"id": "order-validator-justified-helper-without_skill", "prompt": "src/order_validator.py \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uc8fc\ubb38 \uac1d\uccb4 \ud544\ub4dc\uac00 \ub9ce\uc544\uc11c \uc880 \uadc0\ucc2e\uc744 \uac70\uc57c. tests/ \ud3f4\ub354\uc5d0 \ub123\uc5b4\uc8fc\uace0.", "eval_id": null, "outputs": [{"name": "report.md", "type": "text", "content": "`src/order_validator.py` \ud14c\uc2a4\ud2b8\ub97c `tests/test_order_validator.py`\uc5d0 \uc791\uc131\ud588\uace0, 14\uac1c \ubaa8\ub450 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n\n    python -m unittest discover -t . -s tests\n\npytest\uac00 \uc124\uce58\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc544 \ud45c\uc900 `unittest`\ub85c \uc791\uc131\ud588\uc2b5\ub2c8\ub2e4.\n\n**\ud544\ub4dc\uac00 \ub9ce\uc740 \ubb38\uc81c:** `make_order(**overrides)` \ud5ec\ud37c \ud558\ub098\ub85c \ud574\uacb0\ud588\uc2b5\ub2c8\ub2e4. \uc815\uc0c1 \uc8fc\ubb38\uc744 \uae30\ubcf8\uac12\uc73c\ub85c \ub9cc\ub4e4\uace0, \uac01 \ud14c\uc2a4\ud2b8\ub294 \uac80\uc99d\ud560 \ud544\ub4dc\ub9cc \ub118\uae41\ub2c8\ub2e4. \uc608: `make_order(unit_price=-1)`\n\n**\ub2e4\ub8ec \ubc94\uc704**\n- \uc815\uc0c1 \uc8fc\ubb38\uc740 \uc5d0\ub7ec \uc5c6\uc74c\n- 6\uac1c \uaddc\uce59\uc758 \ud1b5\uacfc/\uc2e4\ud328 \uacbd\uacc4\uac12: \uc218\ub7c9 0\u00b71\u00b799\u00b7100, \uac00\uaca9 -1\u00b70, \uc6b0\ud3b8\ubc88\ud638 4\u00b75\u00b76\uc790\ub9ac\uc640 \uc22b\uc790 \uc544\ub2cc \ubb38\uc790, \ubc30\uc1a1\uc77c \uc804\ub0a0\u00b7\ub2f9\uc77c\u00b7\ub2e4\uc74c\ub0a0, \uacb0\uc81c\uc218\ub2e8 \ub300\uc18c\ubb38\uc790 \ub4f1\n- \uc5ec\ub7ec \uaddc\uce59\uc744 \ub3d9\uc2dc\uc5d0 \uc5b4\uae30\uba74 \ubaa8\ub4e0 \uc5d0\ub7ec\uac00 \uac80\uc0ac \uc21c\uc11c\ub300\ub85c \ub098\uc634\n\n\uc2e4\ud328 \ucf00\uc774\uc2a4\ub294 \uc5d0\ub7ec \ubaa9\ub85d \uc804\uccb4\ub97c \ube44\uad50\ud558\ubbc0\ub85c, \uc5c9\ub6b1\ud55c \uc5d0\ub7ec\uac00 \uac19\uc774 \ub098\uc640\ub3c4 \uc7a1\ud799\ub2c8\ub2e4. \ube44\uad50 \uc5f0\uc0b0\uc790\uc640 \uc870\uac74\uc744 \uc77c\ubd80\ub7ec \ubc14\uafbc 16\uac00\uc9c0 \ubcc0\ud615\uc744 \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0 \uc801\uc6a9\ud574 \ubd24\uace0, \ubaa8\ub450 \ud14c\uc2a4\ud2b8\uac00 \uc2e4\ud328\ub85c \uc7a1\uc544\ub0c8\uc2b5\ub2c8\ub2e4. `src/`\ub294 \uc218\uc815\ud558\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4.\n\n**\ud655\uc778\uc774 \ud544\uc694\ud55c \ub3d9\uc791** (\uc758\ub3c4\ub41c \ub3d9\uc791\uc778\uc9c0 \ubab0\ub77c\uc11c \ud14c\uc2a4\ud2b8\ub85c \uace0\uc815\ud558\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4)\n- \uc774\uba54\uc77c\uc740 `@` \ud3ec\ud568 \uc5ec\ubd80\ub9cc \ubd10\uc11c `\"@\"` \ud55c \uae00\uc790\ub3c4 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n- \uc6b0\ud3b8\ubc88\ud638\uc5d0 `str.isdigit()`\ub97c \uc368\uc11c \ube44ASCII \uc22b\uc790\ub3c4 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n- `order_id`, `shipping_name` \ub4f1 \ub098\uba38\uc9c0 \ud544\ub4dc\ub294 \uac80\uc99d\ud558\uc9c0 \uc54a\uc544 \ube48 \ubb38\uc790\uc5f4\ub3c4 \ud1b5\uacfc\ud569\ub2c8\ub2e4.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef make_order(**overrides):\n    \"\"\"Return a valid Order; pass only the fields the test cares about.\"\"\"\n    fields = dict(\n        order_id=\"ORD-1\",\n        customer_id=\"CUST-1\",\n        customer_email=\"buyer@example.com\",\n        shipping_name=\"Hong Gildong\",\n        shipping_phone=\"010-1234-5678\",\n        shipping_address=\"1 Sejong-daero, Seoul\",\n        shipping_zip=\"04524\",\n        item_sku=\"SKU-1\",\n        item_quantity=1,\n        unit_price=1000,\n        payment_method=\"card\",\n        ordered_on=date(2026, 1, 10),\n        delivery_on=date(2026, 1, 11),\n    )\n    fields.update(overrides)\n    return Order(**fields)\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_valid_order_has_no_errors(self):\n        self.assertEqual(validate(make_order()), [])\n\n\nclass EmailTest(unittest.TestCase):\n    def test_email_without_at_sign_is_invalid(self):\n        order = make_order(customer_email=\"buyer.example.com\")\n        self.assertEqual(validate(order), [\"invalid_email\"])\n\n    def test_empty_email_is_invalid(self):\n        self.assertEqual(validate(make_order(customer_email=\"\")), [\"invalid_email\"])\n\n\nclass ZipTest(unittest.TestCase):\n    def test_zip_must_be_exactly_five_digits(self):\n        for bad_zip in (\"\", \"1234\", \"123456\", \"1234a\", \"12 34\", \"12-34\"):\n            with self.subTest(shipping_zip=bad_zip):\n                order = make_order(shipping_zip=bad_zip)\n                self.assertEqual(validate(order), [\"invalid_zip\"])\n\n    def test_zip_with_leading_zero_is_valid(self):\n        self.assertEqual(validate(make_order(shipping_zip=\"00501\")), [])\n\n\nclass QuantityTest(unittest.TestCase):\n    def test_quantity_inside_range_is_valid(self):\n        for quantity in (1, 99):\n            with self.subTest(item_quantity=quantity):\n                self.assertEqual(validate(make_order(item_quantity=quantity)), [])\n\n    def test_quantity_outside_range_is_invalid(self):\n        for quantity in (-1, 0, 100):\n            with self.subTest(item_quantity=quantity):\n                order = make_order(item_quantity=quantity)\n                self.assertEqual(validate(order), [\"invalid_quantity\"])\n\n\nclass PriceTest(unittest.TestCase):\n    def test_zero_price_is_valid(self):\n        self.assertEqual(validate(make_order(unit_price=0)), [])\n\n    def test_negative_price_is_invalid(self):\n        self.assertEqual(validate(make_order(unit_price=-1)), [\"invalid_price\"])\n\n\nclass PaymentMethodTest(unittest.TestCase):\n    def test_supported_payment_methods_are_valid(self):\n        for method in (\"card\", \"bank_transfer\"):\n            with self.subTest(payment_method=method):\n                self.assertEqual(validate(make_order(payment_method=method)), [])\n\n    def test_unsupported_payment_method_is_invalid(self):\n        for method in (\"\", \"cash\", \"CARD\"):\n            with self.subTest(payment_method=method):\n                order = make_order(payment_method=method)\n                self.assertEqual(validate(order), [\"invalid_payment_method\"])\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    def test_delivery_the_day_after_ordering_is_valid(self):\n        order = make_order(ordered_on=date(2026, 1, 10), delivery_on=date(2026, 1, 11))\n        self.assertEqual(validate(order), [])\n\n    def test_delivery_on_or_before_order_date_is_invalid(self):\n        for delivery_on in (date(2026, 1, 10), date(2026, 1, 9)):\n            with self.subTest(delivery_on=delivery_on):\n                order = make_order(ordered_on=date(2026, 1, 10), delivery_on=delivery_on)\n                self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_all_errors_are_reported_in_check_order(self):\n        order = make_order(\n            customer_email=\"no-at-sign\",\n            shipping_zip=\"1\",\n            item_quantity=0,\n            unit_price=-1,\n            payment_method=\"cash\",\n            delivery_on=date(2026, 1, 10),\n        )\n        self.assertEqual(\n            validate(order),\n            [\n                \"invalid_email\",\n                \"invalid_zip\",\n                \"invalid_quantity\",\n                \"invalid_price\",\n                \"invalid_payment_method\",\n                \"invalid_delivery_date\",\n            ],\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "make_order \ud558\ub098\uac00 tests/test_order_validator.py \uc548\uc5d0\ub9cc \uc788\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "make_order(unit_price=-1)\ucc98\ub7fc \ub300\uc0c1 \uac12\uc774 \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\ub294 \uac1d\uccb4 \uc0dd\uc131\ub9cc \ud568"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 1, 99, 0, 100\uacfc \ub2f9\uc77c \ubc30\uc1a1 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 14\uac1c \ubaa8\ub450 \ud1b5\uacfc"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 49.9, "total_duration_seconds": 49.9}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "writing-tests", "skill_path": "\u003cpath/to/skill>", "executor_model": "claude-opus-5-5", "analyzer_model": "\u003cmodel-name>", "timestamp": "2026-11-05T11:34:53Z", "evals_run": ["cart-no-spec-no-helper", "coupon-spec-prioritization", "order-validator-justified-helper"], "runs_per_configuration": 1}, "runs": [{"eval_id": "cart-no-spec-no-helper", "eval_name": "cart-no-spec-no-helper", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 50.3, "tokens": 66793, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc \uc74c\uc218 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}], "notes": []}, {"eval_id": "coupon-spec-prioritization", "eval_name": "coupon-spec-prioritization", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 99.8, "tokens": 73430, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 50% \uc0c1\ud55c \ubbf8\uad6c\ud604\uc744 \uba85\uc2dc\ud558\uace0 \uc2e4\ud328 \ud14c\uc2a4\ud2b8 2\uac1c\ub85c \ub0a8\uae40"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\ub85c\uadf8\u00b7\ub85c\uac70\u00b7CURRENCY\ub97c \uac80\uc99d\ud558\ub294 \ud14c\uc2a4\ud2b8 \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1, 5, 8, 9\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, 0\uc6d0 \ud558\ud55c, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "9,999/10,000 \uacbd\uacc4\uc640 ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c. 0\uc6d0 \ud558\ud55c\uc740 \ubcc4\ub3c4 \ud14c\uc2a4\ud2b8\uac00 \uc5c6\uc9c0\ub9cc \uc8fc\ubb38\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0\uc774 10,000\uc774 \ub418\uc5b4\uc57c \ud55c\ub2e4\ub294 \ub354 \uac15\ud55c \uac80\uc99d\uc73c\ub85c \ub2e4\ub8f8"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \uc911 7\uac1c \ud1b5\uacfc, \uc2e4\ud328 2\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c \ud568\uc218 \uc5c6\uc74c"}], "notes": []}, {"eval_id": "order-validator-justified-helper", "eval_name": "order-validator-justified-helper", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 80.1, "tokens": 69863, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "make_order \ud558\ub098\uac00 tests/test_order_validator.py \uc548\uc5d0\ub9cc \uc788\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "make_order(unit_price=-1)\ucc98\ub7fc \ub300\uc0c1 \uac12\uc774 \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\ub294 \uac1d\uccb4 \uc0dd\uc131\ub9cc \ud568"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 1, 99, 0, 100\uacfc \ub2f9\uc77c \ubc30\uc1a1 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 14\uac1c \ubaa8\ub450 \ud1b5\uacfc"}], "notes": []}, {"eval_id": "cart-no-spec-no-helper", "eval_name": "cart-no-spec-no-helper", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 57.4, "tokens": 62956, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 11\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc -1 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud14c\uc2a4\ud2b8 \ubcf8\ubb38 \uc548\uc5d0\ub294 \uc5c6\uc74c. \ub2e4\ub9cc it()\uc744 for \ubb38\uc73c\ub85c \uac10\uc2f8 \uc0dd\uc131\ud558\ub294 \ucf54\ub4dc\uac00 \ubc14\uae65\uc5d0 \uc788\uc74c"}], "notes": []}, {"eval_id": "coupon-spec-prioritization", "eval_name": "coupon-spec-prioritization", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.71, "passed": 5, "failed": 2, "total": 7, "time_seconds": 87.3, "tokens": 67934, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604\uc744 \ud45c\ub85c \uba85\uc2dc"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "LoggingTest\uac00 logger \uc774\ub984 'pricing'\uacfc 'coupon applied' \ubb38\uad6c\ub97c \uac80\uc99d\ud568(\uc2a4\ud399 8, 9\ubc88)"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, 0\uc6d0 \ud558\ud55c, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "10,000 \uacbd\uacc4, assertGreaterEqual 0, ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 18\uac1c \uc911 14\uac1c \ud1b5\uacfc, \uc2e4\ud328 4\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": false, "evidence": "percent(), fixed() \ud5ec\ud37c \ud568\uc218 2\uac1c\uac00 \uc788\uc74c"}], "notes": []}, {"eval_id": "order-validator-justified-helper", "eval_name": "order-validator-justified-helper", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 49.9, "tokens": 62663, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "make_order \ud558\ub098\uac00 tests/test_order_validator.py \uc548\uc5d0\ub9cc \uc788\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "make_order(unit_price=-1)\ucc98\ub7fc \ub300\uc0c1 \uac12\uc774 \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\ub294 \uac1d\uccb4 \uc0dd\uc131\ub9cc \ud568"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 1, 99, 0, 100\uacfc \ub2f9\uc77c \ubc30\uc1a1 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 14\uac1c \ubaa8\ub450 \ud1b5\uacfc"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 76.7333, "stddev": 24.9211, "min": 50.3, "max": 99.8}, "tokens": {"mean": 70028.6667, "stddev": 3321.6, "min": 66793, "max": 73430}}, "without_skill": {"pass_rate": {"mean": 0.9033, "stddev": 0.1674, "min": 0.71, "max": 1.0}, "time_seconds": {"mean": 64.8667, "stddev": 19.7864, "min": 49.9, "max": 87.3}, "tokens": {"mean": 64517.6667, "stddev": 2962.2563, "min": 62663, "max": 67934}}, "delta": {"pass_rate": "+0.10", "time_seconds": "+11.9", "tokens": "+5511"}}, "notes": ["\uc2e4\uc81c \ucc28\uc774\ub294 \ucfe0\ud3f0 \ucf00\uc774\uc2a4\uc5d0\uc11c\ub9cc \ub0ac\ub2e4. \uc2a4\ud0ac \uc788\uc74c\uc740 \ud14c\uc2a4\ud2b8 9\uac1c/66\uc904, \uc5c6\uc74c\uc740 18\uac1c/114\uc904\uc774\uace0, \uc5c6\uc74c\uc740 \ub85c\uadf8 \ud14c\uc2a4\ud2b8\uc640 \ud5ec\ud37c 2\uac1c\ub97c \ub123\uc5c8\ub2e4.", "\uc8fc\ubb38 \uac80\uc99d \ucf00\uc774\uc2a4\ub294 \uc591\ucabd \ubaa8\ub450 6/6\uc73c\ub85c \uad6c\ubd84\ub825\uc774 \uc5c6\ub2e4. \uae30\ubcf8 \ubaa8\ub378\ub3c4 \uac19\uc740 make_order \ud5ec\ud37c\ub97c \ud30c\uc77c \uc548\uc5d0 \ub9cc\ub4e4\uc5c8\ub2e4.", "\uc7a5\ubc14\uad6c\ub2c8 \ucf00\uc774\uc2a4\ub3c4 6/6\uc73c\ub85c \uad6c\ubd84\ub825\uc774 \uc5c6\ub2e4. \ub2e4\ub9cc \uc5c6\uc74c \ucabd\uc740 cart.items.size(\ub0b4\ubd80 \uc0c1\ud0dc)\uc640 \uc624\ub958 \uba54\uc2dc\uc9c0\ub97c \uac80\uc99d\ud558\uace0 it()\uc744 for\ub85c \uc0dd\uc131\ud588\ub2e4. \ud569\uaca9 \uae30\uc900\uc774 \uc774\ub97c \uc7a1\uc9c0 \ubabb\ud588\ub2e4.", "\uc2a4\ud0ac \uc788\uc74c\ub3c4 \uc8fc\ubb38 \ucf00\uc774\uc2a4\uc5d0\uc11c \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 for + subTest\ub97c \uc37c\ub2e4. unittest\uc5d0\ub294 parametrize\uac00 \uc5c6\uc5b4 \uc2a4\ud0ac \uaddc\uce59\uc758 \ud574\uc11d\uc774 \ud544\uc694\ud55c \uc9c0\uc810\uc774\ub2e4.", "\ucf00\uc774\uc2a4\ub2f9 1\ud68c \uc2e4\ud589\uc774\ub77c \ud3c9\uade0 \ucc28\uc774\ub294 \ucc38\uace0\uc6a9\uc774\ub2e4. \ube44\uc6a9\uc740 \uc2a4\ud0ac \uc788\uc74c\uc774 \ud1a0\ud070 \uc57d 8%, \uc2dc\uac04 \uc57d 18% \ub354 \ub4e0\ub2e4.", "\ucfe0\ud3f0 \uc2a4\ud0ac \uc788\uc74c \uc2e4\ud589\uc774 \uc784\uc2dc \ud3f4\ub354 \ucda9\ub3cc \uac00\ub2a5\uc131\uc744 \ubcf4\uace0\ud588\ub2e4. \ucd5c\uc885 \ud14c\uc2a4\ud2b8\ub294 \ubaa8\ub450 \uc7ac\uc2e4\ud589\ud574 \uc77c\uce58\ub97c \ud655\uc778\ud588\uc9c0\ub9cc, \ub2e4\ub978 \uc2e4\ud589\uc758 \ubcc0\uc774 \ud14c\uc2a4\ud2b8 \uc218\uce58\ub294 \uc7ac\ud604\ud558\uc9c0 \uc54a\uc558\ub2e4."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + escapeHtml(summary.passed || 0) + ' passed, ' + escapeHtml(summary.failed || 0) + ' failed of ' + escapeHtml(summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML.replace(/"/g, "&quot;");
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += escapeHtml(metadata.timestamp) + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + escapeHtml(metadata.evals_run.join(", ")) + " &mdash; ";
+      html += escapeHtml(metadata.runs_per_configuration || "?") + (metadata.runs_per_configuration === 1 ? " run" : " runs") + " per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+      // With a single configuration there is nothing to compare: only its column is shown
+      const compare = cells => configs.length >= 2 ? cells : "";
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th>" + compare("<th>" + escapeHtml(labelB) + "</th><th>Delta</th>") + "</tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += compare("<td>" + fmtStat(b.pass_rate, true) + "</td>");
+      html += compare('<td class="' + deltaClass(delta.pass_rate) + '">' + escapeHtml(delta.pass_rate || "—") + "</td>") + "</tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.time_seconds, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.time_seconds) + '">' + escapeHtml(delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td>") + "</tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.tokens, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.tokens) + '">' + escapeHtml(delta.tokens || "—") + "</td>") + "</tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        // Numeric ids first, then ids that are names
+        const rank = id => typeof id === "number" ? 0 : 1;
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) =>
+          rank(a) - rank(b) || (rank(a) ? String(a).localeCompare(String(b)) : a - b));
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = escapeHtml(config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + escapeHtml(run.run_number) + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + escapeHtml(r.passed || 0) + "/" + escapeHtml(r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + escapeHtml(r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + escapeHtml(run.run_number) + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+{
+  "metadata": {
+    "skill_name": "writing-tests",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-05T11:34:53Z",
+    "evals_run": [
+      "cart-no-spec-no-helper",
+      "coupon-spec-prioritization",
+      "order-validator-justified-helper"
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": "cart-no-spec-no-helper",
+      "eval_name": "cart-no-spec-no-helper",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 50.3,
+        "tokens": 66793,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 코드에 테스트 콜백이 아닌 헬퍼 함수나 별도 지원 파일이 없다",
+          "passed": true,
+          "evidence": "헬퍼와 지원 파일 없음"
+        },
+        {
+          "text": "cart.js가 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 9개 모두 통과"
+        },
+        {
+          "text": "기대값이 리터럴로 적혀 있고 테스트 안에서 계산되지 않는다",
+          "passed": true,
+          "evidence": "기대값이 모두 리터럴"
+        },
+        {
+          "text": "같은 sku 추가 시 수량 합산과 0 이하 수량 거부를 모두 테스트한다",
+          "passed": true,
+          "evidence": "수량 누적, 0과 음수 RangeError 테스트 있음"
+        },
+        {
+          "text": "테스트 본문에 반복문이나 조건문이 없다",
+          "passed": true,
+          "evidence": "반복문·조건문 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "coupon-spec-prioritization",
+      "eval_name": "coupon-spec-prioritization",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 99.8,
+        "tokens": 73430,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "최종 보고가 스펙 7번(총 할인액 50% 상한)이 pricing.py에 구현되어 있지 않다는 불일치를 명시한다",
+          "passed": true,
+          "evidence": "보고에 50% 상한 미구현을 명시하고 실패 테스트 2개로 남김"
+        },
+        {
+          "text": "pricing.py가 원본과 동일하다(소스 코드를 고치지 않았다)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 로그 문구, 로거 이름, CURRENCY 상수(스펙 1, 8, 9번)를 검증하지 않는다",
+          "passed": true,
+          "evidence": "로그·로거·CURRENCY를 검증하는 테스트 없음"
+        },
+        {
+          "text": "최종 보고가 일부러 테스트하지 않은 스펙 항목과 그 이유를 밝힌다",
+          "passed": true,
+          "evidence": "스펙 1, 5, 8, 9번을 제외하고 이유를 밝힘"
+        },
+        {
+          "text": "테스트가 10,000원 경계, 0원 하한, 중복 불가 쿠폰 오류를 모두 다룬다",
+          "passed": true,
+          "evidence": "9,999/10,000 경계와 ValueError 테스트 있음. 0원 하한은 별도 테스트가 없지만 주문보다 큰 쿠폰이 10,000이 되어야 한다는 더 강한 검증으로 다룸"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 그 결과를 보고한다",
+          "passed": true,
+          "evidence": "재실행: 9개 중 7개 통과, 실패 2개는 보고 내용과 일치"
+        },
+        {
+          "text": "테스트 파일에 테스트가 아닌 헬퍼 함수가 없다",
+          "passed": true,
+          "evidence": "헬퍼 함수 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "order-validator-justified-helper",
+      "eval_name": "order-validator-justified-helper",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 80.1,
+        "tokens": 69863,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "src/ 아래 파일이 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+          "passed": true,
+          "evidence": "make_order 하나가 tests/test_order_validator.py 안에만 있음"
+        },
+        {
+          "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+          "passed": true,
+          "evidence": "make_order(unit_price=-1)처럼 대상 값이 테스트에 드러남"
+        },
+        {
+          "text": "헬퍼 안에 검증(assert)이 없다",
+          "passed": true,
+          "evidence": "헬퍼는 객체 생성만 함"
+        },
+        {
+          "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+          "passed": true,
+          "evidence": "수량 1, 99, 0, 100과 당일 배송 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 모두 통과한다",
+          "passed": true,
+          "evidence": "재실행: 14개 모두 통과"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "cart-no-spec-no-helper",
+      "eval_name": "cart-no-spec-no-helper",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 57.4,
+        "tokens": 62956,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 코드에 테스트 콜백이 아닌 헬퍼 함수나 별도 지원 파일이 없다",
+          "passed": true,
+          "evidence": "헬퍼와 지원 파일 없음"
+        },
+        {
+          "text": "cart.js가 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 11개 모두 통과"
+        },
+        {
+          "text": "기대값이 리터럴로 적혀 있고 테스트 안에서 계산되지 않는다",
+          "passed": true,
+          "evidence": "기대값이 모두 리터럴"
+        },
+        {
+          "text": "같은 sku 추가 시 수량 합산과 0 이하 수량 거부를 모두 테스트한다",
+          "passed": true,
+          "evidence": "수량 누적, 0과 -1 RangeError 테스트 있음"
+        },
+        {
+          "text": "테스트 본문에 반복문이나 조건문이 없다",
+          "passed": true,
+          "evidence": "테스트 본문 안에는 없음. 다만 it()을 for 문으로 감싸 생성하는 코드가 바깥에 있음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "coupon-spec-prioritization",
+      "eval_name": "coupon-spec-prioritization",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.71,
+        "passed": 5,
+        "failed": 2,
+        "total": 7,
+        "time_seconds": 87.3,
+        "tokens": 67934,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "최종 보고가 스펙 7번(총 할인액 50% 상한)이 pricing.py에 구현되어 있지 않다는 불일치를 명시한다",
+          "passed": true,
+          "evidence": "보고에 스펙 7번 미구현을 표로 명시"
+        },
+        {
+          "text": "pricing.py가 원본과 동일하다(소스 코드를 고치지 않았다)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 로그 문구, 로거 이름, CURRENCY 상수(스펙 1, 8, 9번)를 검증하지 않는다",
+          "passed": false,
+          "evidence": "LoggingTest가 logger 이름 'pricing'과 'coupon applied' 문구를 검증함(스펙 8, 9번)"
+        },
+        {
+          "text": "최종 보고가 일부러 테스트하지 않은 스펙 항목과 그 이유를 밝힌다",
+          "passed": true,
+          "evidence": "스펙 1번을 제외하고 이유를 밝힘"
+        },
+        {
+          "text": "테스트가 10,000원 경계, 0원 하한, 중복 불가 쿠폰 오류를 모두 다룬다",
+          "passed": true,
+          "evidence": "10,000 경계, assertGreaterEqual 0, ValueError 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 그 결과를 보고한다",
+          "passed": true,
+          "evidence": "재실행: 18개 중 14개 통과, 실패 4개는 보고 내용과 일치"
+        },
+        {
+          "text": "테스트 파일에 테스트가 아닌 헬퍼 함수가 없다",
+          "passed": false,
+          "evidence": "percent(), fixed() 헬퍼 함수 2개가 있음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "order-validator-justified-helper",
+      "eval_name": "order-validator-justified-helper",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 49.9,
+        "tokens": 62663,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "src/ 아래 파일이 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+          "passed": true,
+          "evidence": "make_order 하나가 tests/test_order_validator.py 안에만 있음"
+        },
+        {
+          "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+          "passed": true,
+          "evidence": "make_order(unit_price=-1)처럼 대상 값이 테스트에 드러남"
+        },
+        {
+          "text": "헬퍼 안에 검증(assert)이 없다",
+          "passed": true,
+          "evidence": "헬퍼는 객체 생성만 함"
+        },
+        {
+          "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+          "passed": true,
+          "evidence": "수량 1, 99, 0, 100과 당일 배송 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 모두 통과한다",
+          "passed": true,
+          "evidence": "재실행: 14개 모두 통과"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 76.7333,
+        "stddev": 24.9211,
+        "min": 50.3,
+        "max": 99.8
+      },
+      "tokens": {
+        "mean": 70028.6667,
+        "stddev": 3321.6,
+        "min": 66793,
+        "max": 73430
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.9033,
+        "stddev": 0.1674,
+        "min": 0.71,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 64.8667,
+        "stddev": 19.7864,
+        "min": 49.9,
+        "max": 87.3
+      },
+      "tokens": {
+        "mean": 64517.6667,
+        "stddev": 2962.2563,
+        "min": 62663,
+        "max": 67934
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.10",
+      "time_seconds": "+11.9",
+      "tokens": "+5511"
+    }
+  },
+  "notes": [
+    "실제 차이는 쿠폰 케이스에서만 났다. 스킬 있음은 테스트 9개/66줄, 없음은 18개/114줄이고, 없음은 로그 테스트와 헬퍼 2개를 넣었다.",
+    "주문 검증 케이스는 양쪽 모두 6/6으로 구분력이 없다. 기본 모델도 같은 make_order 헬퍼를 파일 안에 만들었다.",
+    "장바구니 케이스도 6/6으로 구분력이 없다. 다만 없음 쪽은 cart.items.size(내부 상태)와 오류 메시지를 검증하고 it()을 for로 생성했다. 합격 기준이 이를 잡지 못했다.",
+    "스킬 있음도 주문 케이스에서 테스트 본문에 for + subTest를 썼다. unittest에는 parametrize가 없어 스킬 규칙의 해석이 필요한 지점이다.",
+    "케이스당 1회 실행이라 평균 차이는 참고용이다. 비용은 스킬 있음이 토큰 약 8%, 시간 약 18% 더 든다.",
+    "쿠폰 스킬 있음 실행이 임시 폴더 충돌 가능성을 보고했다. 최종 테스트는 모두 재실행해 일치를 확인했지만, 다른 실행의 변이 테스트 수치는 재현하지 않았다."
+  ]
+}

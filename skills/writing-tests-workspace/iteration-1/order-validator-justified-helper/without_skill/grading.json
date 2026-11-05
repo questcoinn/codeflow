@@ -1,0 +1,44 @@
+{
+  "expectations": [
+    {
+      "text": "src/ 아래 파일이 원본과 동일하다",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+      "passed": true,
+      "evidence": "make_order 하나가 tests/test_order_validator.py 안에만 있음"
+    },
+    {
+      "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+      "passed": true,
+      "evidence": "make_order(unit_price=-1)처럼 대상 값이 테스트에 드러남"
+    },
+    {
+      "text": "헬퍼 안에 검증(assert)이 없다",
+      "passed": true,
+      "evidence": "헬퍼는 객체 생성만 함"
+    },
+    {
+      "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+      "passed": true,
+      "evidence": "수량 1, 99, 0, 100과 당일 배송 테스트 있음"
+    },
+    {
+      "text": "테스트를 실제로 실행했고 모두 통과한다",
+      "passed": true,
+      "evidence": "재실행: 14개 모두 통과"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 49.9,
+    "total_duration_seconds": 49.9
+  }
+}
