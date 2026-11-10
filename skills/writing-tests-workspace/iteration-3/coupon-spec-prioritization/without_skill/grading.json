@@ -1,0 +1,49 @@
+{
+  "expectations": [
+    {
+      "text": "최종 보고가 스펙 7번(총 할인액 50% 상한)이 pricing.py에 구현되어 있지 않다는 불일치를 명시한다",
+      "passed": true,
+      "evidence": "보고에 스펙 7번 미구현을 표로 명시"
+    },
+    {
+      "text": "pricing.py가 원본과 동일하다(소스 코드를 고치지 않았다)",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "테스트가 로그 문구, 로거 이름, CURRENCY 상수(스펙 1, 8, 9번)를 검증하지 않는다",
+      "passed": false,
+      "evidence": "assertLogs로 로거, 레벨, 문구를 검증함(스펙 8, 9번)"
+    },
+    {
+      "text": "최종 보고가 일부러 테스트하지 않은 스펙 항목과 그 이유를 밝힌다",
+      "passed": true,
+      "evidence": "스펙 1번을 제외하고 이유를 밝힘"
+    },
+    {
+      "text": "테스트가 10,000원 경계, 주문 금액보다 큰 쿠폰, 중복 불가 쿠폰 오류를 모두 다룬다",
+      "passed": true,
+      "evidence": "경계값, 큰 쿠폰, 중복 불가 오류 테스트 있음"
+    },
+    {
+      "text": "테스트를 실제로 실행했고 그 결과를 보고한다",
+      "passed": true,
+      "evidence": "재실행: 19개 중 15개 통과, 실패 4개는 보고 내용과 일치"
+    },
+    {
+      "text": "테스트 파일에 테스트가 아닌 헬퍼 함수가 없다",
+      "passed": false,
+      "evidence": "percent(), fixed() 헬퍼 2개가 있음"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 2,
+    "total": 7,
+    "pass_rate": 0.71
+  },
+  "timing": {
+    "executor_duration_seconds": 68.8,
+    "total_duration_seconds": 68.8
+  }
+}

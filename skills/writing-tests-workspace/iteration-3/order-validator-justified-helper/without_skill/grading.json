@@ -1,0 +1,54 @@
+{
+  "expectations": [
+    {
+      "text": "src/ 아래 파일이 원본과 동일하다",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+      "passed": false,
+      "evidence": "make_order 외에 assert_accepted, assert_rejected를 가진 기반 클래스까지 헬퍼가 3개임"
+    },
+    {
+      "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+      "passed": true,
+      "evidence": "필드 이름과 값이 assert_rejected 인자로 테스트에 드러남"
+    },
+    {
+      "text": "헬퍼 안에 검증(assert)이 없다",
+      "passed": false,
+      "evidence": "assert_accepted, assert_rejected 헬퍼 안에 검증이 있음"
+    },
+    {
+      "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+      "passed": true,
+      "evidence": "수량 경계와 당일 배송을 다룸"
+    },
+    {
+      "text": "테스트를 실제로 실행했고 모두 통과한다",
+      "passed": true,
+      "evidence": "재실행: 16개 모두 통과"
+    },
+    {
+      "text": "값 두세 개만 확인하는 테스트(수량 1과 99, 결제 수단 두 가지 등)에 for 문을 쓰지 않는다",
+      "passed": false,
+      "evidence": "수량 1, 99 확인이 헬퍼 안의 for 문으로 돎"
+    },
+    {
+      "text": "여러 오류를 확인하는 테스트가 오류 순서를 고정하지 않는다",
+      "passed": true,
+      "evidence": "assertCountEqual로 순서 없이 비교"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 3,
+    "total": 8,
+    "pass_rate": 0.62
+  },
+  "timing": {
+    "executor_duration_seconds": 47.7,
+    "total_duration_seconds": 47.7
+  }
+}

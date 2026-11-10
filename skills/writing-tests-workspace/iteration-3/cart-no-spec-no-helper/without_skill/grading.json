@@ -1,0 +1,54 @@
+{
+  "expectations": [
+    {
+      "text": "테스트 코드에 테스트 콜백이 아닌 헬퍼 함수나 별도 지원 파일이 없다",
+      "passed": true,
+      "evidence": "헬퍼와 지원 파일 없음"
+    },
+    {
+      "text": "cart.js가 원본과 동일하다",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "node --test를 실행했고 모든 테스트가 통과한다",
+      "passed": true,
+      "evidence": "재실행: 19개 모두 통과"
+    },
+    {
+      "text": "기대값이 리터럴로 적혀 있고 테스트 안에서 계산되지 않는다",
+      "passed": true,
+      "evidence": "기대값이 모두 리터럴"
+    },
+    {
+      "text": "같은 sku 추가 시 수량 합산과 0 이하 수량 거부를 모두 테스트한다",
+      "passed": true,
+      "evidence": "수량 누적, 0과 -1 RangeError 테스트 있음"
+    },
+    {
+      "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+      "passed": false,
+      "evidence": "48행에서 for 문으로 it()을 만듦"
+    },
+    {
+      "text": "테스트가 cart.items 같은 내부 상태를 직접 보지 않는다",
+      "passed": false,
+      "evidence": "cart.items.get/size/has를 12곳에서 직접 확인함"
+    },
+    {
+      "text": "테스트가 오류 메시지 문구를 검증하지 않는다",
+      "passed": false,
+      "evidence": "52행에서 'quantity must be positive' 문구를 검증함"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 3,
+    "total": 8,
+    "pass_rate": 0.62
+  },
+  "timing": {
+    "executor_duration_seconds": 38.8,
+    "total_duration_seconds": 38.8
+  }
+}

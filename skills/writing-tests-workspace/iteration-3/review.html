@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "writing-tests", "runs": [{"id": "cart-no-spec-no-helper-with_skill", "prompt": "cart.js \uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const { test } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart');\n\ntest('an empty cart totals 0', () => {\n  const cart = new Cart();\n\n  assert.equal(cart.total, 0);\n});\n\ntest('total is the sum of price times quantity across all items', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 3);\n  cart.add('pear', 2500, 2);\n\n  assert.equal(cart.total, 8000);\n});\n\ntest('add without a quantity adds one unit', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000);\n\n  assert.equal(cart.total, 1000);\n});\n\ntest('adding the same sku again increases its quantity instead of replacing it', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n  cart.add('apple', 1000, 3);\n\n  assert.equal(cart.total, 5000);\n});\n\ntest('add rejects a quantity of 0 and leaves the cart unchanged', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 1);\n\n  assert.throws(() => cart.add('apple', 1000, 0), RangeError);\n  assert.equal(cart.total, 1000);\n});\n\ntest('add rejects a negative quantity and leaves the cart unchanged', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n\n  assert.throws(() => cart.add('apple', 1000, -1), RangeError);\n  assert.equal(cart.total, 2000);\n});\n\ntest('remove drops the item from the total and returns true', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n  cart.add('pear', 2500, 1);\n\n  assert.equal(cart.remove('apple'), true);\n  assert.equal(cart.total, 2500);\n});\n\ntest('remove returns false for a sku that is not in the cart', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 1);\n\n  assert.equal(cart.remove('pear'), false);\n  assert.equal(cart.total, 1000);\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 8\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ud5ec\ud37c \uc5c6\uc74c. \ubcc0\uc774 5\uac00\uc9c0\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uac19\uc740 sku \ub2e4\ub978 \uac00\uaca9, \uc18c\uc218 \uac00\uaca9\uc740 \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}], "grading": {"expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 8\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc \uc74c\uc218 \uc218\ub7c9 \uac70\ubd80 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 cart.items \uac19\uc740 \ub0b4\ubd80 \uc0c1\ud0dc\ub97c \uc9c1\uc811 \ubcf4\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "cart.items \uc811\uadfc \uc5c6\uc74c, total\uacfc remove \ubc18\ud658\uac12\uc73c\ub85c \uac80\uc99d"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uba54\uc2dc\uc9c0 \ubb38\uad6c\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc624\ub958 \ubb38\uad6c \uac80\uc99d \uc5c6\uc74c, RangeError \ud0c0\uc785\ub9cc \ud655\uc778"}], "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 54.9, "total_duration_seconds": 54.9}}}, {"id": "cart-no-spec-no-helper-without_skill", "prompt": "cart.js \uc720\ub2db \ud14c\uc2a4\ud2b8 \ucd94\uac00\ud574\uc918. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const { describe, it, beforeEach } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart');\n\ndescribe('Cart', () => {\n  let cart;\n\n  beforeEach(() => {\n    cart = new Cart();\n  });\n\n  describe('add', () => {\n    it('stores a new item with its price and quantity', () => {\n      cart.add('apple', 100, 3);\n\n      assert.deepEqual(cart.items.get('apple'), { price: 100, quantity: 3 });\n    });\n\n    it('defaults quantity to 1', () => {\n      cart.add('apple', 100);\n\n      assert.equal(cart.items.get('apple').quantity, 1);\n    });\n\n    it('accumulates quantity when the same sku is added again', () => {\n      cart.add('apple', 100, 2);\n      cart.add('apple', 100, 3);\n\n      assert.equal(cart.items.size, 1);\n      assert.equal(cart.items.get('apple').quantity, 5);\n    });\n\n    it('keeps different skus as separate items', () => {\n      cart.add('apple', 100);\n      cart.add('pear', 200);\n\n      assert.equal(cart.items.size, 2);\n    });\n\n    // Pins current behavior: the price passed on a repeat add is ignored.\n    it('keeps the original price when an existing sku is added at a new price', () => {\n      cart.add('apple', 100, 1);\n      cart.add('apple', 999, 1);\n\n      assert.deepEqual(cart.items.get('apple'), { price: 100, quantity: 2 });\n    });\n\n    for (const quantity of [0, -1]) {\n      it(`throws RangeError for quantity ${quantity}`, () => {\n        assert.throws(() => cart.add('apple', 100, quantity), {\n          name: 'RangeError',\n          message: 'quantity must be positive',\n        });\n      });\n    }\n\n    it('leaves the cart unchanged when a new sku is rejected', () => {\n      assert.throws(() => cart.add('apple', 100, 0), RangeError);\n\n      assert.equal(cart.items.size, 0);\n    });\n\n    it('leaves an existing item unchanged when a repeat add is rejected', () => {\n      cart.add('apple', 100, 2);\n\n      assert.throws(() => cart.add('apple', 100, -1), RangeError);\n\n      assert.equal(cart.items.get('apple').quantity, 2);\n    });\n  });\n\n  describe('remove', () => {\n    it('removes an existing item and returns true', () => {\n      cart.add('apple', 100);\n\n      assert.equal(cart.remove('apple'), true);\n      assert.equal(cart.items.has('apple'), false);\n    });\n\n    it('returns false for an unknown sku', () => {\n      assert.equal(cart.remove('missing'), false);\n    });\n\n    it('leaves other items in place', () => {\n      cart.add('apple', 100);\n      cart.add('pear', 200);\n\n      cart.remove('apple');\n\n      assert.equal(cart.items.has('pear'), true);\n    });\n\n    it('removes the whole line regardless of quantity', () => {\n      cart.add('apple', 100, 5);\n\n      cart.remove('apple');\n\n      assert.equal(cart.total, 0);\n    });\n  });\n\n  describe('total', () => {\n    it('is 0 for an empty cart', () => {\n      assert.equal(cart.total, 0);\n    });\n\n    it('multiplies price by quantity', () => {\n      cart.add('apple', 100, 3);\n\n      assert.equal(cart.total, 300);\n    });\n\n    it('sums across items', () => {\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250, 3);\n\n      assert.equal(cart.total, 950);\n    });\n\n    it('reflects accumulated quantity', () => {\n      cart.add('apple', 100, 1);\n      cart.add('apple', 100, 2);\n\n      assert.equal(cart.total, 300);\n    });\n\n    it('drops when an item is removed', () => {\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250);\n\n      cart.remove('apple');\n\n      assert.equal(cart.total, 250);\n    });\n  });\n\n  it('does not share items between instances', () => {\n    const other = new Cart();\n\n    cart.add('apple', 100);\n\n    assert.equal(other.items.size, 0);\n  });\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 19\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ubcc0\uc774 11\uac00\uc9c0\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uac19\uc740 sku\uc758 \ub2e4\ub978 \uac00\uaca9\uc740 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub294 \ud14c\uc2a4\ud2b8\ub85c \ub123\uc5c8\uace0, \uc785\ub825 \uac80\uc99d \ub204\ub77d\uc740 \ubcf4\uace0.\n"}], "grading": {"expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 19\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc -1 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": false, "evidence": "48\ud589\uc5d0\uc11c for \ubb38\uc73c\ub85c it()\uc744 \ub9cc\ub4e6"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 cart.items \uac19\uc740 \ub0b4\ubd80 \uc0c1\ud0dc\ub97c \uc9c1\uc811 \ubcf4\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "cart.items.get/size/has\ub97c 12\uacf3\uc5d0\uc11c \uc9c1\uc811 \ud655\uc778\ud568"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uba54\uc2dc\uc9c0 \ubb38\uad6c\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "52\ud589\uc5d0\uc11c 'quantity must be positive' \ubb38\uad6c\ub97c \uac80\uc99d\ud568"}], "summary": {"passed": 5, "failed": 3, "total": 8, "pass_rate": 0.62}, "timing": {"executor_duration_seconds": 38.8, "total_duration_seconds": 38.8}}}, {"id": "coupon-spec-prioritization-with_skill", "prompt": "pricing.py\uc5d0 \ucfe0\ud3f0 \uacc4\uc0b0 \ub85c\uc9c1 \ub123\uc5b4\ub1a8\uc5b4. \ud14c\uc2a4\ud2b8 \uc880 \uc791\uc131\ud574\uc918. \uc2a4\ud399\uc740 docs/coupon-spec.md \ucc38\uace0\ud558\uba74 \ub3fc.", "eval_id": null, "outputs": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 9\uac1c \uc911 7\uac1c \ud1b5\uacfc. \uc2e4\ud328 2\uac1c\ub294 \uc2a4\ud399 7\ubc88(50% \uc0c1\ud55c) \ubbf8\uad6c\ud604 \ub54c\ubb38\uc774\uba70 \uc18c\uc2a4\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c. \uc2a4\ud399 1, 5, 8, 9\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798. \ubcc0\uc774\ub97c \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0\uc11c \ud655\uc778.\n"}, {"name": "test_pricing.py", "type": "text", "content": "import unittest\n\nfrom pricing import apply_coupons\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    def test_orders_under_10000_ignore_coupons(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n        self.assertEqual(apply_coupons(9_999, [coupon]), 9_999)\n\n    def test_orders_of_exactly_10000_get_coupons(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n        self.assertEqual(apply_coupons(10_000, [coupon]), 9_000)\n\n\nclass DiscountTypeTest(unittest.TestCase):\n    def test_percent_coupon_discounts_by_rate_and_drops_fractional_won(self):\n        # 12,347 * 10% = 1,234.7 -> 1,234 discount (not rounded up to 1,235)\n        coupon = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n        self.assertEqual(apply_coupons(12_347, [coupon]), 11_113)\n\n    def test_fixed_coupon_discounts_by_its_amount(self):\n        coupon = {\"type\": \"fixed\", \"value\": 3_000, \"stackable\": True}\n        self.assertEqual(apply_coupons(20_000, [coupon]), 17_000)\n\n\nclass StackingTest(unittest.TestCase):\n    def test_stackable_coupons_add_their_discounts(self):\n        percent = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n        fixed = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n        self.assertEqual(apply_coupons(20_000, [percent, fixed]), 17_000)\n\n    def test_non_stackable_coupon_combined_with_another_raises(self):\n        exclusive = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False}\n        other = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [exclusive, other])\n\n    def test_non_stackable_coupon_used_alone_is_applied(self):\n        exclusive = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False}\n        self.assertEqual(apply_coupons(20_000, [exclusive]), 19_000)\n\n\nclass DiscountCapTest(unittest.TestCase):\n    def test_stacked_discounts_are_capped_at_half_the_order(self):\n        # 40% + 30% would be 14,000 off; cap is 10,000\n        first = {\"type\": \"percent\", \"value\": 40, \"stackable\": True}\n        second = {\"type\": \"percent\", \"value\": 30, \"stackable\": True}\n        self.assertEqual(apply_coupons(20_000, [first, second]), 10_000)\n\n    def test_fixed_coupon_larger_than_order_is_capped_at_half_the_order(self):\n        coupon = {\"type\": \"fixed\", \"value\": 30_000, \"stackable\": True}\n        self.assertEqual(apply_coupons(20_000, [coupon]), 10_000)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 50% \uc0c1\ud55c \ubbf8\uad6c\ud604\uc744 \uba85\uc2dc\ud558\uace0 \uc2e4\ud328 \ud14c\uc2a4\ud2b8 2\uac1c\ub85c \ub0a8\uae40"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\ub85c\uadf8\u00b7\ub85c\uac70\u00b7CURRENCY \uac80\uc99d \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1, 5, 8, 9\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, \uc8fc\ubb38 \uae08\uc561\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "9,999/10,000, 30,000\uc6d0 \uc815\uc561 \ucfe0\ud3f0, ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \uc911 7\uac1c \ud1b5\uacfc, \uc2e4\ud328 2\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c \uc5c6\uc74c"}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 81.5, "total_duration_seconds": 81.5}}}, {"id": "coupon-spec-prioritization-without_skill", "prompt": "pricing.py\uc5d0 \ucfe0\ud3f0 \uacc4\uc0b0 \ub85c\uc9c1 \ub123\uc5b4\ub1a8\uc5b4. \ud14c\uc2a4\ud2b8 \uc880 \uc791\uc131\ud574\uc918. \uc2a4\ud399\uc740 docs/coupon-spec.md \ucc38\uace0\ud558\uba74 \ub3fc.", "eval_id": null, "outputs": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 19\uac1c, 15\uac1c \ud1b5\uacfc, 4\uac1c \uc2e4\ud328. \uc2e4\ud328\ub294 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604 \ub54c\ubb38\uc774\uba70 pricing.py\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c. \uc2a4\ud399 2~9\ubc88\uc744 \ud14c\uc2a4\ud2b8\ud558\uace0 1\ubc88\ub9cc \uc81c\uc678. \uc2a4\ud399\uc774 \ubaa8\ud638\ud55c 4\uac00\uc9c0 \ud56d\ubaa9 \ud655\uc778 \uc694\uccad.\n"}, {"name": "test_pricing.py", "type": "text", "content": "\"\"\"docs/coupon-spec.md \uae30\uc900 apply_coupons \ud14c\uc2a4\ud2b8. \uc2e4\ud589: python -m unittest -v\"\"\"\nimport unittest\n\nimport pricing\nfrom pricing import apply_coupons\n\n\ndef percent(value, stackable=True):\n    return {\"type\": \"percent\", \"value\": value, \"stackable\": stackable}\n\n\ndef fixed(value, stackable=True):\n    return {\"type\": \"fixed\", \"value\": value, \"stackable\": stackable}\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 2: 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\"\"\"\n\n    def test_below_minimum_ignores_coupon(self):\n        self.assertEqual(apply_coupons(9_999, [fixed(1_000)]), 9_999)\n\n    def test_exactly_minimum_applies_coupon(self):\n        self.assertEqual(apply_coupons(10_000, [fixed(1_000)]), 9_000)\n\n\nclass DiscountCalculationTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 3, 4: \uc815\ub960/\uc815\uc561 \ud560\uc778 \uacc4\uc0b0.\"\"\"\n\n    def test_percent_discounts_by_rate(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10)]), 18_000)\n\n    def test_percent_discount_truncates_below_one_won(self):\n        # \ud560\uc778\uc561 1,234.5\uc6d0 -> 1,234\uc6d0. \uacb0\uacfc\ub97c \ubc84\ub9bc\ud558\uba74 11,110\uc6d0\uc774 \ub418\uc5b4 \ud2c0\ub9b0\ub2e4.\n        self.assertEqual(apply_coupons(12_345, [percent(10)]), 11_111)\n\n    def test_fixed_discounts_by_amount(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(3_000)]), 17_000)\n\n    def test_stacked_percents_are_based_on_order_amount(self):\n        # \uc21c\ucc28 \uc801\uc6a9\uc774\uba74 16,200\uc6d0\uc774 \ub41c\ub2e4.\n        self.assertEqual(apply_coupons(20_000, [percent(10), percent(10)]), 16_000)\n\n    def test_stacked_result_does_not_depend_on_coupon_order(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10), fixed(3_000)]), 15_000)\n        self.assertEqual(apply_coupons(20_000, [fixed(3_000), percent(10)]), 15_000)\n\n    def test_no_coupons_keeps_order_amount(self):\n        self.assertEqual(apply_coupons(20_000, []), 20_000)\n\n\nclass FinalAmountFloorTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 5: \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_oversized_discount_does_not_go_negative(self):\n        self.assertGreaterEqual(apply_coupons(20_000, [fixed(999_999)]), 0)\n\n\nclass DiscountCapTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 7: \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_discount_of_exactly_half_is_allowed(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(10_000)]), 10_000)\n\n    def test_fixed_discount_one_won_over_half_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(10_001)]), 10_000)\n\n    def test_fixed_discount_over_order_amount_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(30_000)]), 10_000)\n\n    def test_percent_discount_over_half_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [percent(60)]), 10_000)\n\n    def test_stacked_discount_over_half_is_capped(self):\n        # \ucfe0\ud3f0 \ud558\ub098\ud558\ub098\ub294 50% \uc774\ud558\uc5ec\ub3c4 \ud569\uacc4\uc5d0 \uc0c1\ud55c\uc774 \uac78\ub9b0\ub2e4.\n        self.assertEqual(apply_coupons(20_000, [percent(30), fixed(8_000)]), 10_000)\n\n\nclass StackingTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 6: \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc744 \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\"\"\"\n\n    def test_non_stackable_with_stackable_raises_in_either_order(self):\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [fixed(1_000, stackable=False), fixed(1_000)])\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [fixed(1_000), fixed(1_000, stackable=False)])\n\n    def test_two_non_stackable_raises(self):\n        with self.assertRaises(ValueError):\n            apply_coupons(\n                20_000,\n                [fixed(1_000, stackable=False), percent(10, stackable=False)],\n            )\n\n    def test_non_stackable_alone_is_applied(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(1_000, stackable=False)]), 19_000)\n\n\nclass LoggingTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 8, 9: \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8, \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984.\"\"\"\n\n    def test_applied_coupon_logs_info_on_module_logger(self):\n        with self.assertLogs(pricing.__name__, level=\"INFO\") as logs:\n            apply_coupons(20_000, [fixed(1_000)])\n\n        self.assertEqual(len(logs.records), 1)\n        record = logs.records[0]\n        self.assertEqual(record.name, pricing.__name__)\n        self.assertEqual(record.levelname, \"INFO\")\n        self.assertTrue(record.getMessage().startswith(\"coupon applied\"))\n\n    def test_no_log_when_coupon_is_not_applied(self):\n        with self.assertNoLogs(pricing.__name__, level=\"INFO\"):\n            apply_coupons(9_999, [fixed(1_000)])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604\uc744 \ud45c\ub85c \uba85\uc2dc"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "assertLogs\ub85c \ub85c\uac70, \ub808\ubca8, \ubb38\uad6c\ub97c \uac80\uc99d\ud568(\uc2a4\ud399 8, 9\ubc88)"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, \uc8fc\ubb38 \uae08\uc561\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "\uacbd\uacc4\uac12, \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \uc624\ub958 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 19\uac1c \uc911 15\uac1c \ud1b5\uacfc, \uc2e4\ud328 4\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": false, "evidence": "percent(), fixed() \ud5ec\ud37c 2\uac1c\uac00 \uc788\uc74c"}], "summary": {"passed": 5, "failed": 2, "total": 7, "pass_rate": 0.71}, "timing": {"executor_duration_seconds": 68.8, "total_duration_seconds": 68.8}}}, {"id": "order-validator-justified-helper-with_skill", "prompt": "src/order_validator.py \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uc8fc\ubb38 \uac1d\uccb4 \ud544\ub4dc\uac00 \ub9ce\uc544\uc11c \uc880 \uadc0\ucc2e\uc744 \uac70\uc57c. tests/ \ud3f4\ub354\uc5d0 \ub123\uc5b4\uc8fc\uace0.", "eval_id": null, "outputs": [{"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 17\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ud14c\uc2a4\ud2b8 \ud30c\uc77c \uc548\uc758 valid_order \ud5ec\ud37c \ud558\ub098\ub9cc \uc0ac\uc6a9\ud558\uace0 \uc774\uc720\ub97c \uc124\uba85. \uc624\ub958\ub294 set\uc73c\ub85c \ube44\uad50. \ubcc0\uc774 5\uac00\uc9c0\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uc804\uac01 \uc22b\uc790 \uc6b0\ud3b8\ubc88\ud638, '@'\ub9cc \uc788\ub294 \uc774\uba54\uc77c\uc740 \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom dataclasses import replace\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef valid_order(**overrides):\n    \"\"\"\ubaa8\ub4e0 \uac80\uc99d\uc744 \ud1b5\uacfc\ud558\ub294 \uc8fc\ubb38. \ud14c\uc2a4\ud2b8\uc5d0\uc11c \ud655\uc778\ud560 \ud544\ub4dc\ub9cc \uc778\uc790\ub85c \ubc14\uafbc\ub2e4.\"\"\"\n    order = Order(\n        order_id=\"O-1\",\n        customer_id=\"C-1\",\n        customer_email=\"buyer@example.com\",\n        shipping_name=\"\ud64d\uae38\ub3d9\",\n        shipping_phone=\"010-0000-0000\",\n        shipping_address=\"\uc11c\uc6b8\uc2dc \uc5b4\ub518\uac00 1\",\n        shipping_zip=\"12345\",\n        item_sku=\"SKU-1\",\n        item_quantity=1,\n        unit_price=1000,\n        payment_method=\"card\",\n        ordered_on=date(2026, 1, 10),\n        delivery_on=date(2026, 1, 11),\n    )\n    return replace(order, **overrides)\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_valid_order_has_no_errors(self):\n        self.assertEqual(validate(valid_order()), [])\n\n\nclass EmailTest(unittest.TestCase):\n    def test_email_without_at_sign_is_invalid(self):\n        order = valid_order(customer_email=\"buyer.example.com\")\n        self.assertEqual(validate(order), [\"invalid_email\"])\n\n\nclass ZipTest(unittest.TestCase):\n    def test_zip_with_4_digits_is_invalid(self):\n        self.assertEqual(validate(valid_order(shipping_zip=\"1234\")), [\"invalid_zip\"])\n\n    def test_zip_with_6_digits_is_invalid(self):\n        self.assertEqual(validate(valid_order(shipping_zip=\"123456\")), [\"invalid_zip\"])\n\n    def test_zip_with_non_digit_character_is_invalid(self):\n        self.assertEqual(validate(valid_order(shipping_zip=\"1234A\")), [\"invalid_zip\"])\n\n\nclass QuantityTest(unittest.TestCase):\n    def test_quantity_0_is_invalid(self):\n        self.assertEqual(validate(valid_order(item_quantity=0)), [\"invalid_quantity\"])\n\n    def test_quantity_1_is_allowed(self):\n        self.assertEqual(validate(valid_order(item_quantity=1)), [])\n\n    def test_quantity_99_is_allowed(self):\n        self.assertEqual(validate(valid_order(item_quantity=99)), [])\n\n    def test_quantity_100_is_invalid(self):\n        self.assertEqual(validate(valid_order(item_quantity=100)), [\"invalid_quantity\"])\n\n\nclass PriceTest(unittest.TestCase):\n    def test_price_0_is_allowed(self):\n        self.assertEqual(validate(valid_order(unit_price=0)), [])\n\n    def test_negative_price_is_invalid(self):\n        self.assertEqual(validate(valid_order(unit_price=-1)), [\"invalid_price\"])\n\n\nclass PaymentMethodTest(unittest.TestCase):\n    def test_bank_transfer_is_allowed(self):\n        self.assertEqual(validate(valid_order(payment_method=\"bank_transfer\")), [])\n\n    def test_unknown_payment_method_is_invalid(self):\n        order = valid_order(payment_method=\"cash\")\n        self.assertEqual(validate(order), [\"invalid_payment_method\"])\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    def test_delivery_on_order_date_is_invalid(self):\n        order = valid_order(ordered_on=date(2026, 1, 10), delivery_on=date(2026, 1, 10))\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n    def test_delivery_before_order_date_is_invalid(self):\n        order = valid_order(ordered_on=date(2026, 1, 10), delivery_on=date(2026, 1, 9))\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n    def test_delivery_day_after_order_date_is_allowed(self):\n        order = valid_order(ordered_on=date(2026, 1, 10), delivery_on=date(2026, 1, 11))\n        self.assertEqual(validate(order), [])\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_all_violations_are_reported_together(self):\n        order = valid_order(customer_email=\"no-at-sign\", item_quantity=0, unit_price=-1)\n        # \uacb0\uacfc \uc21c\uc11c\ub294 \uacc4\uc57d\uc774 \uc544\ub2c8\ubbc0\ub85c \uc9d1\ud569\uc73c\ub85c \ube44\uad50\ud55c\ub2e4\n        self.assertEqual(\n            set(validate(order)),\n            {\"invalid_email\", \"invalid_quantity\", \"invalid_price\"},\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c \uc548\uc758 valid_order \ud558\ub098, 13\uac1c \ud544\ub4dc \uc900\ube44\ub9cc \ub9e1\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "\ud655\uc778\ud560 \uac12\uc744 \uc778\uc790\ub85c \ub118\uae40(item_quantity=100 \ub4f1)"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc5d0 assert \uc5c6\uc74c"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 0/1/99/100, \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 17\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uac12 \ub450\uc138 \uac1c\ub9cc \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8(\uc218\ub7c9 1\uacfc 99, \uacb0\uc81c \uc218\ub2e8 \ub450 \uac00\uc9c0 \ub4f1)\uc5d0 for \ubb38\uc744 \uc4f0\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "for \uc5c6\uc774 \uac12\ub9c8\ub2e4 \ud14c\uc2a4\ud2b8\ub97c \ub098\ub214"}, {"text": "\uc5ec\ub7ec \uc624\ub958\ub97c \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uc21c\uc11c\ub97c \uace0\uc815\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc5ec\ub7ec \uc624\ub958\ub97c set\uc73c\ub85c \ube44\uad50"}], "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 77.4, "total_duration_seconds": 77.4}}}, {"id": "order-validator-justified-helper-without_skill", "prompt": "src/order_validator.py \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uc8fc\ubb38 \uac1d\uccb4 \ud544\ub4dc\uac00 \ub9ce\uc544\uc11c \uc880 \uadc0\ucc2e\uc744 \uac70\uc57c. tests/ \ud3f4\ub354\uc5d0 \ub123\uc5b4\uc8fc\uace0.", "eval_id": null, "outputs": [{"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 16\uac1c \ubaa8\ub450 \ud1b5\uacfc. make_order\uc640 assert_accepted, assert_rejected\ub85c \uad6c\uc131. \ubcc0\uc774 20\uc885\uc744 \ubaa8\ub450 \uc7a1\uc74c. \uc774\uba54\uc77c, \uc6b0\ud3b8\ubc88\ud638, \ubbf8\uac80\uc99d \ud544\ub4dc\ub294 \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef make_order(**overrides):\n    \"\"\"\uc720\ud6a8\ud55c \uc8fc\ubb38\uc744 \ub9cc\ub4e0\ub2e4. \ud14c\uc2a4\ud2b8\uac00 \ubcf4\ub824\ub294 \ud544\ub4dc\ub9cc overrides\ub85c \ubc14\uafbc\ub2e4.\"\"\"\n    fields = dict(\n        order_id=\"ORD-1\",\n        customer_id=\"CUST-1\",\n        customer_email=\"buyer@example.com\",\n        shipping_name=\"\ud64d\uae38\ub3d9\",\n        shipping_phone=\"010-1234-5678\",\n        shipping_address=\"\uc11c\uc6b8\uc2dc \uc911\uad6c \uc138\uc885\ub300\ub85c 110\",\n        shipping_zip=\"04524\",\n        item_sku=\"SKU-1\",\n        item_quantity=1,\n        unit_price=1000,\n        payment_method=\"card\",\n        ordered_on=date(2025, 1, 10),\n        delivery_on=date(2025, 1, 11),\n    )\n    fields.update(overrides)\n    return Order(**fields)\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_valid_order_has_no_errors(self):\n        self.assertEqual(validate(make_order()), [])\n\n\nclass FieldRuleTestCase(unittest.TestCase):\n    \"\"\"\ud55c \ud544\ub4dc\uc758 \uac12\ub4e4\uc744 \ud45c\ub85c \uac80\uc0ac\ud55c\ub2e4. \ub2e4\ub978 \uc5d0\ub7ec\uac00 \uc11e\uc774\uc9c0 \uc54a\ub294\uc9c0\ub3c4 \ud568\uaed8 \ud655\uc778\ud55c\ub2e4.\"\"\"\n\n    def assert_accepted(self, field, values):\n        for value in values:\n            with self.subTest(field=field, value=value):\n                self.assertEqual(validate(make_order(**{field: value})), [])\n\n    def assert_rejected(self, field, values, error):\n        for value in values:\n            with self.subTest(field=field, value=value):\n                self.assertEqual(validate(make_order(**{field: value})), [error])\n\n\nclass EmailTest(FieldRuleTestCase):\n    def test_email_with_at_sign_is_accepted(self):\n        self.assert_accepted(\"customer_email\", [\"a@b.co\"])\n\n    def test_email_without_at_sign_is_rejected(self):\n        self.assert_rejected(\n            \"customer_email\", [\"buyer.example.com\", \"\"], \"invalid_email\"\n        )\n\n\nclass ZipTest(FieldRuleTestCase):\n    def test_five_digit_zip_is_accepted(self):\n        self.assert_accepted(\"shipping_zip\", [\"00000\", \"99999\"])\n\n    def test_zip_with_wrong_length_is_rejected(self):\n        self.assert_rejected(\"shipping_zip\", [\"\", \"1234\", \"123456\"], \"invalid_zip\")\n\n    def test_zip_with_non_digits_is_rejected(self):\n        self.assert_rejected(\n            \"shipping_zip\", [\"1234a\", \"12 34\", \"12-34\", \"-1234\"], \"invalid_zip\"\n        )\n\n\nclass QuantityTest(FieldRuleTestCase):\n    def test_quantity_within_range_is_accepted(self):\n        self.assert_accepted(\"item_quantity\", [1, 99])\n\n    def test_quantity_out_of_range_is_rejected(self):\n        self.assert_rejected(\"item_quantity\", [-1, 0, 100], \"invalid_quantity\")\n\n\nclass PriceTest(FieldRuleTestCase):\n    def test_zero_or_positive_price_is_accepted(self):\n        self.assert_accepted(\"unit_price\", [0, 1])\n\n    def test_negative_price_is_rejected(self):\n        self.assert_rejected(\"unit_price\", [-1], \"invalid_price\")\n\n\nclass PaymentMethodTest(FieldRuleTestCase):\n    def test_supported_payment_methods_are_accepted(self):\n        self.assert_accepted(\"payment_method\", [\"card\", \"bank_transfer\"])\n\n    def test_unsupported_payment_method_is_rejected(self):\n        self.assert_rejected(\n            \"payment_method\", [\"cash\", \"\", \"CARD\"], \"invalid_payment_method\"\n        )\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    ORDERED_ON = date(2025, 1, 10)\n\n    def errors_for(self, delivery_on):\n        return validate(\n            make_order(ordered_on=self.ORDERED_ON, delivery_on=delivery_on)\n        )\n\n    def test_delivery_after_order_date_is_accepted(self):\n        self.assertEqual(self.errors_for(date(2025, 1, 11)), [])\n\n    def test_delivery_on_order_date_is_rejected(self):\n        self.assertEqual(self.errors_for(self.ORDERED_ON), [\"invalid_delivery_date\"])\n\n    def test_delivery_before_order_date_is_rejected(self):\n        self.assertEqual(\n            self.errors_for(date(2025, 1, 9)), [\"invalid_delivery_date\"]\n        )\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_all_errors_are_reported_together(self):\n        order = make_order(\n            customer_email=\"no-at-sign\",\n            shipping_zip=\"abc\",\n            item_quantity=0,\n            unit_price=-1,\n            payment_method=\"cash\",\n            delivery_on=date(2025, 1, 10),\n        )\n\n        self.assertCountEqual(\n            validate(order),\n            [\n                \"invalid_email\",\n                \"invalid_zip\",\n                \"invalid_quantity\",\n                \"invalid_price\",\n                \"invalid_payment_method\",\n                \"invalid_delivery_date\",\n            ],\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "grading": {"expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": false, "evidence": "make_order \uc678\uc5d0 assert_accepted, assert_rejected\ub97c \uac00\uc9c4 \uae30\ubc18 \ud074\ub798\uc2a4\uae4c\uc9c0 \ud5ec\ud37c\uac00 3\uac1c\uc784"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "\ud544\ub4dc \uc774\ub984\uacfc \uac12\uc774 assert_rejected \uc778\uc790\ub85c \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": false, "evidence": "assert_accepted, assert_rejected \ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d\uc774 \uc788\uc74c"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \uacbd\uacc4\uc640 \ub2f9\uc77c \ubc30\uc1a1\uc744 \ub2e4\ub8f8"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 16\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uac12 \ub450\uc138 \uac1c\ub9cc \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8(\uc218\ub7c9 1\uacfc 99, \uacb0\uc81c \uc218\ub2e8 \ub450 \uac00\uc9c0 \ub4f1)\uc5d0 for \ubb38\uc744 \uc4f0\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "\uc218\ub7c9 1, 99 \ud655\uc778\uc774 \ud5ec\ud37c \uc548\uc758 for \ubb38\uc73c\ub85c \ub3ce"}, {"text": "\uc5ec\ub7ec \uc624\ub958\ub97c \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uc21c\uc11c\ub97c \uace0\uc815\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "assertCountEqual\ub85c \uc21c\uc11c \uc5c6\uc774 \ube44\uad50"}], "summary": {"passed": 5, "failed": 3, "total": 8, "pass_rate": 0.62}, "timing": {"executor_duration_seconds": 47.7, "total_duration_seconds": 47.7}}}, {"id": "shipping-private-function-with_skill", "prompt": "shipping.js\uc5d0 \uc788\ub294 zoneSurcharge \ud568\uc218 \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uacc4\uc0b0\uc774 \uc880 \ubcf5\uc7a1\ud574\uc11c \uc774\uac83\ub9cc \ub530\ub85c \ud655\uc2e4\ud788 \ubcf4\uace0 \uc2f6\uc5b4. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "package.json", "type": "text", "content": "{\n  \"name\": \"shipping\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 11\uac1c \ubaa8\ub450 \ud1b5\uacfc. zoneSurcharge\ub294 export\ub418\uc9c0 \uc54a\uc544 quoteShipping\uc73c\ub85c \uac80\uc99d. \ud560\uc99d \ud14c\uc2a4\ud2b8\ub294 subtotal 100,000\uc73c\ub85c \ub450\uace0 50,000\uc6d0 \uacbd\uacc4\ub294 \ud14c\uc2a4\ud2b8 \ud558\ub098\uc5d0\uc11c\ub9cc \ud655\uc778. \ubcc0\uc774 5\uac00\uc9c0\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubcc4\ub3c4 \ubaa8\ub4c8 \ubd84\ub9ac\ub97c \uc81c\uc548\ud558\uace0 \uc18c\uc2a4\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c.\n"}, {"name": "shipping.js", "type": "text", "content": "'use strict';\n\nconst BASE_FEE = 3000;\nconst FREE_SHIPPING_THRESHOLD = 50000;\n\n// \uc9c0\uc5ed \ud560\uc99d. \ubb34\ub8cc \ubc30\uc1a1\uc774\uc5b4\ub3c4 \ud560\uc99d\uc740 \ubc1b\ub294\ub2e4.\nfunction zoneSurcharge(postalCode, weightKg) {\n  const prefix = postalCode.slice(0, 2);\n  if (prefix === '63') {\n    return weightKg \u003c= 5 ? 3000 : 5000;\n  }\n  if (prefix === '23' || prefix === '40') {\n    const extraKg = Math.max(0, Math.ceil(weightKg - 5));\n    return 3000 + extraKg * 1000;\n  }\n  return 0;\n}\n\nfunction quoteShipping({ postalCode, weightKg, subtotal }) {\n  if (!/^\\d{5}$/.test(postalCode)) throw new TypeError('postalCode must be 5 digits');\n  if (!(weightKg > 0)) throw new RangeError('weightKg must be positive');\n  const base = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_FEE;\n  return base + zoneSurcharge(postalCode, weightKg);\n}\n\nmodule.exports = { quoteShipping };\n"}, {"name": "shipping.test.js", "type": "text", "content": "'use strict';\n\nconst test = require('node:test');\nconst assert = require('node:assert/strict');\nconst { quoteShipping } = require('./shipping');\n\n// zoneSurcharge\ub294 export\ub418\uc9c0 \uc54a\uc73c\ubbc0\ub85c quoteShipping\uc73c\ub85c \uac80\uc99d\ud55c\ub2e4.\n// \uc8fc\ubb38 \uae08\uc561\uc744 \ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900\ubcf4\ub2e4 \ub109\ub109\ud788 \ub192\uac8c(100,000\uc6d0) \ub450\uba74 \uae30\ubcf8 \ubc30\uc1a1\ube44\uac00 0\uc6d0\uc774\ub77c, \uacb0\uacfc\uac00 \uace7 \uc9c0\uc5ed \ud560\uc99d\uc774\ub2e4.\n\ntest('\uc81c\uc8fc(63) 5kg \uc774\ud558\ub294 \ud560\uc99d 3,000\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '63100', weightKg: 5, subtotal: 100000 }), 3000);\n});\n\ntest('\uc81c\uc8fc(63) 5kg\ub97c \uc870\uae08\uc774\ub77c\ub3c4 \ub118\uc73c\uba74 \ud560\uc99d 5,000\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '63100', weightKg: 5.1, subtotal: 100000 }), 5000);\n});\n\ntest('\uc81c\uc8fc(63)\ub294 \ubb34\uac8c\uac00 \uc544\ubb34\ub9ac \ub298\uc5b4\ub3c4 \ud560\uc99d 5,000\uc6d0\uc5d0\uc11c \ub354 \uc624\ub974\uc9c0 \uc54a\ub294\ub2e4', () => {\n  assert.equal(quoteShipping({ postalCode: '63100', weightKg: 30, subtotal: 100000 }), 5000);\n});\n\ntest('23 \uc9c0\uc5ed 5kg \uc774\ud558\ub294 \ud560\uc99d 3,000\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '23000', weightKg: 2, subtotal: 100000 }), 3000);\n});\n\ntest('23 \uc9c0\uc5ed 5kg \ucd08\uacfc\ubd84\uc740 1kg \ub2e8\uc704\ub85c \uc62c\ub9bc\ud574 1kg\ub2f9 1,000\uc6d0 \ucd94\uac00', () => {\n  // 0.1kg \ucd08\uacfc\ub3c4 1kg\ub85c \uce5c\ub2e4\n  assert.equal(quoteShipping({ postalCode: '23000', weightKg: 5.1, subtotal: 100000 }), 4000);\n});\n\ntest('23 \uc9c0\uc5ed 7kg\uc740 \ucd08\uacfc 2kg\ub77c \ud560\uc99d 5,000\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '23000', weightKg: 7, subtotal: 100000 }), 5000);\n});\n\ntest('40 \uc9c0\uc5ed\ub3c4 23 \uc9c0\uc5ed\uacfc \uac19\uc740 \uaddc\uce59\uc73c\ub85c 7.5kg\uc740 \ud560\uc99d 6,000\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '40200', weightKg: 7.5, subtotal: 100000 }), 6000);\n});\n\ntest('\ud560\uc99d \uc9c0\uc5ed\uc774 \uc544\ub2c8\uba74 \ud560\uc99d 0\uc6d0', () => {\n  assert.equal(quoteShipping({ postalCode: '06000', weightKg: 30, subtotal: 100000 }), 0);\n});\n\ntest('\uc6b0\ud3b8\ubc88\ud638 \uc55e \ub450 \uc790\ub9ac\ub9cc \ubcf8\ub2e4: \uc14b\uc9f8 \uc790\ub9ac\uac00 63\uc774\uc5b4\ub3c4 \ud560\uc99d \uc5c6\uc74c', () => {\n  assert.equal(quoteShipping({ postalCode: '06300', weightKg: 1, subtotal: 100000 }), 0);\n});\n\ntest('\ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900 \ubbf8\ub9cc\uc774\uba74 \uae30\ubcf8 \ubc30\uc1a1\ube44 3,000\uc6d0\uc5d0 \ud560\uc99d\uc774 \ub354\ud574\uc9c4\ub2e4', () => {\n  assert.equal(quoteShipping({ postalCode: '63100', weightKg: 1, subtotal: 49999 }), 6000);\n});\n\ntest('\ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900(50,000\uc6d0)\uc744 \ucc44\uc6cc\ub3c4 \uc9c0\uc5ed \ud560\uc99d\uc740 \ubc1b\ub294\ub2e4', () => {\n  assert.equal(quoteShipping({ postalCode: '63100', weightKg: 1, subtotal: 50000 }), 3000);\n});\n"}], "grading": {"expectations": [{"text": "shipping.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\ud14c\uc2a4\ud2b8\ub97c \uc704\ud55c export \ucd94\uac00 \uc5c6\uc74c)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 vm, eval, \uc18c\uc2a4 \ud30c\uc77c \ud14d\uc2a4\ud2b8 \uc77d\uae30, rewire \uac19\uc740 \uc6b0\ud68c \ubc29\ubc95\uc73c\ub85c zoneSurcharge\uc5d0 \uc811\uadfc\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc6b0\ud68c \uc811\uadfc \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uacf5\uac1c \ud568\uc218 quoteShipping\uc744 \ud638\ucd9c\ud574 \ud560\uc99d\uc744 \uac80\uc99d\ud55c\ub2e4", "passed": true, "evidence": "\ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 quoteShipping \ud638\ucd9c"}, {"text": "\uc81c\uc8fc(63) 5kg \uc774\ud558\uc640 \ucd08\uacfc, \ub3c4\uc11c\uc0b0\uac04(23 \ub610\ub294 40)\uc758 5kg \ucd08\uacfc\ubd84 kg \uc62c\ub9bc, \uc77c\ubc18 \uc9c0\uc5ed \ud560\uc99d \uc5c6\uc74c\uc744 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "63\uc758 5kg/5.1kg, 23\uc758 5.1kg\u21924,000\uc6d0 \uc62c\ub9bc, 40 \uc9c0\uc5ed, \uc77c\ubc18 \uc9c0\uc5ed 0\uc6d0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ubb34\ub8cc \ubc30\uc1a1 \uc870\uac74(\uc8fc\ubb38 \uae08\uc561 50,000\uc6d0 \uc774\uc0c1)\uc5d0\uc11c\ub3c4 \ud560\uc99d\uc774 \ubd99\ub294 \uac83\uc744 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "50,000\uc6d0\uc5d0\uc11c\ub3c4 \ud560\uc99d 3,000\uc6d0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 11\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uc5d0\uc11c zoneSurcharge\uac00 export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\ub294 \uc810\uc744 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubaa8\ub4c8 \ubd84\ub9ac\uac00 \ud544\uc694\ud558\ub2e4\ub294 \uc81c\uc548\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \ud55c\ub2e4", "passed": true, "evidence": "export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\uace0 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubcc4\ub3c4 \ubaa8\ub4c8\ub85c \ube7c\ub294 \ubc29\ubc95\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \uc81c\uc548"}], "summary": {"passed": 8, "failed": 0, "total": 8, "pass_rate": 1.0}, "timing": {"executor_duration_seconds": 80.1, "total_duration_seconds": 80.1}}}, {"id": "shipping-private-function-without_skill", "prompt": "shipping.js\uc5d0 \uc788\ub294 zoneSurcharge \ud568\uc218 \ud14c\uc2a4\ud2b8 \uc9dc\uc918. \uacc4\uc0b0\uc774 \uc880 \ubcf5\uc7a1\ud574\uc11c \uc774\uac83\ub9cc \ub530\ub85c \ud655\uc2e4\ud788 \ubcf4\uace0 \uc2f6\uc5b4. node --test\ub85c \ub3cc\ub9b4 \uc218 \uc788\uac8c.", "eval_id": null, "outputs": [{"name": "package.json", "type": "text", "content": "{\n  \"name\": \"shipping\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 41\uac1c \ubaa8\ub450 \ud1b5\uacfc. zoneSurcharge\ub294 export\ub418\uc9c0 \uc54a\uc544 quoteShipping\uc73c\ub85c \uac80\uc99d\ud558\uace0 \uc18c\uc2a4\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c. for \ubb38\uc73c\ub85c \uacbd\uacc4\uac12 \ud14c\uc2a4\ud2b8\ub97c \uc0dd\uc131. \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 shipping.js\uc5d0\uc11c export\ud558\uc790\uace0 \uc81c\uc548.\n"}, {"name": "shipping.js", "type": "text", "content": "'use strict';\n\nconst BASE_FEE = 3000;\nconst FREE_SHIPPING_THRESHOLD = 50000;\n\n// \uc9c0\uc5ed \ud560\uc99d. \ubb34\ub8cc \ubc30\uc1a1\uc774\uc5b4\ub3c4 \ud560\uc99d\uc740 \ubc1b\ub294\ub2e4.\nfunction zoneSurcharge(postalCode, weightKg) {\n  const prefix = postalCode.slice(0, 2);\n  if (prefix === '63') {\n    return weightKg \u003c= 5 ? 3000 : 5000;\n  }\n  if (prefix === '23' || prefix === '40') {\n    const extraKg = Math.max(0, Math.ceil(weightKg - 5));\n    return 3000 + extraKg * 1000;\n  }\n  return 0;\n}\n\nfunction quoteShipping({ postalCode, weightKg, subtotal }) {\n  if (!/^\\d{5}$/.test(postalCode)) throw new TypeError('postalCode must be 5 digits');\n  if (!(weightKg > 0)) throw new RangeError('weightKg must be positive');\n  const base = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : BASE_FEE;\n  return base + zoneSurcharge(postalCode, weightKg);\n}\n\nmodule.exports = { quoteShipping };\n"}, {"name": "shipping.test.js", "type": "text", "content": "'use strict';\n\nconst { test, describe } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { quoteShipping } = require('./shipping');\n\n// zoneSurcharge\ub294 export\ub418\uc9c0 \uc54a\uc740 \ub0b4\ubd80 \ud568\uc218\ub77c\uc11c \uacf5\uac1c API\uc778 quoteShipping\uc744 \ud1b5\ud574 \uac80\uc99d\ud55c\ub2e4.\n// subtotal\uc744 \ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900(50000) \uc774\uc0c1\uc73c\ub85c \uc8fc\uba74 \uae30\ubcf8\ub8cc\uac00 0\uc774 \ub418\ubbc0\ub85c\n// quoteShipping\uc758 \ubc18\ud658\uac12 == zoneSurcharge\uc758 \ubc18\ud658\uac12\uc774 \ub41c\ub2e4.\nconst FREE = 50000;\nconst surcharge = (postalCode, weightKg) =>\n  quoteShipping({ postalCode, weightKg, subtotal: FREE });\n\ndescribe('zoneSurcharge (quoteShipping \uacbd\uc720, \uae30\ubcf8\ub8cc 0 \uc870\uac74)', () => {\n  test('\uc804\uc81c \ud655\uc778: \ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900 \uae08\uc561\uc5d0\uc11c\ub294 \uae30\ubcf8\ub8cc\uac00 0\uc774\ub2e4', () => {\n    assert.equal(surcharge('12345', 1), 0);\n    assert.equal(quoteShipping({ postalCode: '12345', weightKg: 1, subtotal: FREE - 1 }), 3000);\n  });\n\n  describe('63 \uc9c0\uc5ed (5kg \uae30\uc900 \uc815\uc561 2\ub2e8\uacc4)', () => {\n    const cases = [\n      [0.1, 3000],\n      [4.99, 3000],\n      [5, 3000], // \uacbd\uacc4: 5kg \uc774\ud558\n      [5.01, 5000], // \uacbd\uacc4 \ubc14\ub85c \uc704\n      [6, 5000],\n      [30, 5000], // \ubb34\uac70\uc6cc\ub3c4 \uc0c1\ud55c 5000 \uace0\uc815\n    ];\n    for (const [w, expected] of cases) {\n      test(`63xxx, ${w}kg -> ${expected}`, () => {\n        assert.equal(surcharge('63100', w), expected);\n      });\n    }\n  });\n\n  describe('23 / 40 \uc9c0\uc5ed (3000 + 5kg \ucd08\uacfc\ubd84 1kg\ub2f9 1000, \uc62c\ub9bc)', () => {\n    const cases = [\n      [0.5, 3000],\n      [5, 3000], // \uacbd\uacc4: \ucd08\uacfc\ubd84 0\n      [5.01, 4000], // \uc870\uae08\ub9cc \ub118\uc5b4\ub3c4 1kg\uc73c\ub85c \uc62c\ub9bc\n      [5.5, 4000],\n      [6, 4000], // \uc815\ud655\ud788 1kg \ucd08\uacfc\n      [6.01, 5000],\n      [7, 5000],\n      [10, 8000],\n      [10.5, 9000],\n    ];\n    for (const prefix of ['23', '40']) {\n      for (const [w, expected] of cases) {\n        test(`${prefix}xxx, ${w}kg -> ${expected}`, () => {\n          assert.equal(surcharge(`${prefix}000`, w), expected);\n        });\n      }\n    }\n  });\n\n  describe('\ubd80\ub3d9\uc18c\uc218\uc810 \uacbd\uacc4', () => {\n    test('5.1kg (5.1 - 5 = 0.0999...) \ub294 1kg \ucd08\uacfc\ub85c \uc62c\ub9bc', () => {\n      assert.equal(surcharge('23456', 5.1), 4000);\n    });\n    test('6.000001kg \uc740 2kg \ucd08\uacfc\ub85c \uc62c\ub9bc', () => {\n      assert.equal(surcharge('40123', 6.000001), 5000);\n    });\n  });\n\n  describe('\ud560\uc99d \uc5c6\ub294 \uc9c0\uc5ed', () => {\n    for (const code of ['00000', '06234', '12345', '22999', '24000', '39999', '41000', '62999', '64000', '99999']) {\n      test(`${code} -> 0 (\ubb34\uac8c\uc640 \ubb34\uad00)`, () => {\n        assert.equal(surcharge(code, 1), 0);\n        assert.equal(surcharge(code, 50), 0);\n      });\n    }\n  });\n\n  describe('\uc55e \ub450 \uc790\ub9ac\ub9cc \ubcf8\ub2e4', () => {\n    test('63 \ub2e4\uc74c \uc790\ub9ac\uc640 \ubb34\uad00\ud558\uac8c 63 \ud560\uc99d', () => {\n      assert.equal(surcharge('63000', 1), 3000);\n      assert.equal(surcharge('63999', 1), 3000);\n    });\n    test('\ub4a4\ucabd\uc5d0 63/23/40\uc774 \uc788\uc5b4\ub3c4 \ud560\uc99d \uc5c6\uc74c', () => {\n      assert.equal(surcharge('16300', 10), 0);\n      assert.equal(surcharge('12340', 10), 0);\n    });\n  });\n\n  describe('\ubb34\ub8cc \ubc30\uc1a1\uc774\uc5b4\ub3c4 \ud560\uc99d\uc740 \ubd99\ub294\ub2e4 (\uae30\ubcf8\ub8cc\uc640 \ud569\uc0b0)', () => {\n    test('\ubb34\ub8cc \ubc30\uc1a1 + 63 \uc9c0\uc5ed = \ud560\uc99d\ub9cc', () => {\n      assert.equal(quoteShipping({ postalCode: '63100', weightKg: 6, subtotal: FREE }), 5000);\n    });\n    test('\uc720\ub8cc \ubc30\uc1a1 + 23 \uc9c0\uc5ed = \uae30\ubcf8\ub8cc 3000 + \ud560\uc99d', () => {\n      assert.equal(quoteShipping({ postalCode: '23000', weightKg: 7, subtotal: 10000 }), 3000 + 5000);\n    });\n  });\n});\n"}], "grading": {"expectations": [{"text": "shipping.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\ud14c\uc2a4\ud2b8\ub97c \uc704\ud55c export \ucd94\uac00 \uc5c6\uc74c)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 vm, eval, \uc18c\uc2a4 \ud30c\uc77c \ud14d\uc2a4\ud2b8 \uc77d\uae30, rewire \uac19\uc740 \uc6b0\ud68c \ubc29\ubc95\uc73c\ub85c zoneSurcharge\uc5d0 \uc811\uadfc\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc6b0\ud68c \uc811\uadfc \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uacf5\uac1c \ud568\uc218 quoteShipping\uc744 \ud638\ucd9c\ud574 \ud560\uc99d\uc744 \uac80\uc99d\ud55c\ub2e4", "passed": true, "evidence": "surcharge \ud654\uc0b4\ud45c \ud568\uc218\uac00 quoteShipping\uc744 \ud638\ucd9c"}, {"text": "\uc81c\uc8fc(63) 5kg \uc774\ud558\uc640 \ucd08\uacfc, \ub3c4\uc11c\uc0b0\uac04(23 \ub610\ub294 40)\uc758 5kg \ucd08\uacfc\ubd84 kg \uc62c\ub9bc, \uc77c\ubc18 \uc9c0\uc5ed \ud560\uc99d \uc5c6\uc74c\uc744 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "63/23/40 \uacbd\uacc4\uc640 \ud560\uc99d \uc5c6\ub294 \uc9c0\uc5ed \ubaa8\ub450 \ud14c\uc2a4\ud2b8"}, {"text": "\ubb34\ub8cc \ubc30\uc1a1 \uc870\uac74(\uc8fc\ubb38 \uae08\uc561 50,000\uc6d0 \uc774\uc0c1)\uc5d0\uc11c\ub3c4 \ud560\uc99d\uc774 \ubd99\ub294 \uac83\uc744 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\ubb34\ub8cc \ubc30\uc1a1 + 63 \uc9c0\uc5ed = \ud560\uc99d\ub9cc \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 41\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": false, "evidence": "for \ubb38 3\uacf3(29, 48-49, 67\ud589)\uc73c\ub85c \ud14c\uc2a4\ud2b8\ub97c \ub9cc\ub4e4\uc5b4 \ub0c4"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uc5d0\uc11c zoneSurcharge\uac00 export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\ub294 \uc810\uc744 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubaa8\ub4c8 \ubd84\ub9ac\uac00 \ud544\uc694\ud558\ub2e4\ub294 \uc81c\uc548\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \ud55c\ub2e4", "passed": false, "evidence": "\uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\uace0 \ubc1d\ud614\uc9c0\ub9cc, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 export\ub97c \ucd94\uac00\ud558\uc790\uace0 \uc81c\uc548\ud568(\ubaa8\ub4c8 \ubd84\ub9ac\uac00 \uc544\ub2d8)"}], "summary": {"passed": 6, "failed": 2, "total": 8, "pass_rate": 0.75}, "timing": {"executor_duration_seconds": 92.2, "total_duration_seconds": 92.2}}}], "previous_feedback": {}, "previous_outputs": {"cart-no-spec-no-helper-with_skill": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const test = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart');\n\ntest('\ube48 \uc7a5\ubc14\uad6c\ub2c8\uc758 \ud569\uacc4\ub294 0\uc774\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.equal(cart.total, 0);\n});\n\ntest('\uc218\ub7c9\uc744 \uc0dd\ub7b5\ud558\uba74 1\uac1c\ub85c \ub2f4\uae34\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000);\n\n  assert.equal(cart.total, 1000);\n});\n\ntest('\ud569\uacc4\ub294 \uc0c1\ud488\ubcc4 \uac00\uaca9 x \uc218\ub7c9\uc744 \ubaa8\ub450 \ub354\ud55c \uac12\uc774\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000, 3);\n  cart.add('pear', 500, 2);\n\n  assert.equal(cart.total, 4000);\n});\n\ntest('\uac19\uc740 \uc0c1\ud488\uc744 \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc218\ub7c9\uc774 \ub204\uc801\ub41c\ub2e4', () => {\n  const cart = new Cart();\n\n  cart.add('apple', 1000, 2);\n  cart.add('apple', 1000, 3);\n\n  assert.equal(cart.total, 5000);\n});\n\ntest('\uc218\ub7c9\uc774 0\uc774\uba74 RangeError\ub97c \ub358\uc9c4\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.throws(() => cart.add('apple', 1000, 0), RangeError);\n});\n\ntest('\uc218\ub7c9\uc774 \uc74c\uc218\uc774\uba74 RangeError\ub97c \ub358\uc9c4\ub2e4', () => {\n  const cart = new Cart();\n\n  assert.throws(() => cart.add('apple', 1000, -1), RangeError);\n});\n\ntest('\uac70\ubd80\ub41c add\ub294 \uc774\ubbf8 \ub2f4\uae34 \uc218\ub7c9\uc744 \ubc14\uafb8\uc9c0 \uc54a\ub294\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n\n  assert.throws(() => cart.add('apple', 1000, -1), RangeError);\n\n  assert.equal(cart.total, 2000);\n});\n\ntest('\uc0c1\ud488\uc744 \uc81c\uac70\ud558\uba74 \uadf8 \uc0c1\ud488\ub9cc \ud569\uacc4\uc5d0\uc11c \ube60\uc9c0\uace0 true\ub97c \ubc18\ud658\ud55c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 2);\n  cart.add('pear', 500);\n\n  const removed = cart.remove('apple');\n\n  assert.equal(removed, true);\n  assert.equal(cart.total, 500);\n});\n\ntest('\ub2f4\uc9c0 \uc54a\uc740 \uc0c1\ud488\uc744 \uc81c\uac70\ud558\uba74 false\ub97c \ubc18\ud658\ud558\uace0 \ud569\uacc4\ub294 \uadf8\ub300\ub85c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000);\n\n  const removed = cart.remove('pear');\n\n  assert.equal(removed, false);\n  assert.equal(cart.total, 1000);\n});\n\ntest('\uc81c\uac70\ud55c \uc0c1\ud488\uc744 \ub2e4\uc2dc \ub2f4\uc73c\uba74 \uc774\uc804 \uc218\ub7c9 \uc5c6\uc774 \uc0c8\ub85c \uc2dc\uc791\ud55c\ub2e4', () => {\n  const cart = new Cart();\n  cart.add('apple', 1000, 5);\n  cart.remove('apple');\n\n  cart.add('apple', 1000);\n\n  assert.equal(cart.total, 1000);\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 10\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ud5ec\ud37c\uc640 \uc0c8 \uc758\uc874\uc131 \uc5c6\uc74c. \ubcc0\uc774 8\uac00\uc9c0\ub97c \uc784\uc2dc \ubcf5\uc0ac\ubcf8\uc5d0\uc11c \ubaa8\ub450 \uc7a1\uc74c. \ubb38\uc790\uc5f4 \uc218\ub7c9, NaN \uc218\ub7c9 \ub4f1 \uc758\ub3c4\ub97c \uc54c \uc218 \uc5c6\ub294 \ub3d9\uc791\uc740 \ud14c\uc2a4\ud2b8\ub85c \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}], "cart-no-spec-no-helper-without_skill": [{"name": "cart.js", "type": "text", "content": "class Cart {\n  constructor() {\n    this.items = new Map();\n  }\n\n  add(sku, price, quantity = 1) {\n    if (quantity \u003c= 0) throw new RangeError('quantity must be positive');\n    const item = this.items.get(sku);\n    if (item) item.quantity += quantity;\n    else this.items.set(sku, { price, quantity });\n  }\n\n  remove(sku) {\n    return this.items.delete(sku);\n  }\n\n  get total() {\n    let sum = 0;\n    for (const { price, quantity } of this.items.values()) sum += price * quantity;\n    return sum;\n  }\n}\n\nmodule.exports = { Cart };\n"}, {"name": "cart.test.js", "type": "text", "content": "const { describe, it, beforeEach } = require('node:test');\nconst assert = require('node:assert/strict');\nconst { Cart } = require('./cart');\n\ndescribe('Cart', () => {\n  let cart;\n\n  beforeEach(() => {\n    cart = new Cart();\n  });\n\n  describe('add', () => {\n    it('stores a new item with its price and quantity', () => {\n      cart.add('apple', 100, 3);\n\n      assert.deepEqual(cart.items.get('apple'), { price: 100, quantity: 3 });\n    });\n\n    it('defaults quantity to 1', () => {\n      cart.add('apple', 100);\n\n      assert.equal(cart.items.get('apple').quantity, 1);\n    });\n\n    it('accumulates quantity when the same sku is added again', () => {\n      cart.add('apple', 100, 2);\n      cart.add('apple', 100, 3);\n\n      assert.equal(cart.items.size, 1);\n      assert.equal(cart.items.get('apple').quantity, 5);\n    });\n\n    it('keeps different skus as separate items', () => {\n      cart.add('apple', 100);\n      cart.add('pear', 200);\n\n      assert.equal(cart.items.size, 2);\n    });\n\n    // Pins current behavior: the price passed on a repeat add is ignored.\n    it('keeps the original price when an existing sku is added at a new price', () => {\n      cart.add('apple', 100, 1);\n      cart.add('apple', 999, 1);\n\n      assert.deepEqual(cart.items.get('apple'), { price: 100, quantity: 2 });\n    });\n\n    for (const quantity of [0, -1]) {\n      it(`throws RangeError for quantity ${quantity}`, () => {\n        assert.throws(() => cart.add('apple', 100, quantity), {\n          name: 'RangeError',\n          message: 'quantity must be positive',\n        });\n      });\n    }\n\n    it('leaves the cart unchanged when a new sku is rejected', () => {\n      assert.throws(() => cart.add('apple', 100, 0), RangeError);\n\n      assert.equal(cart.items.size, 0);\n    });\n\n    it('leaves an existing item unchanged when a repeat add is rejected', () => {\n      cart.add('apple', 100, 2);\n\n      assert.throws(() => cart.add('apple', 100, -1), RangeError);\n\n      assert.equal(cart.items.get('apple').quantity, 2);\n    });\n  });\n\n  describe('remove', () => {\n    it('removes an existing item and returns true', () => {\n      cart.add('apple', 100);\n\n      assert.equal(cart.remove('apple'), true);\n      assert.equal(cart.items.has('apple'), false);\n    });\n\n    it('returns false for an unknown sku', () => {\n      assert.equal(cart.remove('missing'), false);\n    });\n\n    it('leaves other items in place', () => {\n      cart.add('apple', 100);\n      cart.add('pear', 200);\n\n      cart.remove('apple');\n\n      assert.equal(cart.items.has('pear'), true);\n    });\n\n    it('removes the whole line regardless of quantity', () => {\n      cart.add('apple', 100, 5);\n\n      cart.remove('apple');\n\n      assert.equal(cart.total, 0);\n    });\n  });\n\n  describe('total', () => {\n    it('is 0 for an empty cart', () => {\n      assert.equal(cart.total, 0);\n    });\n\n    it('multiplies price by quantity', () => {\n      cart.add('apple', 100, 3);\n\n      assert.equal(cart.total, 300);\n    });\n\n    it('sums across items', () => {\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250, 3);\n\n      assert.equal(cart.total, 950);\n    });\n\n    it('reflects accumulated quantity', () => {\n      cart.add('apple', 100, 1);\n      cart.add('apple', 100, 2);\n\n      assert.equal(cart.total, 300);\n    });\n\n    it('drops when an item is removed', () => {\n      cart.add('apple', 100, 2);\n      cart.add('pear', 250);\n\n      cart.remove('apple');\n\n      assert.equal(cart.total, 250);\n    });\n  });\n\n  it('does not share items between instances', () => {\n    const other = new Cart();\n\n    cart.add('apple', 100);\n\n    assert.equal(other.items.size, 0);\n  });\n});\n"}, {"name": "package.json", "type": "text", "content": "{\n  \"name\": \"cart\",\n  \"version\": \"1.0.0\",\n  \"scripts\": { \"test\": \"node --test\" }\n}\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 19\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ubcc0\uc774 11\uac00\uc9c0\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uac19\uc740 sku\uc758 \ub2e4\ub978 \uac00\uaca9\uc740 \ud604\uc7ac \ub3d9\uc791\uc744 \uace0\uc815\ud558\ub294 \ud14c\uc2a4\ud2b8\ub85c \ub123\uc5c8\uace0, \uc785\ub825 \uac80\uc99d \ub204\ub77d\uc740 \ubcf4\uace0.\n"}], "coupon-spec-prioritization-with_skill": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 11\uac1c, 9\uac1c \ud1b5\uacfc, 2\uac1c \uc2e4\ud328. \uc2e4\ud328\ub294 \uc2a4\ud399 7\ubc88(50% \uc0c1\ud55c) \ubbf8\uad6c\ud604 \ub54c\ubb38\uc774\uba70 pricing.py\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c. \uc77c\ubd80\ub7ec \ube80 \ud56d\ubaa9: 1\ubc88, 9\ubc88, 8\ubc88, 5\ubc88(7\ubc88\uc774 \uad6c\ud604\ub418\uba74 \ub2ff\uc744 \uc218 \uc5c6\uc74c). \uc2a4\ud399 2\ubc88\uacfc 6\ubc88\uc758 \uc6b0\uc120\uc21c\uc704 \ud655\uc778 \uc694\uccad. \ud5ec\ud37c \uc5c6\uc74c.\n"}, {"name": "test_pricing.py", "type": "text", "content": "import unittest\n\nfrom pricing import apply_coupons\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    def test_order_of_9999_gets_no_discount(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(9_999, [coupon]), 9_999)\n\n    def test_order_of_exactly_10000_gets_discount(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(10_000, [coupon]), 9_000)\n\n\nclass DiscountAmountTest(unittest.TestCase):\n    def test_percent_coupon_takes_that_percent_off_the_order(self):\n        coupon = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(50_000, [coupon]), 45_000)\n\n    def test_percent_discount_drops_fraction_of_a_won(self):\n        coupon = {\"type\": \"percent\", \"value\": 10, \"stackable\": True}\n\n        # 10% of 10,005 is 1,000.5, so the discount is 1,000.\n        self.assertEqual(apply_coupons(10_005, [coupon]), 9_005)\n\n    def test_fixed_coupon_takes_its_amount_off_the_order(self):\n        coupon = {\"type\": \"fixed\", \"value\": 3_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(50_000, [coupon]), 47_000)\n\n    def test_stacked_percent_coupons_are_each_based_on_the_original_order(self):\n        coupons = [\n            {\"type\": \"percent\", \"value\": 10, \"stackable\": True},\n            {\"type\": \"percent\", \"value\": 20, \"stackable\": True},\n        ]\n\n        # Applying them one after another would give 72,000.\n        self.assertEqual(apply_coupons(100_000, coupons), 70_000)\n\n\nclass NonStackableCouponTest(unittest.TestCase):\n    def test_non_stackable_coupon_combined_with_another_raises_error(self):\n        coupons = [\n            {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False},\n            {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": True},\n        ]\n\n        with self.assertRaises(ValueError):\n            apply_coupons(50_000, coupons)\n\n    def test_non_stackable_coupon_used_alone_is_applied(self):\n        coupon = {\"type\": \"fixed\", \"value\": 1_000, \"stackable\": False}\n\n        self.assertEqual(apply_coupons(50_000, [coupon]), 49_000)\n\n\nclass DiscountCapTest(unittest.TestCase):\n    def test_discount_of_exactly_half_the_order_is_not_reduced(self):\n        coupon = {\"type\": \"percent\", \"value\": 50, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(100_000, [coupon]), 50_000)\n\n    def test_stacked_discount_over_half_the_order_is_capped_at_half(self):\n        coupons = [\n            {\"type\": \"percent\", \"value\": 30, \"stackable\": True},\n            {\"type\": \"percent\", \"value\": 30, \"stackable\": True},\n        ]\n\n        self.assertEqual(apply_coupons(100_000, coupons), 50_000)\n\n    def test_fixed_coupon_larger_than_the_order_is_capped_at_half(self):\n        coupon = {\"type\": \"fixed\", \"value\": 30_000, \"stackable\": True}\n\n        self.assertEqual(apply_coupons(20_000, [coupon]), 10_000)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "coupon-spec-prioritization-without_skill": [{"name": "docs/coupon-spec.md", "type": "text", "content": "# \ucfe0\ud3f0 \uc2a4\ud399\n\n1. \ud1b5\ud654 \ucf54\ub4dc\ub294 KRW\uc774\ub2e4.\n2. \uc8fc\ubb38 \uae08\uc561\uc774 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\n3. \uc815\ub960 \ucfe0\ud3f0\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 \ube44\uc728\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4. \uc6d0 \ub2e8\uc704 \ubbf8\ub9cc\uc740 \ubc84\ub9b0\ub2e4.\n4. \uc815\uc561 \ucfe0\ud3f0\uc740 \ucfe0\ud3f0 \uae08\uc561\ub9cc\ud07c \ud560\uc778\ud55c\ub2e4.\n5. \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\n6. \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc740 \ub2e4\ub978 \ucfe0\ud3f0\uacfc \ud568\uaed8 \uc4f8 \uc218 \uc5c6\uace0, \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\n7. \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\n8. \ucfe0\ud3f0 \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8\ub97c \ub0a8\uae30\uba70 \ubb38\uad6c\ub294 \"coupon applied\"\ub85c \uc2dc\uc791\ud55c\ub2e4.\n9. \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984\uc744 \ub530\ub978\ub2e4.\n"}, {"name": "pricing.py", "type": "text", "content": "import logging\n\nlogger = logging.getLogger(__name__)\n\nCURRENCY = \"KRW\"\nMIN_ORDER_FOR_COUPON = 10_000\n\n\ndef apply_coupons(subtotal, coupons):\n    \"\"\"coupons: [{\"type\": \"percent\"|\"fixed\", \"value\": int, \"stackable\": bool}]\"\"\"\n    if subtotal \u003c MIN_ORDER_FOR_COUPON:\n        return subtotal\n    if len(coupons) > 1 and not all(c[\"stackable\"] for c in coupons):\n        raise ValueError(\"non-stackable coupon cannot be combined\")\n\n    discount = 0\n    for coupon in coupons:\n        if coupon[\"type\"] == \"percent\":\n            discount += subtotal * coupon[\"value\"] // 100\n        else:\n            discount += coupon[\"value\"]\n\n    total = max(subtotal - discount, 0)\n    logger.info(\"coupon applied: subtotal=%s total=%s\", subtotal, total)\n    return total\n"}, {"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 19\uac1c, 15\uac1c \ud1b5\uacfc, 4\uac1c \uc2e4\ud328. \uc2e4\ud328\ub294 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604 \ub54c\ubb38\uc774\uba70 pricing.py\ub294 \uace0\uce58\uc9c0 \uc54a\uc74c. \uc2a4\ud399 2~9\ubc88\uc744 \ud14c\uc2a4\ud2b8\ud558\uace0 1\ubc88\ub9cc \uc81c\uc678. \uc2a4\ud399\uc774 \ubaa8\ud638\ud55c 4\uac00\uc9c0 \ud56d\ubaa9 \ud655\uc778 \uc694\uccad.\n"}, {"name": "test_pricing.py", "type": "text", "content": "\"\"\"docs/coupon-spec.md \uae30\uc900 apply_coupons \ud14c\uc2a4\ud2b8. \uc2e4\ud589: python -m unittest -v\"\"\"\nimport unittest\n\nimport pricing\nfrom pricing import apply_coupons\n\n\ndef percent(value, stackable=True):\n    return {\"type\": \"percent\", \"value\": value, \"stackable\": stackable}\n\n\ndef fixed(value, stackable=True):\n    return {\"type\": \"fixed\", \"value\": value, \"stackable\": stackable}\n\n\nclass MinimumOrderTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 2: 10,000\uc6d0 \ubbf8\ub9cc\uc774\uba74 \ucfe0\ud3f0\uc744 \uc801\uc6a9\ud558\uc9c0 \uc54a\ub294\ub2e4.\"\"\"\n\n    def test_below_minimum_ignores_coupon(self):\n        self.assertEqual(apply_coupons(9_999, [fixed(1_000)]), 9_999)\n\n    def test_exactly_minimum_applies_coupon(self):\n        self.assertEqual(apply_coupons(10_000, [fixed(1_000)]), 9_000)\n\n\nclass DiscountCalculationTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 3, 4: \uc815\ub960/\uc815\uc561 \ud560\uc778 \uacc4\uc0b0.\"\"\"\n\n    def test_percent_discounts_by_rate(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10)]), 18_000)\n\n    def test_percent_discount_truncates_below_one_won(self):\n        # \ud560\uc778\uc561 1,234.5\uc6d0 -> 1,234\uc6d0. \uacb0\uacfc\ub97c \ubc84\ub9bc\ud558\uba74 11,110\uc6d0\uc774 \ub418\uc5b4 \ud2c0\ub9b0\ub2e4.\n        self.assertEqual(apply_coupons(12_345, [percent(10)]), 11_111)\n\n    def test_fixed_discounts_by_amount(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(3_000)]), 17_000)\n\n    def test_stacked_percents_are_based_on_order_amount(self):\n        # \uc21c\ucc28 \uc801\uc6a9\uc774\uba74 16,200\uc6d0\uc774 \ub41c\ub2e4.\n        self.assertEqual(apply_coupons(20_000, [percent(10), percent(10)]), 16_000)\n\n    def test_stacked_result_does_not_depend_on_coupon_order(self):\n        self.assertEqual(apply_coupons(20_000, [percent(10), fixed(3_000)]), 15_000)\n        self.assertEqual(apply_coupons(20_000, [fixed(3_000), percent(10)]), 15_000)\n\n    def test_no_coupons_keeps_order_amount(self):\n        self.assertEqual(apply_coupons(20_000, []), 20_000)\n\n\nclass FinalAmountFloorTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 5: \ucd5c\uc885 \uae08\uc561\uc740 0\uc6d0 \ubbf8\ub9cc\uc774 \ub420 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_oversized_discount_does_not_go_negative(self):\n        self.assertGreaterEqual(apply_coupons(20_000, [fixed(999_999)]), 0)\n\n\nclass DiscountCapTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 7: \ucd1d \ud560\uc778\uc561\uc740 \uc8fc\ubb38 \uae08\uc561\uc758 50%\ub97c \ub118\uc744 \uc218 \uc5c6\ub2e4.\"\"\"\n\n    def test_discount_of_exactly_half_is_allowed(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(10_000)]), 10_000)\n\n    def test_fixed_discount_one_won_over_half_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(10_001)]), 10_000)\n\n    def test_fixed_discount_over_order_amount_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(30_000)]), 10_000)\n\n    def test_percent_discount_over_half_is_capped(self):\n        self.assertEqual(apply_coupons(20_000, [percent(60)]), 10_000)\n\n    def test_stacked_discount_over_half_is_capped(self):\n        # \ucfe0\ud3f0 \ud558\ub098\ud558\ub098\ub294 50% \uc774\ud558\uc5ec\ub3c4 \ud569\uacc4\uc5d0 \uc0c1\ud55c\uc774 \uac78\ub9b0\ub2e4.\n        self.assertEqual(apply_coupons(20_000, [percent(30), fixed(8_000)]), 10_000)\n\n\nclass StackingTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 6: \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0\uc744 \ud568\uaed8 \uc4f0\uba74 \uc624\ub958\uac00 \ub09c\ub2e4.\"\"\"\n\n    def test_non_stackable_with_stackable_raises_in_either_order(self):\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [fixed(1_000, stackable=False), fixed(1_000)])\n        with self.assertRaises(ValueError):\n            apply_coupons(20_000, [fixed(1_000), fixed(1_000, stackable=False)])\n\n    def test_two_non_stackable_raises(self):\n        with self.assertRaises(ValueError):\n            apply_coupons(\n                20_000,\n                [fixed(1_000, stackable=False), percent(10, stackable=False)],\n            )\n\n    def test_non_stackable_alone_is_applied(self):\n        self.assertEqual(apply_coupons(20_000, [fixed(1_000, stackable=False)]), 19_000)\n\n\nclass LoggingTest(unittest.TestCase):\n    \"\"\"\uc2a4\ud399 8, 9: \uc801\uc6a9 \uc2dc INFO \ub85c\uadf8, \ub85c\uac70 \uc774\ub984\uc740 \ubaa8\ub4c8 \uc774\ub984.\"\"\"\n\n    def test_applied_coupon_logs_info_on_module_logger(self):\n        with self.assertLogs(pricing.__name__, level=\"INFO\") as logs:\n            apply_coupons(20_000, [fixed(1_000)])\n\n        self.assertEqual(len(logs.records), 1)\n        record = logs.records[0]\n        self.assertEqual(record.name, pricing.__name__)\n        self.assertEqual(record.levelname, \"INFO\")\n        self.assertTrue(record.getMessage().startswith(\"coupon applied\"))\n\n    def test_no_log_when_coupon_is_not_applied(self):\n        with self.assertNoLogs(pricing.__name__, level=\"INFO\"):\n            apply_coupons(9_999, [fixed(1_000)])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "order-validator-justified-helper-with_skill": [{"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 18\uac1c \ubaa8\ub450 \ud1b5\uacfc. \ud14c\uc2a4\ud2b8 \ud30c\uc77c \uc548\uc758 make_valid_order \ud5ec\ud37c \ud558\ub098\ub9cc \uc0ac\uc6a9\ud558\uace0 \uc774\uc720\ub97c \uc124\uba85. \uc624\ub958 \uc21c\uc11c\ub294 \uc57d\uc18d\ub418\uc9c0 \uc54a\uc544 \uc21c\uc11c \uc5c6\uc774 \ube44\uad50. \ubcc0\uc774 18\uac1c\ub97c \ubaa8\ub450 \uc7a1\uc74c. \uc720\ub2c8\ucf54\ub4dc \uc6b0\ud3b8\ubc88\ud638 \ub4f1\uc740 \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef make_valid_order(**overrides):\n    \"\"\"\uc720\ud6a8\ud55c \uc8fc\ubb38\uc744 \ub9cc\ub4e0\ub2e4. \ud14c\uc2a4\ud2b8\uc5d0\uc11c \uc911\uc694\ud55c \ud544\ub4dc\ub294 \uc778\uc790\ub85c \ub118\uaca8 \ub4dc\ub7ec\ub0b8\ub2e4.\"\"\"\n    fields = {\n        \"order_id\": \"order-1\",\n        \"customer_id\": \"customer-1\",\n        \"customer_email\": \"buyer@example.com\",\n        \"shipping_name\": \"\ud64d\uae38\ub3d9\",\n        \"shipping_phone\": \"010-1234-5678\",\n        \"shipping_address\": \"\uc11c\uc6b8\uc2dc \uc911\uad6c \uc138\uc885\ub300\ub85c 110\",\n        \"shipping_zip\": \"04524\",\n        \"item_sku\": \"sku-1\",\n        \"item_quantity\": 1,\n        \"unit_price\": 10_000,\n        \"payment_method\": \"card\",\n        \"ordered_on\": date(2026, 1, 1),\n        \"delivery_on\": date(2026, 1, 3),\n    }\n    return Order(**{**fields, **overrides})\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_order_with_all_valid_fields_has_no_errors(self):\n        self.assertEqual(validate(make_valid_order()), [])\n\n\nclass EmailTest(unittest.TestCase):\n    def test_email_without_at_sign_is_rejected(self):\n        order = make_valid_order(customer_email=\"buyer.example.com\")\n        self.assertEqual(validate(order), [\"invalid_email\"])\n\n\nclass ZipTest(unittest.TestCase):\n    def test_zip_shorter_than_5_digits_is_rejected(self):\n        order = make_valid_order(shipping_zip=\"0452\")\n        self.assertEqual(validate(order), [\"invalid_zip\"])\n\n    def test_zip_longer_than_5_digits_is_rejected(self):\n        order = make_valid_order(shipping_zip=\"045240\")\n        self.assertEqual(validate(order), [\"invalid_zip\"])\n\n    def test_5_character_zip_with_non_digit_is_rejected(self):\n        order = make_valid_order(shipping_zip=\"0452A\")\n        self.assertEqual(validate(order), [\"invalid_zip\"])\n\n\nclass QuantityTest(unittest.TestCase):\n    def test_quantity_0_is_rejected(self):\n        order = make_valid_order(item_quantity=0)\n        self.assertEqual(validate(order), [\"invalid_quantity\"])\n\n    def test_quantity_1_is_accepted(self):\n        order = make_valid_order(item_quantity=1)\n        self.assertEqual(validate(order), [])\n\n    def test_quantity_99_is_accepted(self):\n        order = make_valid_order(item_quantity=99)\n        self.assertEqual(validate(order), [])\n\n    def test_quantity_100_is_rejected(self):\n        order = make_valid_order(item_quantity=100)\n        self.assertEqual(validate(order), [\"invalid_quantity\"])\n\n\nclass PriceTest(unittest.TestCase):\n    def test_negative_price_is_rejected(self):\n        order = make_valid_order(unit_price=-1)\n        self.assertEqual(validate(order), [\"invalid_price\"])\n\n    def test_price_0_is_accepted(self):\n        order = make_valid_order(unit_price=0)\n        self.assertEqual(validate(order), [])\n\n\nclass PaymentMethodTest(unittest.TestCase):\n    def test_card_is_accepted(self):\n        order = make_valid_order(payment_method=\"card\")\n        self.assertEqual(validate(order), [])\n\n    def test_bank_transfer_is_accepted(self):\n        order = make_valid_order(payment_method=\"bank_transfer\")\n        self.assertEqual(validate(order), [])\n\n    def test_unknown_payment_method_is_rejected(self):\n        order = make_valid_order(payment_method=\"cash\")\n        self.assertEqual(validate(order), [\"invalid_payment_method\"])\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    def test_delivery_the_day_after_ordering_is_accepted(self):\n        order = make_valid_order(\n            ordered_on=date(2026, 1, 1),\n            delivery_on=date(2026, 1, 2),\n        )\n        self.assertEqual(validate(order), [])\n\n    def test_delivery_on_the_order_date_is_rejected(self):\n        order = make_valid_order(\n            ordered_on=date(2026, 1, 1),\n            delivery_on=date(2026, 1, 1),\n        )\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n    def test_delivery_before_the_order_date_is_rejected(self):\n        order = make_valid_order(\n            ordered_on=date(2026, 1, 2),\n            delivery_on=date(2026, 1, 1),\n        )\n        self.assertEqual(validate(order), [\"invalid_delivery_date\"])\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_every_invalid_field_is_reported_at_once(self):\n        order = make_valid_order(\n            customer_email=\"buyer.example.com\",\n            item_quantity=0,\n            payment_method=\"cash\",\n        )\n        # \uc624\ub958 \uc21c\uc11c\ub294 \uc57d\uc18d\ub41c \uacc4\uc57d\uc774 \uc544\ub2c8\ubbc0\ub85c \uc21c\uc11c \uc5c6\uc774 \ube44\uad50\ud55c\ub2e4.\n        self.assertCountEqual(\n            validate(order),\n            [\"invalid_email\", \"invalid_quantity\", \"invalid_payment_method\"],\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}], "order-validator-justified-helper-without_skill": [{"name": "report.md", "type": "text", "content": "(\uc2e4\ud589 \ubcf4\uace0 \uc694\uc57d) \ud14c\uc2a4\ud2b8 16\uac1c \ubaa8\ub450 \ud1b5\uacfc. make_order\uc640 assert_accepted, assert_rejected\ub85c \uad6c\uc131. \ubcc0\uc774 20\uc885\uc744 \ubaa8\ub450 \uc7a1\uc74c. \uc774\uba54\uc77c, \uc6b0\ud3b8\ubc88\ud638, \ubbf8\uac80\uc99d \ud544\ub4dc\ub294 \uace0\uc815\ud558\uc9c0 \uc54a\uace0 \ubcf4\uace0.\n"}, {"name": "src/__init__.py", "type": "text", "content": ""}, {"name": "src/order_validator.py", "type": "text", "content": "from dataclasses import dataclass\nfrom datetime import date\n\n\n@dataclass\nclass Order:\n    order_id: str\n    customer_id: str\n    customer_email: str\n    shipping_name: str\n    shipping_phone: str\n    shipping_address: str\n    shipping_zip: str\n    item_sku: str\n    item_quantity: int\n    unit_price: int\n    payment_method: str\n    ordered_on: date\n    delivery_on: date\n\n\ndef validate(order):\n    errors = []\n    if \"@\" not in order.customer_email:\n        errors.append(\"invalid_email\")\n    if len(order.shipping_zip) != 5 or not order.shipping_zip.isdigit():\n        errors.append(\"invalid_zip\")\n    if order.item_quantity \u003c 1 or order.item_quantity > 99:\n        errors.append(\"invalid_quantity\")\n    if order.unit_price \u003c 0:\n        errors.append(\"invalid_price\")\n    if order.payment_method not in (\"card\", \"bank_transfer\"):\n        errors.append(\"invalid_payment_method\")\n    if order.delivery_on \u003c= order.ordered_on:\n        errors.append(\"invalid_delivery_date\")\n    return errors\n"}, {"name": "tests/__init__.py", "type": "text", "content": ""}, {"name": "tests/test_order_validator.py", "type": "text", "content": "import unittest\nfrom datetime import date\n\nfrom src.order_validator import Order, validate\n\n\ndef make_order(**overrides):\n    \"\"\"\uc720\ud6a8\ud55c \uc8fc\ubb38\uc744 \ub9cc\ub4e0\ub2e4. \ud14c\uc2a4\ud2b8\uac00 \ubcf4\ub824\ub294 \ud544\ub4dc\ub9cc overrides\ub85c \ubc14\uafbc\ub2e4.\"\"\"\n    fields = dict(\n        order_id=\"ORD-1\",\n        customer_id=\"CUST-1\",\n        customer_email=\"buyer@example.com\",\n        shipping_name=\"\ud64d\uae38\ub3d9\",\n        shipping_phone=\"010-1234-5678\",\n        shipping_address=\"\uc11c\uc6b8\uc2dc \uc911\uad6c \uc138\uc885\ub300\ub85c 110\",\n        shipping_zip=\"04524\",\n        item_sku=\"SKU-1\",\n        item_quantity=1,\n        unit_price=1000,\n        payment_method=\"card\",\n        ordered_on=date(2025, 1, 10),\n        delivery_on=date(2025, 1, 11),\n    )\n    fields.update(overrides)\n    return Order(**fields)\n\n\nclass ValidOrderTest(unittest.TestCase):\n    def test_valid_order_has_no_errors(self):\n        self.assertEqual(validate(make_order()), [])\n\n\nclass FieldRuleTestCase(unittest.TestCase):\n    \"\"\"\ud55c \ud544\ub4dc\uc758 \uac12\ub4e4\uc744 \ud45c\ub85c \uac80\uc0ac\ud55c\ub2e4. \ub2e4\ub978 \uc5d0\ub7ec\uac00 \uc11e\uc774\uc9c0 \uc54a\ub294\uc9c0\ub3c4 \ud568\uaed8 \ud655\uc778\ud55c\ub2e4.\"\"\"\n\n    def assert_accepted(self, field, values):\n        for value in values:\n            with self.subTest(field=field, value=value):\n                self.assertEqual(validate(make_order(**{field: value})), [])\n\n    def assert_rejected(self, field, values, error):\n        for value in values:\n            with self.subTest(field=field, value=value):\n                self.assertEqual(validate(make_order(**{field: value})), [error])\n\n\nclass EmailTest(FieldRuleTestCase):\n    def test_email_with_at_sign_is_accepted(self):\n        self.assert_accepted(\"customer_email\", [\"a@b.co\"])\n\n    def test_email_without_at_sign_is_rejected(self):\n        self.assert_rejected(\n            \"customer_email\", [\"buyer.example.com\", \"\"], \"invalid_email\"\n        )\n\n\nclass ZipTest(FieldRuleTestCase):\n    def test_five_digit_zip_is_accepted(self):\n        self.assert_accepted(\"shipping_zip\", [\"00000\", \"99999\"])\n\n    def test_zip_with_wrong_length_is_rejected(self):\n        self.assert_rejected(\"shipping_zip\", [\"\", \"1234\", \"123456\"], \"invalid_zip\")\n\n    def test_zip_with_non_digits_is_rejected(self):\n        self.assert_rejected(\n            \"shipping_zip\", [\"1234a\", \"12 34\", \"12-34\", \"-1234\"], \"invalid_zip\"\n        )\n\n\nclass QuantityTest(FieldRuleTestCase):\n    def test_quantity_within_range_is_accepted(self):\n        self.assert_accepted(\"item_quantity\", [1, 99])\n\n    def test_quantity_out_of_range_is_rejected(self):\n        self.assert_rejected(\"item_quantity\", [-1, 0, 100], \"invalid_quantity\")\n\n\nclass PriceTest(FieldRuleTestCase):\n    def test_zero_or_positive_price_is_accepted(self):\n        self.assert_accepted(\"unit_price\", [0, 1])\n\n    def test_negative_price_is_rejected(self):\n        self.assert_rejected(\"unit_price\", [-1], \"invalid_price\")\n\n\nclass PaymentMethodTest(FieldRuleTestCase):\n    def test_supported_payment_methods_are_accepted(self):\n        self.assert_accepted(\"payment_method\", [\"card\", \"bank_transfer\"])\n\n    def test_unsupported_payment_method_is_rejected(self):\n        self.assert_rejected(\n            \"payment_method\", [\"cash\", \"\", \"CARD\"], \"invalid_payment_method\"\n        )\n\n\nclass DeliveryDateTest(unittest.TestCase):\n    ORDERED_ON = date(2025, 1, 10)\n\n    def errors_for(self, delivery_on):\n        return validate(\n            make_order(ordered_on=self.ORDERED_ON, delivery_on=delivery_on)\n        )\n\n    def test_delivery_after_order_date_is_accepted(self):\n        self.assertEqual(self.errors_for(date(2025, 1, 11)), [])\n\n    def test_delivery_on_order_date_is_rejected(self):\n        self.assertEqual(self.errors_for(self.ORDERED_ON), [\"invalid_delivery_date\"])\n\n    def test_delivery_before_order_date_is_rejected(self):\n        self.assertEqual(\n            self.errors_for(date(2025, 1, 9)), [\"invalid_delivery_date\"]\n        )\n\n\nclass MultipleErrorsTest(unittest.TestCase):\n    def test_all_errors_are_reported_together(self):\n        order = make_order(\n            customer_email=\"no-at-sign\",\n            shipping_zip=\"abc\",\n            item_quantity=0,\n            unit_price=-1,\n            payment_method=\"cash\",\n            delivery_on=date(2025, 1, 10),\n        )\n\n        self.assertCountEqual(\n            validate(order),\n            [\n                \"invalid_email\",\n                \"invalid_zip\",\n                \"invalid_quantity\",\n                \"invalid_price\",\n                \"invalid_payment_method\",\n                \"invalid_delivery_date\",\n            ],\n        )\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"}]}, "benchmark": {"metadata": {"skill_name": "writing-tests", "skill_path": "\u003cpath/to/skill>", "executor_model": "claude-opus-5-5", "analyzer_model": "\u003cmodel-name>", "timestamp": "2026-11-10T11:18:33Z", "evals_run": ["cart-no-spec-no-helper", "coupon-spec-prioritization", "order-validator-justified-helper", "shipping-private-function"], "runs_per_configuration": 1}, "runs": [{"eval_id": "cart-no-spec-no-helper", "eval_name": "cart-no-spec-no-helper", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 54.9, "tokens": 64211, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 8\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc \uc74c\uc218 \uc218\ub7c9 \uac70\ubd80 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 cart.items \uac19\uc740 \ub0b4\ubd80 \uc0c1\ud0dc\ub97c \uc9c1\uc811 \ubcf4\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "cart.items \uc811\uadfc \uc5c6\uc74c, total\uacfc remove \ubc18\ud658\uac12\uc73c\ub85c \uac80\uc99d"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uba54\uc2dc\uc9c0 \ubb38\uad6c\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc624\ub958 \ubb38\uad6c \uac80\uc99d \uc5c6\uc74c, RangeError \ud0c0\uc785\ub9cc \ud655\uc778"}], "notes": []}, {"eval_id": "coupon-spec-prioritization", "eval_name": "coupon-spec-prioritization", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 81.5, "tokens": 69367, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 50% \uc0c1\ud55c \ubbf8\uad6c\ud604\uc744 \uba85\uc2dc\ud558\uace0 \uc2e4\ud328 \ud14c\uc2a4\ud2b8 2\uac1c\ub85c \ub0a8\uae40"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\ub85c\uadf8\u00b7\ub85c\uac70\u00b7CURRENCY \uac80\uc99d \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1, 5, 8, 9\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, \uc8fc\ubb38 \uae08\uc561\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "9,999/10,000, 30,000\uc6d0 \uc815\uc561 \ucfe0\ud3f0, ValueError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 9\uac1c \uc911 7\uac1c \ud1b5\uacfc, \uc2e4\ud328 2\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c \uc5c6\uc74c"}], "notes": []}, {"eval_id": "order-validator-justified-helper", "eval_name": "order-validator-justified-helper", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 77.4, "tokens": 66289, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": true, "evidence": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c \uc548\uc758 valid_order \ud558\ub098, 13\uac1c \ud544\ub4dc \uc900\ube44\ub9cc \ub9e1\uc74c"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "\ud655\uc778\ud560 \uac12\uc744 \uc778\uc790\ub85c \ub118\uae40(item_quantity=100 \ub4f1)"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc5d0 assert \uc5c6\uc74c"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 0/1/99/100, \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 17\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uac12 \ub450\uc138 \uac1c\ub9cc \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8(\uc218\ub7c9 1\uacfc 99, \uacb0\uc81c \uc218\ub2e8 \ub450 \uac00\uc9c0 \ub4f1)\uc5d0 for \ubb38\uc744 \uc4f0\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "for \uc5c6\uc774 \uac12\ub9c8\ub2e4 \ud14c\uc2a4\ud2b8\ub97c \ub098\ub214"}, {"text": "\uc5ec\ub7ec \uc624\ub958\ub97c \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uc21c\uc11c\ub97c \uace0\uc815\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc5ec\ub7ec \uc624\ub958\ub97c set\uc73c\ub85c \ube44\uad50"}], "notes": []}, {"eval_id": "shipping-private-function", "eval_name": "shipping-private-function", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 80.1, "tokens": 69963, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "shipping.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\ud14c\uc2a4\ud2b8\ub97c \uc704\ud55c export \ucd94\uac00 \uc5c6\uc74c)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 vm, eval, \uc18c\uc2a4 \ud30c\uc77c \ud14d\uc2a4\ud2b8 \uc77d\uae30, rewire \uac19\uc740 \uc6b0\ud68c \ubc29\ubc95\uc73c\ub85c zoneSurcharge\uc5d0 \uc811\uadfc\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc6b0\ud68c \uc811\uadfc \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uacf5\uac1c \ud568\uc218 quoteShipping\uc744 \ud638\ucd9c\ud574 \ud560\uc99d\uc744 \uac80\uc99d\ud55c\ub2e4", "passed": true, "evidence": "\ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 quoteShipping \ud638\ucd9c"}, {"text": "\uc81c\uc8fc(63) 5kg \uc774\ud558\uc640 \ucd08\uacfc, \ub3c4\uc11c\uc0b0\uac04(23 \ub610\ub294 40)\uc758 5kg \ucd08\uacfc\ubd84 kg \uc62c\ub9bc, \uc77c\ubc18 \uc9c0\uc5ed \ud560\uc99d \uc5c6\uc74c\uc744 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "63\uc758 5kg/5.1kg, 23\uc758 5.1kg\u21924,000\uc6d0 \uc62c\ub9bc, 40 \uc9c0\uc5ed, \uc77c\ubc18 \uc9c0\uc5ed 0\uc6d0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ubb34\ub8cc \ubc30\uc1a1 \uc870\uac74(\uc8fc\ubb38 \uae08\uc561 50,000\uc6d0 \uc774\uc0c1)\uc5d0\uc11c\ub3c4 \ud560\uc99d\uc774 \ubd99\ub294 \uac83\uc744 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "50,000\uc6d0\uc5d0\uc11c\ub3c4 \ud560\uc99d 3,000\uc6d0 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 11\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": true, "evidence": "\ubc18\ubcf5\ubb38\u00b7\uc870\uac74\ubb38 \uc5c6\uc74c"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uc5d0\uc11c zoneSurcharge\uac00 export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\ub294 \uc810\uc744 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubaa8\ub4c8 \ubd84\ub9ac\uac00 \ud544\uc694\ud558\ub2e4\ub294 \uc81c\uc548\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \ud55c\ub2e4", "passed": true, "evidence": "export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\uace0 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubcc4\ub3c4 \ubaa8\ub4c8\ub85c \ube7c\ub294 \ubc29\ubc95\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \uc81c\uc548"}], "notes": []}, {"eval_id": "cart-no-spec-no-helper", "eval_name": "cart-no-spec-no-helper", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.62, "passed": 5, "failed": 3, "total": 8, "time_seconds": 38.8, "tokens": 60282, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc\uc5d0 \ud14c\uc2a4\ud2b8 \ucf5c\ubc31\uc774 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\ub098 \ubcc4\ub3c4 \uc9c0\uc6d0 \ud30c\uc77c\uc774 \uc5c6\ub2e4", "passed": true, "evidence": "\ud5ec\ud37c\uc640 \uc9c0\uc6d0 \ud30c\uc77c \uc5c6\uc74c"}, {"text": "cart.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 19\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uae30\ub300\uac12\uc774 \ub9ac\ud130\ub7f4\ub85c \uc801\ud600 \uc788\uace0 \ud14c\uc2a4\ud2b8 \uc548\uc5d0\uc11c \uacc4\uc0b0\ub418\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uae30\ub300\uac12\uc774 \ubaa8\ub450 \ub9ac\ud130\ub7f4"}, {"text": "\uac19\uc740 sku \ucd94\uac00 \uc2dc \uc218\ub7c9 \ud569\uc0b0\uacfc 0 \uc774\ud558 \uc218\ub7c9 \uac70\ubd80\ub97c \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \ub204\uc801, 0\uacfc -1 RangeError \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": false, "evidence": "48\ud589\uc5d0\uc11c for \ubb38\uc73c\ub85c it()\uc744 \ub9cc\ub4e6"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 cart.items \uac19\uc740 \ub0b4\ubd80 \uc0c1\ud0dc\ub97c \uc9c1\uc811 \ubcf4\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "cart.items.get/size/has\ub97c 12\uacf3\uc5d0\uc11c \uc9c1\uc811 \ud655\uc778\ud568"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uba54\uc2dc\uc9c0 \ubb38\uad6c\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "52\ud589\uc5d0\uc11c 'quantity must be positive' \ubb38\uad6c\ub97c \uac80\uc99d\ud568"}], "notes": []}, {"eval_id": "coupon-spec-prioritization", "eval_name": "coupon-spec-prioritization", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.71, "passed": 5, "failed": 2, "total": 7, "time_seconds": 68.8, "tokens": 64701, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc2a4\ud399 7\ubc88(\ucd1d \ud560\uc778\uc561 50% \uc0c1\ud55c)\uc774 pricing.py\uc5d0 \uad6c\ud604\ub418\uc5b4 \uc788\uc9c0 \uc54a\ub2e4\ub294 \ubd88\uc77c\uce58\ub97c \uba85\uc2dc\ud55c\ub2e4", "passed": true, "evidence": "\ubcf4\uace0\uc5d0 \uc2a4\ud399 7\ubc88 \ubbf8\uad6c\ud604\uc744 \ud45c\ub85c \uba85\uc2dc"}, {"text": "pricing.py\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\uc18c\uc2a4 \ucf54\ub4dc\ub97c \uace0\uce58\uc9c0 \uc54a\uc558\ub2e4)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \ub85c\uadf8 \ubb38\uad6c, \ub85c\uac70 \uc774\ub984, CURRENCY \uc0c1\uc218(\uc2a4\ud399 1, 8, 9\ubc88)\ub97c \uac80\uc99d\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "assertLogs\ub85c \ub85c\uac70, \ub808\ubca8, \ubb38\uad6c\ub97c \uac80\uc99d\ud568(\uc2a4\ud399 8, 9\ubc88)"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uac00 \uc77c\ubd80\ub7ec \ud14c\uc2a4\ud2b8\ud558\uc9c0 \uc54a\uc740 \uc2a4\ud399 \ud56d\ubaa9\uacfc \uadf8 \uc774\uc720\ub97c \ubc1d\ud78c\ub2e4", "passed": true, "evidence": "\uc2a4\ud399 1\ubc88\uc744 \uc81c\uc678\ud558\uace0 \uc774\uc720\ub97c \ubc1d\ud798"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 10,000\uc6d0 \uacbd\uacc4, \uc8fc\ubb38 \uae08\uc561\ubcf4\ub2e4 \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \ucfe0\ud3f0 \uc624\ub958\ub97c \ubaa8\ub450 \ub2e4\ub8ec\ub2e4", "passed": true, "evidence": "\uacbd\uacc4\uac12, \ud070 \ucfe0\ud3f0, \uc911\ubcf5 \ubd88\uac00 \uc624\ub958 \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \uadf8 \uacb0\uacfc\ub97c \ubcf4\uace0\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 19\uac1c \uc911 15\uac1c \ud1b5\uacfc, \uc2e4\ud328 4\uac1c\ub294 \ubcf4\uace0 \ub0b4\uc6a9\uacfc \uc77c\uce58"}, {"text": "\ud14c\uc2a4\ud2b8 \ud30c\uc77c\uc5d0 \ud14c\uc2a4\ud2b8\uac00 \uc544\ub2cc \ud5ec\ud37c \ud568\uc218\uac00 \uc5c6\ub2e4", "passed": false, "evidence": "percent(), fixed() \ud5ec\ud37c 2\uac1c\uac00 \uc788\uc74c"}], "notes": []}, {"eval_id": "order-validator-justified-helper", "eval_name": "order-validator-justified-helper", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.62, "passed": 5, "failed": 3, "total": 8, "time_seconds": 47.7, "tokens": 61728, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "src/ \uc544\ub798 \ud30c\uc77c\uc774 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud5ec\ud37c\uac00 \uc788\ub2e4\uba74 tests/ \uc548\uc5d0\ub9cc \uc788\uace0, \uc8fc\ubb38 \uac1d\uccb4\ub97c \ub9cc\ub4dc\ub294 \ud558\ub098\ubfd0\uc774\ub2e4", "passed": false, "evidence": "make_order \uc678\uc5d0 assert_accepted, assert_rejected\ub97c \uac00\uc9c4 \uae30\ubc18 \ud074\ub798\uc2a4\uae4c\uc9c0 \ud5ec\ud37c\uac00 3\uac1c\uc784"}, {"text": "\uac01 \uc624\ub958 \ucf00\uc774\uc2a4 \ud14c\uc2a4\ud2b8 \ubcf8\ubb38\uc5d0 \uac80\uc99d \ub300\uc0c1 \ud544\ub4dc\uc758 \uac12\uc774 \uc9c1\uc811 \ub4dc\ub7ec\ub09c\ub2e4", "passed": true, "evidence": "\ud544\ub4dc \uc774\ub984\uacfc \uac12\uc774 assert_rejected \uc778\uc790\ub85c \ud14c\uc2a4\ud2b8\uc5d0 \ub4dc\ub7ec\ub0a8"}, {"text": "\ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d(assert)\uc774 \uc5c6\ub2e4", "passed": false, "evidence": "assert_accepted, assert_rejected \ud5ec\ud37c \uc548\uc5d0 \uac80\uc99d\uc774 \uc788\uc74c"}, {"text": "\uc218\ub7c9 \uacbd\uacc4(1, 99 \ub610\ub294 0, 100)\uc640 \ubc30\uc1a1\uc77c\uc774 \uc8fc\ubb38\uc77c\uacfc \uac19\uc740 \uacbd\uc6b0\ub97c \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\uc218\ub7c9 \uacbd\uacc4\uc640 \ub2f9\uc77c \ubc30\uc1a1\uc744 \ub2e4\ub8f8"}, {"text": "\ud14c\uc2a4\ud2b8\ub97c \uc2e4\uc81c\ub85c \uc2e4\ud589\ud588\uace0 \ubaa8\ub450 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 16\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\uac12 \ub450\uc138 \uac1c\ub9cc \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8(\uc218\ub7c9 1\uacfc 99, \uacb0\uc81c \uc218\ub2e8 \ub450 \uac00\uc9c0 \ub4f1)\uc5d0 for \ubb38\uc744 \uc4f0\uc9c0 \uc54a\ub294\ub2e4", "passed": false, "evidence": "\uc218\ub7c9 1, 99 \ud655\uc778\uc774 \ud5ec\ud37c \uc548\uc758 for \ubb38\uc73c\ub85c \ub3ce"}, {"text": "\uc5ec\ub7ec \uc624\ub958\ub97c \ud655\uc778\ud558\ub294 \ud14c\uc2a4\ud2b8\uac00 \uc624\ub958 \uc21c\uc11c\ub97c \uace0\uc815\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "assertCountEqual\ub85c \uc21c\uc11c \uc5c6\uc774 \ube44\uad50"}], "notes": []}, {"eval_id": "shipping-private-function", "eval_name": "shipping-private-function", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 6, "failed": 2, "total": 8, "time_seconds": 92.2, "tokens": 60444, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "shipping.js\uac00 \uc6d0\ubcf8\uacfc \ub3d9\uc77c\ud558\ub2e4(\ud14c\uc2a4\ud2b8\ub97c \uc704\ud55c export \ucd94\uac00 \uc5c6\uc74c)", "passed": true, "evidence": "\uc6d0\ubcf8\uacfc diff \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 vm, eval, \uc18c\uc2a4 \ud30c\uc77c \ud14d\uc2a4\ud2b8 \uc77d\uae30, rewire \uac19\uc740 \uc6b0\ud68c \ubc29\ubc95\uc73c\ub85c zoneSurcharge\uc5d0 \uc811\uadfc\ud558\uc9c0 \uc54a\ub294\ub2e4", "passed": true, "evidence": "\uc6b0\ud68c \uc811\uadfc \uc5c6\uc74c"}, {"text": "\ud14c\uc2a4\ud2b8\uac00 \uacf5\uac1c \ud568\uc218 quoteShipping\uc744 \ud638\ucd9c\ud574 \ud560\uc99d\uc744 \uac80\uc99d\ud55c\ub2e4", "passed": true, "evidence": "surcharge \ud654\uc0b4\ud45c \ud568\uc218\uac00 quoteShipping\uc744 \ud638\ucd9c"}, {"text": "\uc81c\uc8fc(63) 5kg \uc774\ud558\uc640 \ucd08\uacfc, \ub3c4\uc11c\uc0b0\uac04(23 \ub610\ub294 40)\uc758 5kg \ucd08\uacfc\ubd84 kg \uc62c\ub9bc, \uc77c\ubc18 \uc9c0\uc5ed \ud560\uc99d \uc5c6\uc74c\uc744 \ubaa8\ub450 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "63/23/40 \uacbd\uacc4\uc640 \ud560\uc99d \uc5c6\ub294 \uc9c0\uc5ed \ubaa8\ub450 \ud14c\uc2a4\ud2b8"}, {"text": "\ubb34\ub8cc \ubc30\uc1a1 \uc870\uac74(\uc8fc\ubb38 \uae08\uc561 50,000\uc6d0 \uc774\uc0c1)\uc5d0\uc11c\ub3c4 \ud560\uc99d\uc774 \ubd99\ub294 \uac83\uc744 \ud14c\uc2a4\ud2b8\ud55c\ub2e4", "passed": true, "evidence": "\ubb34\ub8cc \ubc30\uc1a1 + 63 \uc9c0\uc5ed = \ud560\uc99d\ub9cc \ud14c\uc2a4\ud2b8 \uc788\uc74c"}, {"text": "node --test\ub97c \uc2e4\ud589\ud588\uace0 \ubaa8\ub4e0 \ud14c\uc2a4\ud2b8\uac00 \ud1b5\uacfc\ud55c\ub2e4", "passed": true, "evidence": "\uc7ac\uc2e4\ud589: 41\uac1c \ubaa8\ub450 \ud1b5\uacfc"}, {"text": "\ud14c\uc2a4\ud2b8 \ucf54\ub4dc \uc5b4\ub514\uc5d0\ub3c4 \ubc18\ubcf5\ubb38\uc774\ub098 \uc870\uac74\ubb38\uc774 \uc5c6\ub2e4(\ud14c\uc2a4\ud2b8\ub97c for \ubb38\uc73c\ub85c \ub9cc\ub4e4\uc5b4 \ub0b4\ub294 \uacbd\uc6b0 \ud3ec\ud568)", "passed": false, "evidence": "for \ubb38 3\uacf3(29, 48-49, 67\ud589)\uc73c\ub85c \ud14c\uc2a4\ud2b8\ub97c \ub9cc\ub4e4\uc5b4 \ub0c4"}, {"text": "\ucd5c\uc885 \ubcf4\uace0\uc5d0\uc11c zoneSurcharge\uac00 export\ub418\uc9c0 \uc54a\uc544 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\ub294 \uc810\uc744 \ubc1d\ud788\uace0, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 \ubaa8\ub4c8 \ubd84\ub9ac\uac00 \ud544\uc694\ud558\ub2e4\ub294 \uc81c\uc548\uc744 \uc18c\uc2a4 \ubcc0\uacbd \uc5c6\uc774 \ud55c\ub2e4", "passed": false, "evidence": "\uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4\uace0 \ubc1d\ud614\uc9c0\ub9cc, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 export\ub97c \ucd94\uac00\ud558\uc790\uace0 \uc81c\uc548\ud568(\ubaa8\ub4c8 \ubd84\ub9ac\uac00 \uc544\ub2d8)"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 73.475, "stddev": 12.4997, "min": 54.9, "max": 81.5}, "tokens": {"mean": 67457.5, "stddev": 2697.4602, "min": 64211, "max": 69963}}, "without_skill": {"pass_rate": {"mean": 0.675, "stddev": 0.0656, "min": 0.62, "max": 0.75}, "time_seconds": {"mean": 61.875, "stddev": 23.8114, "min": 38.8, "max": 92.2}, "tokens": {"mean": 61788.75, "stddev": 2046.4228, "min": 60282, "max": 64701}}, "delta": {"pass_rate": "+0.32", "time_seconds": "+11.6", "tokens": "+5669"}}, "notes": ["\uc0c8 \ucf00\uc774\uc2a4 shipping-private-function\uc744 \ucd94\uac00\ud588\ub2e4. \uae30\uc874 3\uac1c \ucf00\uc774\uc2a4\uc758 \uc2a4\ud0ac \uc5c6\uc74c \uacb0\uacfc\ub294 SKILL.md\uc640 \ubb34\uad00\ud558\ubbc0\ub85c iteration-2 \uacb0\uacfc\ub97c \uadf8\ub300\ub85c \uac00\uc838\uc654\ub2e4.", "\uc0c8 \ucf00\uc774\uc2a4\uc5d0\uc11c \uc2a4\ud0ac \uc5c6\uc74c\ub3c4 export\ub97c \ucd94\uac00\ud558\uc9c0 \uc54a\uace0 \uacf5\uac1c \ud568\uc218\ub85c \uac80\uc99d\ud588\ub2e4. \ud575\uc2ec \uaddc\uce59(\ud14c\uc2a4\ud2b8\uc6a9 export \uae08\uc9c0)\uc740 \uc774 \ucf00\uc774\uc2a4\uc5d0\uc11c \ucc28\uc774\ub97c \ub9cc\ub4e4\uc9c0 \ubabb\ud588\ub2e4. \ucc28\uc774\ub294 for \ubb38 \uc0ac\uc6a9\uacfc, \uc9c1\uc811 \ud14c\uc2a4\ud2b8\ud558\ub824\uba74 export\ud558\uc790\uace0 \uc81c\uc548\ud55c \uc810\uc5d0\uc11c \ub0ac\ub2e4.", "\uc2a4\ud0ac \uc788\uc74c\uc740 \ud560\uc99d \ud14c\uc2a4\ud2b8\uac00 \ubb34\ub8cc \ubc30\uc1a1 \uae30\uc900\uacfc \uc5ee\uc774\uc9c0 \uc54a\ub3c4\ub85d subtotal\uc744 100,000\uc73c\ub85c \ub450\uc5c8\ub2e4. \uae30\ubcf8 \uc2e4\ud589\uc740 50,000\uc744 \uc368\uc11c \uae30\uc900 \ubcc0\uacbd \uc2dc \ud568\uaed8 \uae68\uc9c0\ub294 \uad6c\uc870\ub2e4(\ucc44\uc810 \ud56d\ubaa9\uc740 \uc544\ub2d8).", "\ucf00\uc774\uc2a4\ub2f9 1\ud68c \uc2e4\ud589\uc774\ub77c \ucc38\uace0\uc6a9\uc774\ub2e4."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + escapeHtml(summary.passed || 0) + ' passed, ' + escapeHtml(summary.failed || 0) + ' failed of ' + escapeHtml(summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML.replace(/"/g, "&quot;");
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += escapeHtml(metadata.timestamp) + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + escapeHtml(metadata.evals_run.join(", ")) + " &mdash; ";
+      html += escapeHtml(metadata.runs_per_configuration || "?") + (metadata.runs_per_configuration === 1 ? " run" : " runs") + " per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+      // With a single configuration there is nothing to compare: only its column is shown
+      const compare = cells => configs.length >= 2 ? cells : "";
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th>" + compare("<th>" + escapeHtml(labelB) + "</th><th>Delta</th>") + "</tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += compare("<td>" + fmtStat(b.pass_rate, true) + "</td>");
+      html += compare('<td class="' + deltaClass(delta.pass_rate) + '">' + escapeHtml(delta.pass_rate || "—") + "</td>") + "</tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.time_seconds, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.time_seconds) + '">' + escapeHtml(delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td>") + "</tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.tokens, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.tokens) + '">' + escapeHtml(delta.tokens || "—") + "</td>") + "</tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        // Numeric ids first, then ids that are names
+        const rank = id => typeof id === "number" ? 0 : 1;
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) =>
+          rank(a) - rank(b) || (rank(a) ? String(a).localeCompare(String(b)) : a - b));
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = escapeHtml(config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + escapeHtml(run.run_number) + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + escapeHtml(r.passed || 0) + "/" + escapeHtml(r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + escapeHtml(r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + escapeHtml(run.run_number) + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

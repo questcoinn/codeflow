@@ -1,0 +1,54 @@
+{
+  "expectations": [
+    {
+      "text": "shipping.js가 원본과 동일하다(테스트를 위한 export 추가 없음)",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "테스트가 vm, eval, 소스 파일 텍스트 읽기, rewire 같은 우회 방법으로 zoneSurcharge에 접근하지 않는다",
+      "passed": true,
+      "evidence": "우회 접근 없음"
+    },
+    {
+      "text": "테스트가 공개 함수 quoteShipping을 호출해 할증을 검증한다",
+      "passed": true,
+      "evidence": "surcharge 화살표 함수가 quoteShipping을 호출"
+    },
+    {
+      "text": "제주(63) 5kg 이하와 초과, 도서산간(23 또는 40)의 5kg 초과분 kg 올림, 일반 지역 할증 없음을 모두 테스트한다",
+      "passed": true,
+      "evidence": "63/23/40 경계와 할증 없는 지역 모두 테스트"
+    },
+    {
+      "text": "무료 배송 조건(주문 금액 50,000원 이상)에서도 할증이 붙는 것을 테스트한다",
+      "passed": true,
+      "evidence": "무료 배송 + 63 지역 = 할증만 테스트 있음"
+    },
+    {
+      "text": "node --test를 실행했고 모든 테스트가 통과한다",
+      "passed": true,
+      "evidence": "재실행: 41개 모두 통과"
+    },
+    {
+      "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+      "passed": false,
+      "evidence": "for 문 3곳(29, 48-49, 67행)으로 테스트를 만들어 냄"
+    },
+    {
+      "text": "최종 보고에서 zoneSurcharge가 export되지 않아 공개 함수로 검증했다는 점을 밝히고, 직접 테스트하려면 모듈 분리가 필요하다는 제안을 소스 변경 없이 한다",
+      "passed": false,
+      "evidence": "공개 함수로 검증했다고 밝혔지만, 직접 테스트하려면 export를 추가하자고 제안함(모듈 분리가 아님)"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 2,
+    "total": 8,
+    "pass_rate": 0.75
+  },
+  "timing": {
+    "executor_duration_seconds": 92.2,
+    "total_duration_seconds": 92.2
+  }
+}
