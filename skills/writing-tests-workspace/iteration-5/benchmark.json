@@ -1,0 +1,761 @@
+{
+  "metadata": {
+    "skill_name": "writing-tests",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-13T13:45:47Z",
+    "evals_run": [
+      "cart-no-spec-no-helper",
+      "coupon-spec-prioritization",
+      "order-validator-justified-helper",
+      "setup-missing-python-db",
+      "setup-missing-vite-ts",
+      "shipping-private-function"
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": "cart-no-spec-no-helper",
+      "eval_name": "cart-no-spec-no-helper",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 39.9,
+        "tokens": 64048,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 코드에 테스트 콜백이 아닌 헬퍼 함수나 별도 지원 파일이 없다",
+          "passed": true,
+          "evidence": "헬퍼 없음"
+        },
+        {
+          "text": "cart.js가 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 8개 모두 통과"
+        },
+        {
+          "text": "기대값이 리터럴로 적혀 있고 테스트 안에서 계산되지 않는다",
+          "passed": true,
+          "evidence": "기대값 리터럴"
+        },
+        {
+          "text": "같은 sku 추가 시 수량 합산과 0 이하 수량 거부를 모두 테스트한다",
+          "passed": true,
+          "evidence": "수량 누적, 0과 음수 거부 테스트 있음"
+        },
+        {
+          "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+          "passed": true,
+          "evidence": "반복문·조건문 없음"
+        },
+        {
+          "text": "테스트가 cart.items 같은 내부 상태를 직접 보지 않는다",
+          "passed": true,
+          "evidence": "items 접근 없음"
+        },
+        {
+          "text": "테스트가 오류 메시지 문구를 검증하지 않는다",
+          "passed": true,
+          "evidence": "오류 문구 검증 없음"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "기존 test 스크립트를 쓰고 질문 없이 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "coupon-spec-prioritization",
+      "eval_name": "coupon-spec-prioritization",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 41.3,
+        "tokens": 65745,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "최종 보고가 스펙 7번(총 할인액 50% 상한)이 pricing.py에 구현되어 있지 않다는 불일치를 명시한다",
+          "passed": true,
+          "evidence": "50% 상한 미구현을 보고하고 실패 테스트 2개로 남김"
+        },
+        {
+          "text": "pricing.py가 원본과 동일하다(소스 코드를 고치지 않았다)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 로그 문구, 로거 이름, CURRENCY 상수(스펙 1, 8, 9번)를 검증하지 않는다",
+          "passed": true,
+          "evidence": "로그·로거·CURRENCY 검증 없음"
+        },
+        {
+          "text": "최종 보고가 일부러 테스트하지 않은 스펙 항목과 그 이유를 밝힌다",
+          "passed": true,
+          "evidence": "스펙 1, 5, 8, 9번 제외 이유를 밝힘"
+        },
+        {
+          "text": "테스트가 10,000원 경계, 주문 금액보다 큰 쿠폰, 중복 불가 쿠폰 오류를 모두 다룬다",
+          "passed": true,
+          "evidence": "9,999/10,000 경계, 30,000원 정액 쿠폰(20,000원 주문), ValueError 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 그 결과를 보고한다",
+          "passed": true,
+          "evidence": "재실행: 9개 중 7개 통과, 실패 2개는 보고와 일치"
+        },
+        {
+          "text": "테스트 파일에 테스트가 아닌 헬퍼 함수가 없다",
+          "passed": true,
+          "evidence": "헬퍼 없음"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "구성 질문 없이 바로 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "order-validator-justified-helper",
+      "eval_name": "order-validator-justified-helper",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 48.8,
+        "tokens": 65981,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "src/ 아래 파일이 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+          "passed": true,
+          "evidence": "테스트 파일 안의 valid_order 하나, 13개 필드 준비만 맡음"
+        },
+        {
+          "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+          "passed": true,
+          "evidence": "확인할 값을 인자로 넘김"
+        },
+        {
+          "text": "헬퍼 안에 검증(assert)이 없다",
+          "passed": true,
+          "evidence": "헬퍼에 assert 없음"
+        },
+        {
+          "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+          "passed": true,
+          "evidence": "수량 0/99/100, 배송 당일 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 모두 통과한다",
+          "passed": true,
+          "evidence": "재실행: 16개 모두 통과"
+        },
+        {
+          "text": "값 두세 개만 확인하는 테스트(수량 1과 99, 결제 수단 두 가지 등)에 for 문을 쓰지 않는다",
+          "passed": true,
+          "evidence": "for 없이 값마다 테스트를 나눔"
+        },
+        {
+          "text": "여러 오류를 확인하는 테스트가 오류 순서를 고정하지 않는다",
+          "passed": true,
+          "evidence": "여러 오류를 순서와 무관하게 비교"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "요청대로 unittest·tests/로 질문 없이 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "setup-missing-python-db",
+      "eval_name": "setup-missing-python-db",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 29.9,
+        "tokens": 63002,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 파일이나 테스트 설정 파일을 만들지 않았고, 패키지를 설치하지 않았으며, pyproject.toml이 원본과 같다",
+          "passed": true,
+          "evidence": "새 파일 없음, pyproject.toml 원본과 동일"
+        },
+        {
+          "text": "테스트 도구(pytest, unittest 등)를 묻고 선택지를 2개 이상 제시한다",
+          "passed": true,
+          "evidence": "pytest, unittest 제시"
+        },
+        {
+          "text": "도구 질문에 추천 선택지가 표시되어 있고, 추천 이유가 이 프로젝트의 상황(의존성이 없음, pyproject 구성 등)에 근거한다",
+          "passed": true,
+          "evidence": "pytest 추천, src 레이아웃이라 pyproject에 pythonpath 한 줄로 해결되고 설정이 한 곳에 모인다는 이 프로젝트 근거"
+        },
+        {
+          "text": "sqlite를 쓰는 repository 테스트를 단위 테스트와 어떻게 나눌지(폴더, 표시 등) 선택지로 묻는다",
+          "passed": true,
+          "evidence": "tests/unit·integration 분리, marker 구분, DB 테스트 보류 선택지"
+        },
+        {
+          "text": "통합 테스트에서 DB를 어떻게 준비할지(인메모리 sqlite, 임시 파일 등) 선택지로 묻는다",
+          "passed": true,
+          "evidence": "통합 테스트에 :memory: sqlite 사용을 추천 선택지에 포함"
+        },
+        {
+          "text": "모든 질문에 추천 선택지가 표시되어 있다",
+          "passed": true,
+          "evidence": "4개 질문 모두 추천 표시"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "setup-missing-vite-ts",
+      "eval_name": "setup-missing-vite-ts",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 20.3,
+        "tokens": 61676,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 파일이나 테스트 설정 파일을 만들지 않았고, 패키지를 설치하지 않았으며, package.json이 원본과 같다",
+          "passed": true,
+          "evidence": "새 파일 없음, package.json 원본과 동일"
+        },
+        {
+          "text": "테스트 도구를 묻고 선택지를 2개 이상 제시한다",
+          "passed": true,
+          "evidence": "Vitest, Jest+ts-jest, node:test 3개 제시"
+        },
+        {
+          "text": "테스트 파일 위치(소스 옆 또는 별도 폴더)를 선택지와 함께 묻는다",
+          "passed": true,
+          "evidence": "소스 옆과 tests/ 폴더 2개 제시"
+        },
+        {
+          "text": "도구 질문에서 Vitest를 추천 선택지로 표시하고, 프로젝트가 Vite를 쓴다는 것을 이유로 든다",
+          "passed": true,
+          "evidence": "Vitest 추천, Vite를 쓰고 있어 vite.config.ts와 TS/ESM 처리를 공유한다는 이유"
+        },
+        {
+          "text": "모든 질문에 추천 선택지가 표시되어 있다",
+          "passed": true,
+          "evidence": "도구, 위치, 설치·스크립트 3개 질문 모두 추천 표시"
+        },
+        {
+          "text": "외부 의존성이 없는 순수 함수만 대상이므로 통합 테스트나 DB 준비에 대해 묻지 않는다",
+          "passed": true,
+          "evidence": "순수 함수라 통합 테스트는 정하지 않아도 된다고 밝히고 묻지 않음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "shipping-private-function",
+      "eval_name": "shipping-private-function",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 42.0,
+        "tokens": 64530,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "shipping.js가 원본과 동일하다(테스트를 위한 export 추가 없음)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 vm, eval, 소스 파일 텍스트 읽기, rewire 같은 우회 방법으로 zoneSurcharge에 접근하지 않는다",
+          "passed": true,
+          "evidence": "우회 접근 없음"
+        },
+        {
+          "text": "테스트가 공개 함수 quoteShipping을 호출해 할증을 검증한다",
+          "passed": true,
+          "evidence": "모든 테스트가 quoteShipping 호출"
+        },
+        {
+          "text": "제주(63) 5kg 이하와 초과, 도서산간(23 또는 40)의 5kg 초과분 kg 올림, 일반 지역 할증 없음을 모두 테스트한다",
+          "passed": true,
+          "evidence": "63 5kg/5.1kg/30kg, 23·40 올림, 일반 지역 0원 있음"
+        },
+        {
+          "text": "무료 배송 조건(주문 금액 50,000원 이상)에서도 할증이 붙는 것을 테스트한다",
+          "passed": true,
+          "evidence": "무료 배송 금액에서 할증 확인"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 13개 모두 통과"
+        },
+        {
+          "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+          "passed": true,
+          "evidence": "반복문·조건문 없음"
+        },
+        {
+          "text": "최종 보고에서 zoneSurcharge가 export되지 않아 공개 함수로 검증했다는 점을 밝히고, 직접 테스트하려면 모듈 분리가 필요하다는 제안을 소스 변경 없이 한다",
+          "passed": true,
+          "evidence": "export하지 않았다고 밝히고 내부 모듈 분리(재export 없음)를 제안, 소스 변경 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "cart-no-spec-no-helper",
+      "eval_name": "cart-no-spec-no-helper",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 40.1,
+        "tokens": 62856,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 코드에 테스트 콜백이 아닌 헬퍼 함수나 별도 지원 파일이 없다",
+          "passed": true,
+          "evidence": "헬퍼 없음"
+        },
+        {
+          "text": "cart.js가 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 8개 모두 통과"
+        },
+        {
+          "text": "기대값이 리터럴로 적혀 있고 테스트 안에서 계산되지 않는다",
+          "passed": true,
+          "evidence": "기대값 리터럴"
+        },
+        {
+          "text": "같은 sku 추가 시 수량 합산과 0 이하 수량 거부를 모두 테스트한다",
+          "passed": true,
+          "evidence": "수량 누적, 0과 음수 거부 테스트 있음"
+        },
+        {
+          "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+          "passed": true,
+          "evidence": "반복문·조건문 없음"
+        },
+        {
+          "text": "테스트가 cart.items 같은 내부 상태를 직접 보지 않는다",
+          "passed": true,
+          "evidence": "items 접근 없음"
+        },
+        {
+          "text": "테스트가 오류 메시지 문구를 검증하지 않는다",
+          "passed": true,
+          "evidence": "오류 문구 검증 없음"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "질문 없이 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "coupon-spec-prioritization",
+      "eval_name": "coupon-spec-prioritization",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 40.1,
+        "tokens": 64600,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "최종 보고가 스펙 7번(총 할인액 50% 상한)이 pricing.py에 구현되어 있지 않다는 불일치를 명시한다",
+          "passed": true,
+          "evidence": "50% 상한 미구현을 보고하고 실패 테스트 2개로 남김"
+        },
+        {
+          "text": "pricing.py가 원본과 동일하다(소스 코드를 고치지 않았다)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 로그 문구, 로거 이름, CURRENCY 상수(스펙 1, 8, 9번)를 검증하지 않는다",
+          "passed": true,
+          "evidence": "로그·로거·CURRENCY 검증 없음"
+        },
+        {
+          "text": "최종 보고가 일부러 테스트하지 않은 스펙 항목과 그 이유를 밝힌다",
+          "passed": true,
+          "evidence": "스펙 1, 5, 8, 9번 제외 이유를 밝힘"
+        },
+        {
+          "text": "테스트가 10,000원 경계, 주문 금액보다 큰 쿠폰, 중복 불가 쿠폰 오류를 모두 다룬다",
+          "passed": false,
+          "evidence": "주문 금액보다 큰 쿠폰 테스트 없음(15,000원 쿠폰/20,000원 주문)"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 그 결과를 보고한다",
+          "passed": true,
+          "evidence": "재실행: 9개 중 7개 통과, 실패 2개는 보고와 일치"
+        },
+        {
+          "text": "테스트 파일에 테스트가 아닌 헬퍼 함수가 없다",
+          "passed": true,
+          "evidence": "헬퍼 없음"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "구성 질문 없이 바로 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "order-validator-justified-helper",
+      "eval_name": "order-validator-justified-helper",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 40.8,
+        "tokens": 63220,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "src/ 아래 파일이 원본과 동일하다",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+          "passed": true,
+          "evidence": "테스트 파일 안의 make_valid_order 하나"
+        },
+        {
+          "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+          "passed": true,
+          "evidence": "확인할 값을 인자로 넘김"
+        },
+        {
+          "text": "헬퍼 안에 검증(assert)이 없다",
+          "passed": true,
+          "evidence": "헬퍼에 assert 없음"
+        },
+        {
+          "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+          "passed": true,
+          "evidence": "수량 0/99/100, 배송 당일 테스트 있음"
+        },
+        {
+          "text": "테스트를 실제로 실행했고 모두 통과한다",
+          "passed": true,
+          "evidence": "재실행: 15개 모두 통과"
+        },
+        {
+          "text": "값 두세 개만 확인하는 테스트(수량 1과 99, 결제 수단 두 가지 등)에 for 문을 쓰지 않는다",
+          "passed": true,
+          "evidence": "for 없이 값마다 테스트를 나눔"
+        },
+        {
+          "text": "여러 오류를 확인하는 테스트가 오류 순서를 고정하지 않는다",
+          "passed": true,
+          "evidence": "여러 오류를 순서와 무관하게 비교"
+        },
+        {
+          "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+          "passed": true,
+          "evidence": "질문 없이 작성"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "setup-missing-python-db",
+      "eval_name": "setup-missing-python-db",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 6,
+        "total": 6,
+        "time_seconds": 53.5,
+        "tokens": 66003,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 파일이나 테스트 설정 파일을 만들지 않았고, 패키지를 설치하지 않았으며, pyproject.toml이 원본과 같다",
+          "passed": false,
+          "evidence": "묻지 않고 tests/test_stock.py, tests/test_repository.py를 만듦"
+        },
+        {
+          "text": "테스트 도구(pytest, unittest 등)를 묻고 선택지를 2개 이상 제시한다",
+          "passed": false,
+          "evidence": "도구를 묻지 않음(unittest로 직접 결정)"
+        },
+        {
+          "text": "도구 질문에 추천 선택지가 표시되어 있고, 추천 이유가 이 프로젝트의 상황(의존성이 없음, pyproject 구성 등)에 근거한다",
+          "passed": false,
+          "evidence": "질문 없음"
+        },
+        {
+          "text": "sqlite를 쓰는 repository 테스트를 단위 테스트와 어떻게 나눌지(폴더, 표시 등) 선택지로 묻는다",
+          "passed": false,
+          "evidence": "질문 없음"
+        },
+        {
+          "text": "통합 테스트에서 DB를 어떻게 준비할지(인메모리 sqlite, 임시 파일 등) 선택지로 묻는다",
+          "passed": false,
+          "evidence": "질문 없음(:memory:로 직접 결정)"
+        },
+        {
+          "text": "모든 질문에 추천 선택지가 표시되어 있다",
+          "passed": false,
+          "evidence": "질문 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "setup-missing-vite-ts",
+      "eval_name": "setup-missing-vite-ts",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.16666666666666666,
+        "passed": 1,
+        "failed": 5,
+        "total": 6,
+        "time_seconds": 51.4,
+        "tokens": 63830,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "테스트 파일이나 테스트 설정 파일을 만들지 않았고, 패키지를 설치하지 않았으며, package.json이 원본과 같다",
+          "passed": false,
+          "evidence": "묻지 않고 tests/slugify.test.ts를 만듦(node:test 선택)"
+        },
+        {
+          "text": "테스트 도구를 묻고 선택지를 2개 이상 제시한다",
+          "passed": false,
+          "evidence": "도구를 묻지 않음. 직접 node:test로 정하고 보고에서 Vitest 전환을 언급"
+        },
+        {
+          "text": "테스트 파일 위치(소스 옆 또는 별도 폴더)를 선택지와 함께 묻는다",
+          "passed": false,
+          "evidence": "위치를 묻지 않음"
+        },
+        {
+          "text": "도구 질문에서 Vitest를 추천 선택지로 표시하고, 프로젝트가 Vite를 쓴다는 것을 이유로 든다",
+          "passed": false,
+          "evidence": "질문 없음. 보고에 Vitest 언급은 있으나 추천 질문이 아님"
+        },
+        {
+          "text": "모든 질문에 추천 선택지가 표시되어 있다",
+          "passed": false,
+          "evidence": "질문 없음"
+        },
+        {
+          "text": "외부 의존성이 없는 순수 함수만 대상이므로 통합 테스트나 DB 준비에 대해 묻지 않는다",
+          "passed": true,
+          "evidence": "통합 테스트 질문 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "shipping-private-function",
+      "eval_name": "shipping-private-function",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 46.1,
+        "tokens": 64025,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "shipping.js가 원본과 동일하다(테스트를 위한 export 추가 없음)",
+          "passed": true,
+          "evidence": "원본과 diff 없음"
+        },
+        {
+          "text": "테스트가 vm, eval, 소스 파일 텍스트 읽기, rewire 같은 우회 방법으로 zoneSurcharge에 접근하지 않는다",
+          "passed": true,
+          "evidence": "우회 접근 없음"
+        },
+        {
+          "text": "테스트가 공개 함수 quoteShipping을 호출해 할증을 검증한다",
+          "passed": true,
+          "evidence": "모든 테스트가 quoteShipping 호출"
+        },
+        {
+          "text": "제주(63) 5kg 이하와 초과, 도서산간(23 또는 40)의 5kg 초과분 kg 올림, 일반 지역 할증 없음을 모두 테스트한다",
+          "passed": true,
+          "evidence": "63, 23/40 올림, 일반 지역 0원 있음"
+        },
+        {
+          "text": "무료 배송 조건(주문 금액 50,000원 이상)에서도 할증이 붙는 것을 테스트한다",
+          "passed": true,
+          "evidence": "subtotal 50,000에서 할증 확인"
+        },
+        {
+          "text": "node --test를 실행했고 모든 테스트가 통과한다",
+          "passed": true,
+          "evidence": "재실행: 12개 모두 통과"
+        },
+        {
+          "text": "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+          "passed": true,
+          "evidence": "반복문·조건문 없음"
+        },
+        {
+          "text": "최종 보고에서 zoneSurcharge가 export되지 않아 공개 함수로 검증했다는 점을 밝히고, 직접 테스트하려면 모듈 분리가 필요하다는 제안을 소스 변경 없이 한다",
+          "passed": true,
+          "evidence": "내부 모듈 분리를 1번 선택지로 제안, 소스 변경 없음(2번으로 export 추가도 제시)"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 37.0333,
+        "stddev": 10.2023,
+        "min": 20.3,
+        "max": 48.8
+      },
+      "tokens": {
+        "mean": 64163.6667,
+        "stddev": 1642.4889,
+        "min": 61676,
+        "max": 65981
+      }
+    },
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.6736,
+        "stddev": 0.4628,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 45.3333,
+        "stddev": 5.9902,
+        "min": 40.1,
+        "max": 53.5
+      },
+      "tokens": {
+        "mean": 64089.0,
+        "stddev": 1119.9236,
+        "min": 62856,
+        "max": 66003
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.33",
+      "time_seconds": "-8.3",
+      "tokens": "+75"
+    }
+  },
+  "notes": [
+    "현재 스킬은 언어별 추천 표를 뺀 버전이다. 기준선은 수정 직전 스킬(skill-snapshot-iter4)이며, 주문 케이스를 제외한 기준선 결과는 iteration-4에서 그대로 가져왔다.",
+    "주문 케이스는 사용자 결정(구성이 없으면 묻는 게 맞다)에 따라 요청에 'unittest로'를 넣어 헬퍼 판단만 보도록 바꿨고, 두 버전을 모두 다시 돌렸다.",
+    "표를 빼도 추천 근거는 프로젝트에서 나왔다. Vite 케이스는 vite.config 공유로 Vitest를, Python 케이스는 src 레이아웃의 pythonpath 설정으로 pytest를 추천했다.",
+    "구성이 있거나 요청에서 정해진 4개 케이스는 두 버전 모두 질문 없이 진행했다. 차이는 구성 없는 두 케이스에서만 난다. 케이스당 1회 실행이다."
+  ]
+}

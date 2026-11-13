@@ -1,0 +1,44 @@
+{
+  "expectations": [
+    {
+      "text": "테스트 파일이나 테스트 설정 파일을 만들지 않았고, 패키지를 설치하지 않았으며, package.json이 원본과 같다",
+      "passed": false,
+      "evidence": "묻지 않고 tests/slugify.test.ts를 만듦(node:test 선택)"
+    },
+    {
+      "text": "테스트 도구를 묻고 선택지를 2개 이상 제시한다",
+      "passed": false,
+      "evidence": "도구를 묻지 않음. 직접 node:test로 정하고 보고에서 Vitest 전환을 언급"
+    },
+    {
+      "text": "테스트 파일 위치(소스 옆 또는 별도 폴더)를 선택지와 함께 묻는다",
+      "passed": false,
+      "evidence": "위치를 묻지 않음"
+    },
+    {
+      "text": "도구 질문에서 Vitest를 추천 선택지로 표시하고, 프로젝트가 Vite를 쓴다는 것을 이유로 든다",
+      "passed": false,
+      "evidence": "질문 없음. 보고에 Vitest 언급은 있으나 추천 질문이 아님"
+    },
+    {
+      "text": "모든 질문에 추천 선택지가 표시되어 있다",
+      "passed": false,
+      "evidence": "질문 없음"
+    },
+    {
+      "text": "외부 의존성이 없는 순수 함수만 대상이므로 통합 테스트나 DB 준비에 대해 묻지 않는다",
+      "passed": true,
+      "evidence": "통합 테스트 질문 없음"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 5,
+    "total": 6,
+    "pass_rate": 0.16666666666666666
+  },
+  "timing": {
+    "executor_duration_seconds": 51.4,
+    "total_duration_seconds": 51.4
+  }
+}

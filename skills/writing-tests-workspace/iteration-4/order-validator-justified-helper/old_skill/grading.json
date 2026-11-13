@@ -1,0 +1,59 @@
+{
+  "expectations": [
+    {
+      "text": "src/ 아래 파일이 원본과 동일하다",
+      "passed": true,
+      "evidence": "원본과 diff 없음"
+    },
+    {
+      "text": "헬퍼가 있다면 tests/ 안에만 있고, 주문 객체를 만드는 하나뿐이다",
+      "passed": true,
+      "evidence": "테스트 파일 안의 make_order 하나"
+    },
+    {
+      "text": "각 오류 케이스 테스트 본문에 검증 대상 필드의 값이 직접 드러난다",
+      "passed": true,
+      "evidence": "확인할 값을 인자로 넘김"
+    },
+    {
+      "text": "헬퍼 안에 검증(assert)이 없다",
+      "passed": true,
+      "evidence": "헬퍼에 assert 없음"
+    },
+    {
+      "text": "수량 경계(1, 99 또는 0, 100)와 배송일이 주문일과 같은 경우를 테스트한다",
+      "passed": true,
+      "evidence": "수량 0/1/99/100, 배송 당일 테스트 있음"
+    },
+    {
+      "text": "테스트를 실제로 실행했고 모두 통과한다",
+      "passed": true,
+      "evidence": "재실행: 17개 모두 통과"
+    },
+    {
+      "text": "값 두세 개만 확인하는 테스트(수량 1과 99, 결제 수단 두 가지 등)에 for 문을 쓰지 않는다",
+      "passed": true,
+      "evidence": "for 없이 값마다 테스트를 나눔"
+    },
+    {
+      "text": "여러 오류를 확인하는 테스트가 오류 순서를 고정하지 않는다",
+      "passed": true,
+      "evidence": "오류를 순서와 무관하게 비교"
+    },
+    {
+      "text": "테스트 구성에 대해 질문하지 않고 바로 테스트를 작성했다",
+      "passed": true,
+      "evidence": "unittest로 직접 정하고 질문 없이 작성"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 50.9,
+    "total_duration_seconds": 50.9
+  }
+}

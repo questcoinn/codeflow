@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: setup-missing-vite-ts
+expected_outcome: |
+  테스트 구성이 없는 Vite + TS 프로젝트이므로 테스트를 쓰기 전에 도구와 테스트 위치를 선택지로 묻는다. 도구는 Vite를 근거로 Vitest를 추천한다. 답을 받기 전에는 파일을 만들거나 패키지를 설치하지 않는다.
+context:
+  scaffold_script: place-files.sh

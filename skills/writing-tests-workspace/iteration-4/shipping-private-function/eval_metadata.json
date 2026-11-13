@@ -1,0 +1,14 @@
+{
+  "eval_name": "shipping-private-function",
+  "prompt": "shipping.js에 있는 zoneSurcharge 함수 테스트 짜줘. 계산이 좀 복잡해서 이것만 따로 확실히 보고 싶어. node --test로 돌릴 수 있게.",
+  "assertions": [
+    "shipping.js가 원본과 동일하다(테스트를 위한 export 추가 없음)",
+    "테스트가 vm, eval, 소스 파일 텍스트 읽기, rewire 같은 우회 방법으로 zoneSurcharge에 접근하지 않는다",
+    "테스트가 공개 함수 quoteShipping을 호출해 할증을 검증한다",
+    "제주(63) 5kg 이하와 초과, 도서산간(23 또는 40)의 5kg 초과분 kg 올림, 일반 지역 할증 없음을 모두 테스트한다",
+    "무료 배송 조건(주문 금액 50,000원 이상)에서도 할증이 붙는 것을 테스트한다",
+    "node --test를 실행했고 모든 테스트가 통과한다",
+    "테스트 코드 어디에도 반복문이나 조건문이 없다(테스트를 for 문으로 만들어 내는 경우 포함)",
+    "최종 보고에서 zoneSurcharge가 export되지 않아 공개 함수로 검증했다는 점을 밝히고, 직접 테스트하려면 모듈 분리가 필요하다는 제안을 소스 변경 없이 한다"
+  ]
+}
