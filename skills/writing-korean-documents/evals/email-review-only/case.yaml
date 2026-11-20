@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: email-review-only
+expected_outcome: |
+  고친 메일 전체가 아니라 문제 있는 문장과 수정 제안을 준다. 회신 요청(개발 일정, 테스트 환경 준비 현황, 금요일까지)이 메일 끝에 묻혀 있다는 점을 짚는다.
+context:
+  scaffold_script: place-files.sh

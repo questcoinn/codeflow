@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: incident-report-from-notes
+expected_outcome: |
+  첫 문단에 무엇이 언제부터 언제까지 안 됐고 지금 정상인지를 쓴다. 메모의 시각과 수치를 그대로 쓰고, 매출 영향과 담당자처럼 메모에 없는 정보는 지어내지 않는다.
+context:
+  scaffold_script: place-files.sh

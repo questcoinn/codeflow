@@ -1,0 +1,474 @@
+{
+  "metadata": {
+    "skill_name": "writing-korean-documents",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-20T14:49:45Z",
+    "evals_run": [
+      "casual-slack-no-overfix",
+      "email-review-only",
+      "incident-report-from-notes",
+      "pr-description-rewrite"
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": "casual-slack-no-overfix",
+      "eval_name": "casual-slack-no-overfix",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 27.2,
+        "tokens": 67877,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 메시지가 반말 메신저 말투를 유지한다(합니다체나 해요체로 바꾸지 않았다)",
+          "passed": true,
+          "evidence": "반말 유지: '미룸', '배포할게', '확인 중', '공유할게'"
+        },
+        {
+          "text": "고친 메시지에 원문에 없던 '저는', '제가', '나는', '내가' 같은 1인칭 주어를 넣지 않았다",
+          "passed": true,
+          "evidence": "1인칭 주어 추가 없음"
+        },
+        {
+          "text": "배포 1시간 연기, 스테이징 결제 테스트 실패, 원인이 타임존 설정으로 추정됨(확정 아님), 3시쯤 다시 공유가 모두 남아 있다",
+          "passed": true,
+          "evidence": "1시간 연기, 결제 테스트 실패, '타임존 설정 쪽 같은데 아직 확인 중', 3시 공유 모두 있음"
+        },
+        {
+          "text": "원문에 없는 배포 시각, 테스트 이름, 담당자, 원인을 더하지 않았다",
+          "passed": true,
+          "evidence": "시각·테스트 이름·담당자를 본문에 더하지 않고 본문 밖 선택 제안으로만 둠"
+        },
+        {
+          "text": "고친 메시지가 원문 길이의 두 배를 넘지 않는다",
+          "passed": true,
+          "evidence": "약 85자, 원문 80자 대비 2배 이하"
+        },
+        {
+          "text": "고친 메시지의 첫 문장이 배포를 1시간 미룬다는 사실이다",
+          "passed": true,
+          "evidence": "첫 문장 '내일 배포 1시간 미룸.'"
+        },
+        {
+          "text": "고친 메시지 본문에 [원래 시각?] 같은 확인 표시를 넣지 않았다(더 넣을 정보는 본문 밖에서 제안한다)",
+          "passed": true,
+          "evidence": "본문에 [..?] 표시 없음. '몇 시로 미루는지 적으면…'은 본문 밖 제안"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "email-review-only",
+      "eval_name": "email-review-only",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 51.3,
+        "tokens": 71177,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 메일 전체를 완성본으로 주지 않고, 문제 있는 문장과 수정 제안 위주로 준다",
+          "passed": true,
+          "evidence": "문장별 수정 제안만 주고 완성본은 주지 않음('정보를 알려 주시면 고친 메일 전체를 써 드리겠습니다')"
+        },
+        {
+          "text": "원문의 문제 문장을 구체적으로 인용한다",
+          "passed": true,
+          "evidence": "세 문장을 모두 인용"
+        },
+        {
+          "text": "각 지적에 무엇이 문제인지(요점이 뒤에 있음, 명사화, 지시어 불분명, 얼버무림 등)를 밝힌다",
+          "passed": true,
+          "evidence": "명사화+빈 동사, 얼버무림, 지시어 '이와 관련하여' 등 문제를 밝힘"
+        },
+        {
+          "text": "회신 요청(개발 일정과 테스트 환경 준비 현황을 금요일까지)이 메일 끝에 묻혀 있으니 앞으로 올리라고 짚는다",
+          "passed": true,
+          "evidence": "'요청이 마지막 문장에 있고 … 요청을 맨 앞에 두세요'"
+        },
+        {
+          "text": "'일부 영향이 있을 수 있을 것으로 보입니다'처럼 무엇이 불확실한지 흐린 표현을 짚는다",
+          "passed": true,
+          "evidence": "'일부 영향이 있을 수 있을 것으로 보입니다는 세 겹으로 얼버무린 표현'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "incident-report-from-notes",
+      "eval_name": "incident-report-from-notes",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 43.8,
+        "tokens": 70291,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "첫 문단에 결제가 안 됐다는 사실, 언제였는지(날짜와 메모에 있는 시각. 시작 시각을 모른다고 판단했으면 그렇다는 표시), 지금은 정상이라는 상태가 있다",
+          "passed": true,
+          "evidence": "첫 문단: '11월 18일(수) 오후 … 결제 페이지에서 실패 … 14:30 되돌림, 14:32부터 정상'. 시작 시각 미확인은 영향 절에 [시작 시각?]으로 표시"
+        },
+        {
+          "text": "메모의 시각(14:05, 14:12, 14:30, 14:32)과 실패 약 1,200건(추정)을 바꾸지 않고 쓴다",
+          "passed": true,
+          "evidence": "14:05/14:12/14:30/14:32, 약 1,200건 추정 그대로"
+        },
+        {
+          "text": "매출 영향 금액을 지어내지 않고, 재발 방지 담당자를 지어내지 않는다(미정이라고 쓰거나 확인 표시를 한다)",
+          "passed": true,
+          "evidence": "매출 [집계 결과와 공유 시점?], 담당 [담당자?] [기한?]"
+        },
+        {
+          "text": "누가 신고했는지(CS팀)와 누가 롤백했는지(지훈)가 보인다",
+          "passed": true,
+          "evidence": "'CS팀이 … 신고', '지훈 님이 … 롤백'"
+        },
+        {
+          "text": "재발 방지를 '고도화', '개선', '강화' 같은 추상어로 쓰지 않고, 쿠폰 없는 주문 테스트 추가라는 구체적인 행동으로 쓴다",
+          "passed": true,
+          "evidence": "'쿠폰 없는 주문으로 결제하는 테스트를 추가하겠습니다'"
+        },
+        {
+          "text": "'~를 통해', '~에 있어서', '~함에 있어' 같은 번역투가 없다",
+          "passed": true,
+          "evidence": "'통해', '에 있어' 검색 결과 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "pr-description-rewrite",
+      "eval_name": "pr-description-rewrite",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 31.8,
+        "tokens": 68897,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 글의 첫 문장이 이 PR이 무엇을 바꾸는지(대량 발송 때 알림이 밀리거나 늦던 문제를 고친 것)를 말한다",
+          "passed": true,
+          "evidence": "첫 문장 '대량 발송 때 알림 큐가 밀리던 문제를 줄이려고 알림을 묶어서 보내고 워커를 늘렸습니다.'"
+        },
+        {
+          "text": "사용자가 알려 준 배치 100건, 워커 4개에서 8개를 고친 글에 쓴다",
+          "passed": true,
+          "evidence": "'100건씩 묶어서', '4개에서 8개로'"
+        },
+        {
+          "text": "원문과 사용자 메시지에 없는 수치(지연 감소 폭 등), 이름, 대시보드 변경 내용을 지어내지 않는다. 모르는 내용은 빼거나 [..?]처럼 확인 표시를 한다",
+          "passed": true,
+          "evidence": "대시보드·측정값·리뷰 포인트를 [바꾼 내용?], [측정 결과?], [특히 봐 줄 부분?]으로 표시"
+        },
+        {
+          "text": "고친 글에 '이루어졌습니다', '진행되었습니다', '도입 및 조정' 같은 명사화 + 빈 동사 표현이 없다",
+          "passed": true,
+          "evidence": "이루어졌/진행되/도입 및 조정 없음"
+        },
+        {
+          "text": "'추가적인 검토가 필요한 부분이 있을 수 있으므로' 같은 알맹이 없는 문장을 지우거나, 무엇을 봐 달라는지 구체적으로 바꾸거나 확인 표시를 했다",
+          "passed": true,
+          "evidence": "'리뷰할 때 [특히 봐 줄 부분?]을 확인해 주세요'로 바꾸고 없으면 지우라고 안내"
+        },
+        {
+          "text": "결과에 고친 글 전체와 주요 수정 사항 3~5개가 있다",
+          "passed": true,
+          "evidence": "고친 글 + 주요 수정 5개"
+        },
+        {
+          "text": "원문의 존댓말(합니다체)을 유지한다",
+          "passed": true,
+          "evidence": "본문 합니다체 유지"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "casual-slack-no-overfix",
+      "eval_name": "casual-slack-no-overfix",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8571,
+        "passed": 6,
+        "failed": 1,
+        "total": 7,
+        "time_seconds": 24.3,
+        "tokens": 64614,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 메시지가 반말 메신저 말투를 유지한다(합니다체나 해요체로 바꾸지 않았다)",
+          "passed": true,
+          "evidence": "반말 유지"
+        },
+        {
+          "text": "고친 메시지에 원문에 없던 '저는', '제가', '나는', '내가' 같은 1인칭 주어를 넣지 않았다",
+          "passed": true,
+          "evidence": "1인칭 주어 추가 없음"
+        },
+        {
+          "text": "배포 1시간 연기, 스테이징 결제 테스트 실패, 원인이 타임존 설정으로 추정됨(확정 아님), 3시쯤 다시 공유가 모두 남아 있다",
+          "passed": true,
+          "evidence": "네 가지 사실 모두 남음"
+        },
+        {
+          "text": "원문에 없는 배포 시각, 테스트 이름, 담당자, 원인을 더하지 않았다",
+          "passed": true,
+          "evidence": "실제 값은 지어내지 않음(자리 표시만)"
+        },
+        {
+          "text": "고친 메시지가 원문 길이의 두 배를 넘지 않는다",
+          "passed": true,
+          "evidence": "약 95자, 2배 이하"
+        },
+        {
+          "text": "고친 메시지의 첫 문장이 배포를 1시간 미룬다는 사실이다",
+          "passed": true,
+          "evidence": "첫 줄 '내일 배포 1시간 미룸 (…)'"
+        },
+        {
+          "text": "고친 메시지 본문에 [원래 시각?] 같은 확인 표시를 넣지 않았다(더 넣을 정보는 본문 밖에서 제안한다)",
+          "passed": false,
+          "evidence": "본문 첫 줄에 '([원래 시간?] → [바뀐 시간?])' 표시를 넣음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "email-review-only",
+      "eval_name": "email-review-only",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 47.4,
+        "tokens": 67844,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 메일 전체를 완성본으로 주지 않고, 문제 있는 문장과 수정 제안 위주로 준다",
+          "passed": false,
+          "evidence": "'참고: 제안을 반영하면 이런 모양이 됩니다'로 고친 메일 완성본을 줌"
+        },
+        {
+          "text": "원문의 문제 문장을 구체적으로 인용한다",
+          "passed": true,
+          "evidence": "문제 문장 인용"
+        },
+        {
+          "text": "각 지적에 무엇이 문제인지(요점이 뒤에 있음, 명사화, 지시어 불분명, 얼버무림 등)를 밝힌다",
+          "passed": true,
+          "evidence": "각 지적에 문제를 밝힘"
+        },
+        {
+          "text": "회신 요청(개발 일정과 테스트 환경 준비 현황을 금요일까지)이 메일 끝에 묻혀 있으니 앞으로 올리라고 짚는다",
+          "passed": true,
+          "evidence": "'요청이 맨 뒤에 있습니다 … 첫 문장으로 옮기세요'"
+        },
+        {
+          "text": "'일부 영향이 있을 수 있을 것으로 보입니다'처럼 무엇이 불확실한지 흐린 표현을 짚는다",
+          "passed": true,
+          "evidence": "'얼버무림이 두 번 겹칩니다'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "incident-report-from-notes",
+      "eval_name": "incident-report-from-notes",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 42.4,
+        "tokens": 69636,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "첫 문단에 결제가 안 됐다는 사실, 언제였는지(날짜와 메모에 있는 시각. 시작 시각을 모른다고 판단했으면 그렇다는 표시), 지금은 정상이라는 상태가 있다",
+          "passed": true,
+          "evidence": "첫 문단: '11월 18일 오후 … 500 에러로 실패 … 14:30 되돌림, 14:32부터 정상'. 시작 시각 미확인은 영향 절에 표시"
+        },
+        {
+          "text": "메모의 시각(14:05, 14:12, 14:30, 14:32)과 실패 약 1,200건(추정)을 바꾸지 않고 쓴다",
+          "passed": true,
+          "evidence": "시각 4개와 약 1,200건 그대로"
+        },
+        {
+          "text": "매출 영향 금액을 지어내지 않고, 재발 방지 담당자를 지어내지 않는다(미정이라고 쓰거나 확인 표시를 한다)",
+          "passed": true,
+          "evidence": "매출·담당자 지어내지 않고 [..?] 표시"
+        },
+        {
+          "text": "누가 신고했는지(CS팀)와 누가 롤백했는지(지훈)가 보인다",
+          "passed": true,
+          "evidence": "CS팀 신고, 지훈 님 롤백"
+        },
+        {
+          "text": "재발 방지를 '고도화', '개선', '강화' 같은 추상어로 쓰지 않고, 쿠폰 없는 주문 테스트 추가라는 구체적인 행동으로 쓴다",
+          "passed": true,
+          "evidence": "쿠폰 없는 주문 결제 테스트 추가"
+        },
+        {
+          "text": "'~를 통해', '~에 있어서', '~함에 있어' 같은 번역투가 없다",
+          "passed": true,
+          "evidence": "'통해', '에 있어' 검색 결과 없음"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "pr-description-rewrite",
+      "eval_name": "pr-description-rewrite",
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 30.7,
+        "tokens": 68511,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "고친 글의 첫 문장이 이 PR이 무엇을 바꾸는지(대량 발송 때 알림이 밀리거나 늦던 문제를 고친 것)를 말한다",
+          "passed": true,
+          "evidence": "첫 문장 '대량 발송 때 알림 큐가 밀리던 문제를 고쳤습니다.'"
+        },
+        {
+          "text": "사용자가 알려 준 배치 100건, 워커 4개에서 8개를 고친 글에 쓴다",
+          "passed": true,
+          "evidence": "'100건씩', '4개에서 8개로'"
+        },
+        {
+          "text": "원문과 사용자 메시지에 없는 수치(지연 감소 폭 등), 이름, 대시보드 변경 내용을 지어내지 않는다. 모르는 내용은 빼거나 [..?]처럼 확인 표시를 한다",
+          "passed": true,
+          "evidence": "[무엇을 추가하거나 바꿨는지?], [측정한 수치…], [확인이 필요한 부분?]으로 표시"
+        },
+        {
+          "text": "고친 글에 '이루어졌습니다', '진행되었습니다', '도입 및 조정' 같은 명사화 + 빈 동사 표현이 없다",
+          "passed": true,
+          "evidence": "빈 동사 없음"
+        },
+        {
+          "text": "'추가적인 검토가 필요한 부분이 있을 수 있으므로' 같은 알맹이 없는 문장을 지우거나, 무엇을 봐 달라는지 구체적으로 바꾸거나 확인 표시를 했다",
+          "passed": true,
+          "evidence": "'리뷰할 때 [확인이 필요한 부분?]을 특히 봐 주세요'"
+        },
+        {
+          "text": "결과에 고친 글 전체와 주요 수정 사항 3~5개가 있다",
+          "passed": true,
+          "evidence": "고친 글 + 주요 수정 5개"
+        },
+        {
+          "text": "원문의 존댓말(합니다체)을 유지한다",
+          "passed": true,
+          "evidence": "합니다체 유지"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 38.525,
+        "stddev": 11.0228,
+        "min": 27.2,
+        "max": 51.3
+      },
+      "tokens": {
+        "mean": 69560.5,
+        "stddev": 1463.0,
+        "min": 67877,
+        "max": 71177
+      }
+    },
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.9143,
+        "stddev": 0.1017,
+        "min": 0.8,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 36.2,
+        "stddev": 10.5789,
+        "min": 24.3,
+        "max": 47.4
+      },
+      "tokens": {
+        "mean": 67651.25,
+        "stddev": 2155.6471,
+        "min": 64614,
+        "max": 69636
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.09",
+      "time_seconds": "+2.3",
+      "tokens": "+1909"
+    }
+  },
+  "notes": [
+    "짧은 메시지 자리표시 수정 효과: slack 케이스에서 고치기 전 스킬은 iteration-1에 이어 다시 본문에 '[원래 시간?] → [바뀐 시간?]'을 넣었고, 고친 스킬은 본문 밖 선택 제안으로 옮겼다. 07 채점 항목만 두 설정을 가른다.",
+    "번역투 자기 점검: 이번 실행에서는 두 설정 모두 장애 보고서에 '통해'를 쓰지 않았다. iteration-1에서 놓친 것이 고친 덕분인지 실행마다 다른 결과인지는 1회 실행으로 가를 수 없다.",
+    "email 01(완성본을 주지 않음)은 iteration-1과 같이 고치기 전 스킬만 실패해 꾸준히 차이를 낸다.",
+    "pr과 incident는 두 설정 모두 만점이라 이번 채점 항목으로는 차이를 가르지 못한다. 고친 스킬이 이 두 케이스에서 퇴보하지는 않았다.",
+    "각 설정 케이스당 1회 실행이라 편차는 측정하지 않았다. 토큰과 시간은 두 설정이 비슷하다(고친 스킬이 SKILL.md가 조금 길어 약간 더 쓴다)."
+  ]
+}

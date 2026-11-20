@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "고친 메일 전체를 완성본으로 주지 않고, 문제 있는 문장과 수정 제안 위주로 준다",
+      "passed": false,
+      "evidence": "'참고: 제안을 반영하면 이런 모양이 됩니다'로 고친 메일 완성본을 줌"
+    },
+    {
+      "text": "원문의 문제 문장을 구체적으로 인용한다",
+      "passed": true,
+      "evidence": "문제 문장 인용"
+    },
+    {
+      "text": "각 지적에 무엇이 문제인지(요점이 뒤에 있음, 명사화, 지시어 불분명, 얼버무림 등)를 밝힌다",
+      "passed": true,
+      "evidence": "각 지적에 문제를 밝힘"
+    },
+    {
+      "text": "회신 요청(개발 일정과 테스트 환경 준비 현황을 금요일까지)이 메일 끝에 묻혀 있으니 앞으로 올리라고 짚는다",
+      "passed": true,
+      "evidence": "'요청이 맨 뒤에 있습니다 … 첫 문장으로 옮기세요'"
+    },
+    {
+      "text": "'일부 영향이 있을 수 있을 것으로 보입니다'처럼 무엇이 불확실한지 흐린 표현을 짚는다",
+      "passed": true,
+      "evidence": "'얼버무림이 두 번 겹칩니다'"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  },
+  "timing": {
+    "total_tokens": 67844,
+    "duration_ms": 47384,
+    "total_duration_seconds": 47.4
+  }
+}

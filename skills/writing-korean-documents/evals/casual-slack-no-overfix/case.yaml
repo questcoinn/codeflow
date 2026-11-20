@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: casual-slack-no-overfix
+expected_outcome: |
+  반말과 짧은 메신저 말투를 유지하고, 주어를 억지로 채우거나 격식체로 바꾸지 않는다. 사실(1시간 연기, 결제 테스트 실패, 타임존 추정, 3시 공유)은 그대로 두고 새 정보를 더하지 않는다.
+context:
+  scaffold_script: place-files.sh
