@@ -1,6 +1,6 @@
 ## OpenSpec 문서를 git으로 관리하는 워크플로
 
-OpenSpec은 git을 직접 다루지 않습니다. `openspec/` 아래의 Markdown 파일을 읽고 쓸 뿐이므로, 이 폴더 전체를 일반 소스코드처럼 커밋합니다. 아래는 공식 문서(team-workflow)의 권장 흐름과, 그에 대한 판단 기준을 정리한 내용입니다.
+OpenSpec은 git을 직접 다루지 않습니다. `openspec/` 아래의 Markdown 파일을 읽고 쓸 뿐이므로, 이 폴더 전체를 일반 소스코드처럼 커밋합니다. 아래에 공식 문서(team-workflow)가 권장하는 흐름과, 상황에 맞게 고를 때의 판단 기준을 정리했습니다.
 
 > 출처의 docs 폴더는 "legacy, 일부 내용이 오래됐을 수 있음"으로 표시되어 있습니다. 현행 사이트(openspec.dev/docs)에는 git 워크플로를 다룬 페이지가 따로 없습니다.
 
@@ -55,7 +55,7 @@ main ──●──────────────────────
 
 ### 커밋 메시지
 
-커밋 메시지에 change 이름을 넣어 두면(예: `feat(add-dark-mode): 토글 버튼 추가`), 나중에 `git log --grep add-dark-mode`로 그 change의 실제 변경을 모두 찾을 수 있습니다. archive된 tasks.md는 체크박스(자기 보고)일 뿐이고, 실제 증거는 git 이력에 있으므로 둘을 이어 주는 역할을 합니다.
+커밋 메시지에 change 이름을 넣어 두면(예: `feat(add-dark-mode): 토글 버튼 추가`), 나중에 `git log --grep add-dark-mode`로 그 change의 실제 변경을 모두 찾을 수 있습니다. archive된 tasks.md의 체크박스는 자기 보고일 뿐이고 실제 증거는 git 이력에 있습니다. change 이름이 들어간 커밋 메시지가 이 둘을 이어 줍니다.
 
 이 규칙은 `openspec/config.yaml`의 `operations.apply.guidance`에 넣어 에이전트가 따르게 할 수 있습니다. 설정 방법은 [openspec-practices.md](openspec-practices.md)의 "config.yaml로 규칙 강제하기"를 참고합니다.
 

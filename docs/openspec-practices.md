@@ -14,7 +14,7 @@
 | 요구사항 + 시나리오 | Requirement + Scenario (WHEN/THEN) |
 | 변경 진행 순서 | propose → apply → archive |
 
-OpenSpec은 처음부터 change 단위로 delta spec만 쓰는 점진적 방식이라, 문제점 1(워터폴)은 도구가 아니라 하나의 change에 너무 많은 범위를 담을 때 생깁니다.
+OpenSpec은 처음부터 change 단위로 delta spec만 쓰는 점진적 방식입니다. 그래서 OpenSpec에서 문제점 1(워터폴)은 도구 때문이 아니라 change 하나에 너무 많은 범위를 담을 때 생깁니다.
 
 ### 기본 스키마에 이미 들어 있는 규칙
 
@@ -23,7 +23,7 @@ OpenSpec은 처음부터 change 단위로 delta spec만 쓰는 점진적 방식�
 - **spec 형식**: requirement는 `### Requirement: <이름>`과 SHALL/MUST로, scenario는 `#### Scenario: <이름>`과 **WHEN/THEN**으로 적습니다(GIVEN은 쓰지 않음). requirement마다 scenario가 최소 하나 있어야 합니다. scenario 제목의 `#`이 4개가 아니면 경고 없이 실패합니다.
 - **spec에 넣지 않을 것**: 내부 클래스·함수 이름, 라이브러리 선택, 구현 단계. 기준은 "구현을 바꿔도 외부 동작이 바뀌지 않으면 spec에 넣지 않는다"입니다.
 - **design.md**: 아키텍처 변경, 새 의존성, 보안·마이그레이션 이슈 등이 있을 때만 만듭니다.
-- **tasks.md**: task마다 완료를 확인하는 방법(테스트, 명령, 관찰 가능한 동작)을 적습니다. 각 scenario는 잠재적인 테스트 케이스로 봅니다.
+- **tasks.md**: task마다 완료를 확인하는 방법(테스트, 명령, 관찰 가능한 동작)을 적습니다. scenario 하나하나가 테스트 케이스 후보입니다.
 
 config.yaml에는 스키마에 없는 규칙만 넣습니다. 원본과 조금이라도 다르게 다시 적으면 에이전트가 어느 쪽을 따를지 헷갈립니다.
 
@@ -31,7 +31,7 @@ config.yaml에는 스키마에 없는 규칙만 넣습니다. 원본과 조금�
 
 | 방안 | OpenSpec에서 |
 |---|---|
-| 1. Tracer Bullet | 핵심 기능 하나를 관통하는 작업을 프로젝트의 첫 번째 change로 진행 |
+| 1. Tracer Bullet | 핵심 기능 하나를 관통하는 작업을 프로젝트의 첫 번째 change로 만듦 |
 | 2. 의도·동작·구조 분리 | 의도는 `proposal.md`, 동작은 delta spec의 Requirement + Scenario(스키마가 이미 강제), 구조는 스키마 파일을 참조 |
 | 3. 기능 단위 스펙 경계 | `openspec/specs/` 아래 capability 디렉터리로 나누고, 공용 계약은 별도 capability로 둠 |
 | 4. 스펙 먼저 | propose로 delta spec을 먼저 만들고, apply로 구현하고, archive로 main specs에 병합 |
@@ -50,8 +50,8 @@ config.yaml에는 스키마에 없는 규칙만 넣습니다. 원본과 조금�
 archive는 delta spec을 main specs에 병합하고, change 폴더 전체(proposal, design, tasks, delta spec)를 그대로 `changes/archive/`로 옮깁니다. 공식 문서는 이를 이력(audit trail) 보존이라고만 설명합니다.
 
 - design.md는 "왜 이렇게 만들었나"를 남기는 ADR 역할을 하므로 보존 가치가 분명합니다.
-- 모든 task가 체크된 tasks.md는 체크박스가 자기 보고이고 git 이력과 겹치므로 이후 개발에 주는 정보가 거의 없습니다.
-- 실질적인 가치는 **미완료 task가 남은 채 archive된 경우**입니다. OpenSpec은 경고만 하고 archive를 허용하므로, main specs에는 적혀 있지만 구현이나 검증이 안 된 간극이 생깁니다. 이 간극을 기록한 곳은 tasks.md뿐입니다. 그래서 미완료 task에 남긴 이유와 후속 change를 적는 규칙을 둡니다(아래 예시).
+- 모든 task가 체크된 tasks.md는 이후 개발에 주는 정보가 거의 없습니다. 체크박스는 자기 보고일 뿐이고, 실제 변경은 git 이력에 있습니다.
+- tasks.md가 쓸모 있는 경우는 **미완료 task가 남은 채 archive됐을 때**입니다. OpenSpec은 경고만 하고 archive를 허용하므로, main specs에는 적혀 있지만 구현이나 검증이 안 된 간극이 생깁니다. 이 간극을 기록한 곳은 tasks.md뿐입니다. 그래서 미완료 task에 남긴 이유와 후속 change를 적는 규칙을 둡니다(아래 예시).
 
 ### config.yaml로 규칙 강제하기
 
@@ -61,7 +61,7 @@ archive는 delta spec을 main specs에 병합하고, change 폴더 전체(propos
 |---|---|---|
 | `context` | 프로젝트 전반의 제약 | 코드만 읽어서는 알 수 없는 조건 (예: 지원 OS, artifact 작성 언어) |
 | `rules.<artifact>` | 특정 artifact를 쓸 때의 규칙 | artifact 이름은 스키마를 따른다. 기본 `spec-driven` 스키마는 `proposal`, `specs`, `design`, `tasks` |
-| `operations.<apply\|archive>.guidance` | 구현·archive 작업 방식 | artifact 내용이 아니라 작업 절차에 대한 지침 |
+| `operations.<apply\|archive>.guidance` | 구현·archive 작업 방식 | artifact 내용이 아니라 작업 절차 지침 |
 
 예시 (주석은 [spec-driven-development.md](spec-driven-development.md)의 해당 항목):
 
